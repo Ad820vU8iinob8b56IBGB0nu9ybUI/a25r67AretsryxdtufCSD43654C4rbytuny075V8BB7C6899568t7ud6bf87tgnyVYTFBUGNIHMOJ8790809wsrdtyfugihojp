@@ -12,6 +12,7 @@
     --edit: #3b82f6; /* Added from workouts.html */
     --validation-error: #F87171; /* Added from workoutplangeneratorpopup.html */
     --nav-footer-height: 64px; /* Set height of the new fixed footer nav */
+    --nav-header-height: 64px; /* NEW: Set height of the new fixed header nav */
 }
 
 /* Light theme overrides */
@@ -28,7 +29,8 @@
 
 html, body {
     overscroll-behavior-y: contain;
-    /* Ensure content has room above the fixed footer */
+    /* MODIFIED: Ensure content has room for fixed header AND footer */
+    padding-top: var(--nav-header-height);
     padding-bottom: var(--nav-footer-height);
 }
 
@@ -84,6 +86,11 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--background); /* Match page background */
 }
 /* End Footer Nav Styles */
+
+/* NEW: Make fixed header opaque */
+#header-placeholder header {
+    background-color: var(--background); /* Match page background */
+}
 
 .content-card {
     background-color: var(--card-bg);
