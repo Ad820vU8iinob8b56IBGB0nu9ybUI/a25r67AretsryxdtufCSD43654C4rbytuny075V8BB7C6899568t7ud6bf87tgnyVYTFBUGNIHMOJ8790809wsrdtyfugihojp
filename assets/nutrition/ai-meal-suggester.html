@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-AR">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | AI Meal Suggester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Standalone page styles */
+        /* Removed modal-related body styles */
+    </style>
+</head>
+<body class="antialiased">
+
+    <script>
+        // Apply theme immediately
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6">
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content Area -->
+        <main class="max-w-xl mx-auto">
+            <!-- AI Meal Suggester Card (was modal-content) -->
+            <div id="ai-suggester-card" class="content-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">AI Meal Suggester</h2>
+                    <!-- Changed to an <a> tag to go back -->
+                    <a href="../../nutrition.html" id="close-ai-suggester-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</a>
+                </div>
+                <p class="text-gray-400 mb-4 text-sm">Enter ingredients you have, and the AI will suggest a quick, healthy meal.</p>
+                <div>
+                    <label for="ai-ingredients-input" class="form-label">Your Ingredients</label>
+                    <textarea id="ai-ingredients-input" rows="3" class="form-input mt-1" placeholder="e.g., chicken breast, rice, broccoli, olive oil"></textarea>
+                </div>
+                <button id="ai-suggestion-btn" class="btn btn-secondary w-full mt-4"><span class="btn-text">Generate Ideas</span><div class="loader hidden"></div></button>
+                <div id="ai-suggestions-output" class="mt-4 space-y-3 min-h-[150px] overflow-y-auto custom-scrollbar"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Generic Alert Modal (still used by the script) -->
+    <div id="alert-modal" class="modal-backdrop" style="z-index: 80;">
+        <div class="modal-content">
+            <h2 id="alert-modal-title" class="text-2xl font-bold mb-4">Alert</h2>
+            <p id="alert-modal-text" class="text-gray-300 mb-6"></p>
+            <button id="alert-modal-ok-btn" class="btn btn-primary w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                let text = await response.text();
+                
+                // Adjust relative paths in loaded HTML
+                text = text.replace(/href="index\.html"/g, 'href="../../index.html"');
+                text = text.replace(/href="settings\.html"/g, 'href="../../settings.html"');
+                text = text.replace(/href="nutrition\.html"/g, 'href="../../nutrition.html"');
+                text = text.replace(/href="workouts\.html"/g, 'href="../../workouts.html"');
+                text = text.replace(/href="sleep\.html"/g, 'href="../../sleep.html"');
+                text = text.replace(/href="progress\.html"/g, 'href="../../progress.html"');
+                text = text.replace(/href="social\.html"/g, 'href="../../social.html"');
+
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('../header.html', 'header-placeholder'), // Path is ../ from assets/nutrition/
+                loadComponent('../footer.html', 'footer-placeholder') // Path is ../ from assets/nutrition/
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'nutrition'; // This page is part of nutrition
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                const linkPage = link.getAttribute('data-page');
+                if (linkPage === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeAppPage();
+        }
+        // --- End Load Header and Footer ---
+
+
+        // --- Original page script wrapped in a function ---
+        function initializeAppPage() {
+            // lucide.createIcons(); // Moved to initializeLayout
+
+            // --- UI ELEMENTS ---
+            const ui = {
+                aiIngredientsInput: document.getElementById('ai-ingredients-input'),
+                aiSuggestionBtn: document.getElementById('ai-suggestion-btn'),
+                aiSuggestionsOutput: document.getElementById('ai-suggestions-output'),
+                alertModal: document.getElementById('alert-modal'),
+                alertModalTitle: document.getElementById('alert-modal-title'),
+                alertModalText: document.getElementById('alert-modal-text'),
+                alertModalOkBtn: document.getElementById('alert-modal-ok-btn')
+            };
+
+            // --- STATE ---
+            let userProfile = {};
+            let goals = {};
+            let allDailyLogs = {};
+
+            // --- MODAL FUNCTIONS ---
+            function showModal(modalElement) {
+                modalElement.style.display = 'flex';
+            }
+            function hideModal(modalElement) {
+                modalElement.style.display = 'none';
+            }
+            function showCustomAlert(title, text) {
+                if (ui.alertModal.style.display === 'flex') return;
+                ui.alertModalTitle.textContent = title;
+                ui.alertModalText.textContent = text;
+                showModal(ui.alertModal);
+            }
+            ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+            
+            // --- HELPER ---
+            function dateToKey(date) { return date.toISOString().split('T')[0]; }
+
+            function getDayLog(date) {
+                const key = dateToKey(date);
+                if (!allDailyLogs[key]) {
+                    allDailyLogs[key] = { entries: [], water: 0 };
+                }
+                if (typeof allDailyLogs[key].water === 'undefined') {
+                     allDailyLogs[key].water = 0;
+                }
+                return allDailyLogs[key];
+            }
+
+            // --- GEMINI API ---
+            const getApiUrl = (model, action = 'generateContent') => {
+                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // Leave empty for Canvas environment
+                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
+            };
+
+            async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
+                // (Copied from ai-macro-swap.html)
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            const hasText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                           if (hasText) {
+                                return result; // Successful response
+                            } else {
+                                if (i === maxRetries - 1) throw new Error("Invalid API response format after retries.");
+                            }
+                        } else if (response.status === 429 || response.status >= 500) {
+                            if (i === maxRetries - 1) throw new Error(`API Error: ${response.status} after ${maxRetries} attempts.`);
+                            const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            throw new Error(`API Error: ${response.status} - ${await response.text()}`);
+                        }
+                    } catch (error) {
+                        console.error(`Fetch attempt ${i + 1} failed:`, error);
+                        if (i === maxRetries - 1) throw error;
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+                throw new Error("API call failed after all retries.");
+            }
+            
+            // --- DATA LOAD ---
+            function loadData() {
+                userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { goal: 'maintain weight' };
+                goals = JSON.parse(localStorage.getItem('fitTrackAI_goals')) || { calories: 2000 };
+                allDailyLogs = JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs')) || {};
+            }
+
+            // --- PAGE LOGIC ---
+            loadData(); // Load data to get context for the AI
+
+            ui.aiSuggestionBtn.addEventListener('click', async () => {
+                const btn = ui.aiSuggestionBtn, btnText = btn.querySelector('.btn-text'), loader = btn.querySelector('.loader');
+                const ingredients = ui.aiIngredientsInput.value.trim();
+                
+                if (!ingredients) { 
+                    ui.aiSuggestionsOutput.innerHTML = `<p class="text-yellow-400">Please enter some ingredients.</p>`; 
+                    return; 
+                }
+                
+                btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden'); 
+                ui.aiSuggestionsOutput.innerHTML = '';
+                
+                // Get today's remaining calories
+                const currentDayLogEntries = getDayLog(new Date()).entries;
+                const remainingCalories = Math.max(0, (goals.calories || 2000) - currentDayLogEntries.reduce((sum, item) => sum + (item.calories || 0), 0));
+                
+                const prompt = `I have: ${ingredients}. I have about ${remainingCalories} calories left. My goal is ${userProfile.goal}. Suggest one simple, healthy meal. Provide the name, prep/cook time, and simple step-by-step instructions. Format with Markdown.`;
+                
+                const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                
+                try {
+                    const result = await fetchWithBackoff(apiUrl, payload);
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
+                    
+                    let text = result.candidates[0].content.parts[0].text;
+                    // Format markdown for HTML
+                    text = text.replace(/\*\*(.*?)\*\*/g, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>') // Bold to h3
+                               .replace(/\* (.*?)(?=\n\* |\n\n|$)/g, '<li>$1</li>') // Bullets to li
+                               .replace(/(\d+\.) (.*?)(?=\n\d+\. |\n\n|$)/g, '<li class="list-decimal ml-4">$2</li>'); // Numbered list
+                    
+                    ui.aiSuggestionsOutput.innerHTML = `<div class="bg-black/30 p-4 rounded-lg text-sm">${text}</div>`;
+                } catch (error) {
+                    console.error("AI Suggestion Error:", error);
+                    ui.aiSuggestionsOutput.innerHTML = `<p class="text-red-400">Could not get a suggestion. ${error.message}</p>`;
+                } finally {
+                    btn.disabled = false; btnText.style.display = 'inline'; loader.classList.add('hidden');
+                }
+            });
+        }
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>
