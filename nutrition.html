@@ -656,11 +656,11 @@
                     </details>
                     <!-- Updated Button Grid -->
                     <div class="grid grid-cols-5 gap-2 sm:gap-4"> <!-- MODIFIED: to 5 cols -->
-                        <!-- Compound Food/Recipe Button -->
-                        <button id="open-compound-food-modal-btn" type="button" class="btn btn-secondary !p-2 sm:!p-3" title="Build a Recipe">
-                            <i data-lucide="chef-hat" class="w-4 h-4 sm:w-5 sm:h-5"></i> <!-- Changed icon to chef-hat -->
-                        </button>
-                        <!-- NEW: AI Macro Swap Button -->
+                        <!-- Compound Food/Recipe Button (Changed to <a>) -->
+                        <a id="open-compound-food-modal-btn" href="assets/nutrition/open-compound-food-modal.html" class="btn btn-secondary !p-2 sm:!p-3" title="Build a Recipe">
+                            <i data-lucide="chef-hat" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </a>
+                        <!-- AI Macro Swap Button (Remains a <button>) -->
                         <button id="ai-macro-swap-btn" type="button" class="btn btn-secondary !p-2 sm:!p-3" title="AI Macro Swap">
                             <i data-lucide="replace" class="w-4 h-4 sm:w-5 sm:h-5 btn-text"></i>
                             <div class="loader hidden"></div>
@@ -670,8 +670,8 @@
                             <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5 btn-text"></i>
                             <div class="loader hidden"></div>
                         </button>
-                        <!-- Combined Scan Button -->
-                        <button id="scan-combined-btn" type="button" class="btn btn-secondary !p-2 sm:!p-3" title="Scan Barcode or Food"><i data-lucide="scan-line" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                        <!-- Combined Scan Button (Changed to <a>) -->
+                        <a id="scan-combined-btn" href="assets/nutrition/scan-combined.html" class="btn btn-secondary !p-2 sm:!p-3" title="Scan Barcode or Food"><i data-lucide="scan-line" class="w-4 h-4 sm:w-5 sm:h-5"></i></a>
                         <!-- Log Water Button -->
                         <button id="add-water-btn" type="button" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
                             <!-- Swipe backgrounds -->
@@ -706,12 +706,15 @@
                  <div class="flex justify-between items-center mb-4">
                      <h3 class="text-2xl font-bold">Daily Log</h3>
                      <div class="flex items-center gap-2">
+                         <!-- AI Daily Report Button (Remains a <button>) -->
                          <button id="ai-daily-report-btn" class="btn btn-secondary !p-2" title="Get Daily AI Report">
                              <i data-lucide="clipboard-list" class="w-5 h-5 btn-text"></i>
                              <div class="loader hidden !w-5 !h-5"></div>
                          </button>
-                         <button id="ai-meal-suggester-btn" class="btn btn-secondary !p-2" title="AI Meal Suggester"><i data-lucide="lightbulb" class="w-5 h-5"></i></button>
-                         <button id="open-nutritionist-chat-btn" class="btn btn-secondary !p-2" title="Chat with AI Nutritionist"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                         <!-- AI Meal Suggester (Changed to <a>) -->
+                         <a id="ai-meal-suggester-btn" href="assets/nutrition/ai-meal-suggester.html" class="btn btn-secondary !p-2" title="AI Meal Suggester"><i data-lucide="lightbulb" class="w-5 h-5"></i></a>
+                         <!-- AI Nutritionist Chat (Changed to <a>) -->
+                         <a id="open-nutritionist-chat-btn" href="assets/nutrition/open-nutritionist-chat.html" class="btn btn-secondary !p-2" title="Chat with AI Nutritionist"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
                      </div>
                 </div>
                 <div id="daily-log-content" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2"><p class="text-gray-500">No food logged yet.</p></div>
@@ -789,7 +792,7 @@
     <!-- End Template -->
 
 
-    <!-- Extracted Compound Food Modal -->
+    <!-- Extracted Compound Food Modal (Kept for now, though button links away) -->
     <div id="compound-food-modal" class="modal-backdrop" style="display: none;">
         <!-- modal-content is (flex flex-col overflow-hidden) -->
         <div class="modal-content">
@@ -859,7 +862,7 @@
 
     <!-- Modals -->
 
-    <!-- Renamed and Unified AI Scanner Modal -->
+    <!-- Renamed and Unified AI Scanner Modal (Kept for now, though button links away) -->
     <div id="ai-scanner-modal" class="modal-backdrop" style="z-index: 60;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -895,7 +898,7 @@
 
     <!-- START: RE-ADDED MODALS -->
 
-    <!-- AI Nutritionist Chat Modal -->
+    <!-- AI Nutritionist Chat Modal (Kept for now, though button links away) -->
     <div id="ai-nutritionist-modal" class="modal-backdrop" style="z-index: 70;">
         <div class="modal-content !h-[90vh] !max-h-[800px] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-border-color">
@@ -1001,7 +1004,7 @@
         </div>
     </div>
 
-    <!-- AI Daily Report Modal -->
+    <!-- AI Daily Report Modal (This one IS used) -->
     <div id="ai-report-modal" class="modal-backdrop">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -1013,7 +1016,7 @@
         </div>
     </div>
 
-    <!-- AI Meal Suggester Modal -->
+    <!-- AI Meal Suggester Modal (Kept for now, though button links away) -->
     <div id="ai-suggester-modal" class="modal-backdrop">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -1030,7 +1033,7 @@
         </div>
     </div>
 
-    <!-- AI Macro Swap Modal -->
+    <!-- AI Macro Swap Modal (This one IS used) -->
     <div id="ai-macro-swap-modal" class="modal-backdrop">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -1266,7 +1269,12 @@
                 waterSwipeBgRight: document.getElementById('water-swipe-bg-right'), // NEW
                 waterSwipeContent: document.getElementById('water-swipe-content'), // NEW
 
-                openNutritionistChatBtn: document.getElementById('open-nutritionist-chat-btn'), aiNutritionistModal: document.getElementById('ai-nutritionist-modal'), closeAiNutritionistModalBtn: document.getElementById('close-ai-nutritionist-modal-btn'), aiChatHistory: document.getElementById('ai-chat-history'), aiChatInput: document.getElementById('ai-chat-input'), aiChatSendBtn: document.getElementById('ai-chat-send-btn'),
+                openNutritionistChatBtn: document.getElementById('open-nutritionist-chat-btn'), // This is an <a> tag
+                aiNutritionistModal: document.getElementById('ai-nutritionist-modal'), // This modal is still in the HTML
+                closeAiNutritionistModalBtn: document.getElementById('close-ai-nutritionist-modal-btn'),
+                aiChatHistory: document.getElementById('ai-chat-history'),
+                aiChatInput: document.getElementById('ai-chat-input'),
+                aiChatSendBtn: document.getElementById('ai-chat-send-btn'),
 
                 foodScannerInitialOptions: document.getElementById('ai-scanner-initial-options'),
                 liveCameraContainer: document.getElementById('ai-live-camera-container'),
@@ -1276,8 +1284,8 @@
                 foodCameraVideo: document.getElementById('ai-camera-video'),
                 foodCameraCanvas: document.getElementById('ai-camera-canvas'),
 
-                aiMealSuggesterBtn: document.getElementById('ai-meal-suggester-btn'),
-                aiSuggesterModal: document.getElementById('ai-suggester-modal'),
+                aiMealSuggesterBtn: document.getElementById('ai-meal-suggester-btn'), // This is an <a> tag
+                aiSuggesterModal: document.getElementById('ai-suggester-modal'), // This modal is still in the HTML
                 closeAiSuggesterModalBtn: document.getElementById('close-ai-suggester-modal-btn'),
                 aiIngredientsInput: document.getElementById('ai-ingredients-input'),
                 aiSuggestionBtn: document.getElementById('ai-suggestion-btn'),
@@ -1289,7 +1297,7 @@
                 foodScannerPrev: document.getElementById('ai-scanner-prev'),
                 foodScannerNext: document.getElementById('ai-scanner-next'),
 
-                scanCombinedBtn: document.getElementById('scan-combined-btn'),
+                scanCombinedBtn: document.getElementById('scan-combined-btn'), // This is an <a> tag
 
                 aiMacroSwapModal: document.getElementById('ai-macro-swap-modal'),
                 closeAiMacroSwapModalBtn: document.getElementById('close-ai-macro-swap-modal-btn'),
@@ -1297,9 +1305,9 @@
                 aiSwapFoodName: document.getElementById('ai-swap-food-name'),
 
                 // NEW: Compound Food Modal UI
-                compoundFoodModal: document.getElementById('compound-food-modal'),
+                compoundFoodModal: document.getElementById('compound-food-modal'), // This modal is still in the HTML
                 closeCompoundFoodModalBtn: document.getElementById('close-compound-food-modal-btn'),
-                openCompoundFoodModalBtn: document.getElementById('open-compound-food-modal-btn'), // My new button
+                openCompoundFoodModalBtn: document.getElementById('open-compound-food-modal-btn'), // This is an <a> tag
                 addIngredientBtn: document.getElementById('add-ingredient-btn'),
                 ingredientListContainer: document.getElementById('ingredient-list-container'),
                 compoundFoodForm: document.getElementById('compound-food-form'),
@@ -2298,21 +2306,15 @@
             ui.addWaterBtn.addEventListener('touchstart', onWaterPointerDown, { passive: true });
             // --- END Water Button Gesture Handling ---
 
-            // Scanner, Chat, Modals, etc. listeners...
-             ui.scanCombinedBtn.addEventListener('click', () => {
-                activeRecipeScanBtn = null; // Ensure this is null when opening main scanner
-                ui.scannerResultsContainer.innerHTML = '';
-                ui.foodScannerStatus.textContent = '';
-                ui.liveCameraContainer.classList.add('hidden');
-                ui.foodScannerInitialOptions.classList.remove('hidden');
-                ui.foodScannerCarouselWrapper.classList.add('hidden');
-                showModal(ui.foodScannerModal);
-                // Initialize html5QrCode here if not already
-                if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("barcode-reader-hidden-helper");
-                }
-            });
+            // --- LISTENERS FOR PAGE NAVIGATION (CHANGED TO <a> TAGS) ---
+            // Event listeners for scanCombinedBtn, openCompoundFoodModalBtn,
+            // aiMealSuggesterBtn, and openNutritionistChatBtn are REMOVED.
+            // The <a> tags will handle navigation.
 
+
+            // --- LISTENERS FOR MODALS (KEPT) ---
+
+            // AI Macro Swap (Remains a modal)
             ui.aiMacroSwapBtn.addEventListener('click', async () => {
                 const btn = ui.aiMacroSwapBtn;
                 const btnText = btn.querySelector('.btn-text');
@@ -2361,14 +2363,17 @@
             });
 
             async function getAiMacroSwaps(foodName) {
+                // Load user profile to get goal
+                userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { goal: 'maintain weight' };
+                
                 const systemPrompt = `User is considering eating '${foodName}'. Their goal is ${userProfile.goal}. Suggest 3-5 healthier alternatives that fit a similar craving (e.g., salty, sweet, crunchy). For each, provide 'name' and 'reason' (why it's better, e.g., "Lower in fat", "Higher in protein"). Respond ONLY with a valid JSON array of objects: [{name: "Food 1", reason: "Lower in fat"}, {name: "Food 2", reason: "Higher in protein"}]`;
 
                 const userQuery = `Suggest swaps for ${foodName}`;
 
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
+                // *** FIX: Removed the 'tools' property which conflicts with JSON response ***
                 const payload = {
                      contents: [{ parts: [{ text: userQuery }] }],
-                     tools: [{ "google_search": {} }],
                      systemInstruction: { parts: [{ text: systemPrompt }] },
                      generationConfig: { responseMimeType: "application/json" }
                 };
@@ -2451,17 +2456,22 @@
                 });
             };
 
+            // AI Daily Report (Remains a modal)
             ui.aiDailyReportBtn.addEventListener('click', getDailyLogAIReport);
             ui.closeAiReportModalBtn.addEventListener('click', () => hideModal(ui.aiReportModal));
             ui.aiReportModalOkBtn.addEventListener('click', () => hideModal(ui.aiReportModal));
 
             ['food-name-input', 'food-brand-input'].forEach(id => document.getElementById(id).addEventListener('input', () => { aiBaseMacros = null; }));
 
-            ui.aiMealSuggesterBtn.addEventListener('click', () => {
-                ui.aiSuggestionsOutput.innerHTML = '';
-                ui.aiIngredientsInput.value = '';
-                showModal(ui.aiSuggesterModal);
-            });
+            // --- REMOVED Event Listeners for buttons that are now links ---
+            // ui.aiMealSuggesterBtn.addEventListener('click', ...);
+            // ui.openNutritionistChatBtn.addEventListener('click', ...);
+
+            // --- Event listeners for modals that are *still* modals ---
+            // (These are kept in case the user wants to use the page as-is,
+            // even though the buttons are now links. This is harmless.)
+            
+            // AI Suggester Modal (if opened via other means)
             ui.closeAiSuggesterModalBtn.addEventListener('click', () => hideModal(ui.aiSuggesterModal));
             ui.aiSuggestionBtn.addEventListener('click', async () => {
                 const btn = ui.aiSuggestionBtn, btnText = btn.querySelector('.btn-text'), loader = btn.querySelector('.loader');
@@ -2487,390 +2497,7 @@
                 }
             });
 
-            function fileToGenerativePart(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { const base64Data = reader.result.split(',')[1]; resolve({ inlineData: { mimeType: file.type, data: base64Data } }); }; reader.onerror = (err) => reject(err); reader.readAsDataURL(file); }); }
-
-            async function getAiImageClassification(imagePart) {
-                const prompt = "Is this image primarily a barcode or a picture of food? Respond with ONLY 'barcode' or 'food'.";
-                const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-                const payload = { contents: [{ parts: [{ text: prompt }, imagePart] }] };
-                try {
-                    const result = await fetchWithBackoff(apiUrl, payload);
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid classification response.");
-                    return result.candidates[0].content.parts[0].text.trim().toLowerCase();
-                } catch (error) {
-                    console.error("AI Classification Error:", error);
-                    return 'error';
-                }
-            }
-
-           async function processBarcodeScan(decodedText, file, resultElement) {
-                const imageUrl = URL.createObjectURL(file);
-                resultElement.querySelector('img').src = imageUrl;
-                resultElement.querySelector('img').onerror = function() { this.onerror=null; this.src='https://placehold.co/300x150/191919/FFFFFF?text=No+Image'; };
-                 resultElement.querySelector('.loader')?.classList.remove('hidden'); // Show loader
-
-                try {
-                    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${decodedText}?fields=product_name,brands,nutriments,serving_size,quantity`);
-                    if(!response.ok) throw new Error('Product not found in Open Food Facts database.');
-                    const data = await response.json();
-                    if(data.status === 0 || !data.product) throw new Error(data.status_verbose || 'Product not found.');
-
-                    const product = data.product, nutriments = product.nutriments;
-                    const per100g = {
-                        calories: nutriments['energy-kcal_100g'] || 0, protein: nutriments.proteins_100g || 0, carbs: nutriments.carbohydrates_100g || 0, fat: nutriments.fat_100g || 0, sugar: nutriments.sugars_100g || 0, sodium: (nutriments.sodium_100g || 0) * 1000, potassium: (nutriments.potassium_100g || 0) * 1000,
-                    };
-
-                    let defaultGrams = 100;
-                    if (product.serving_size) {
-                        const servingMatch = String(product.serving_size).match(/(\d+(\.\d+)?)/);
-                        if (servingMatch) { defaultGrams = parseFloat(servingMatch[0]); }
-                    } else if (product.quantity) {
-                         const quantityMatch = String(product.quantity).match(/(\d+(\.\d+)?)/);
-                         if (quantityMatch) { defaultGrams = parseFloat(quantityMatch[0]); }
-                    }
-
-                    const productName = capitalizeWords(product.product_name) || 'Scanned Item';
-
-                    const detailsContainer = document.createElement('div');
-                    detailsContainer.innerHTML = `
-                        <p class="font-bold whitespace-normal">${productName}</p>
-                        <p class="text-xs text-gray-400 mb-3">Barcode: ${decodedText}</p>
-                        <div class="flex items-center gap-2">
-                            <input type="number" value="${defaultGrams.toFixed(0)}" class="form-input !py-1.5 text-center barcode-grams-input" min="0">
-                            <span class="text-gray-400">grams</span>
-                        </div>
-                    `;
-
-                    const logButton = document.createElement('button');
-                    logButton.className = 'btn btn-primary !p-2 mt-3 w-full data-log-button';
-                    logButton.textContent = 'Log this';
-                    logButton.isLogged = false;
-                    logButton.logId = null;
-
-                    const gramsInput = detailsContainer.querySelector('.barcode-grams-input');
-
-                    logButton.onclick = () => {
-                        const grams = parseFloat(gramsInput.value);
-                        if (isNaN(grams) || grams <= 0) {
-                            gramsInput.classList.add('!border-red-500');
-                            setTimeout(() => gramsInput.classList.remove('!border-red-500'), 1500);
-                            return;
-                        }
-
-                        if (logButton.isLogged) {
-                            // UNLOG
-                            const logIndex = getDayLog(viewDate).entries.findIndex(entry => entry.logId === logButton.logId);
-                            if (logIndex > -1) {
-                                getDayLog(viewDate).entries.splice(logIndex, 1);
-                                saveData();
-                                updateDayView(viewDate);
-                            }
-                            logButton.textContent = 'Log this';
-                            logButton.classList.remove('btn-secondary');
-                            logButton.classList.add('btn-primary');
-                            logButton.isLogged = false;
-                            logButton.logId = null;
-                            gramsInput.disabled = false;
-                        } else {
-                            // LOG
-                            const logId = Date.now();
-                            const ratio = grams / 100.0;
-                            const foodItem = {
-                                logId: logId, name: productName, brand: product.brands || '', servings: 1, grams: grams,
-                                calories: (per100g.calories * ratio) || 0, protein: (per100g.protein * ratio) || 0,
-                                carbs: (per100g.carbs * ratio) || 0, fat: (per100g.fat * ratio) || 0,
-                                sugar: (per100g.sugar * ratio) || 0, sodium: (per100g.sodium * ratio) || 0,
-                                potassium: (per100g.potassium * ratio) || 0,
-                            };
-                            const dayLog = getDayLog(viewDate);
-                            dayLog.entries.unshift(foodItem);
-                            saveData();
-                            updateDayView(viewDate);
-
-                            logButton.textContent = 'Logged! (Tap to undo)';
-                            logButton.classList.remove('btn-primary');
-                            logButton.classList.add('btn-secondary');
-                            logButton.isLogged = true;
-                            logButton.logId = logId;
-                            gramsInput.disabled = true;
-
-                            // NEW: Populate ingredient row if applicable
-                            if (activeRecipeScanBtn) {
-                                const row = activeRecipeScanBtn.closest('.ingredient-row');
-                                if (row) {
-                                    row.querySelector('.ingredient-name').value = productName;
-                                    row.querySelector('.ingredient-grams').value = grams.toFixed(0);
-                                    row.querySelector('.ingredient-calories').value = foodItem.calories.toFixed(0);
-                                    row.querySelector('.ingredient-protein').value = foodItem.protein.toFixed(1);
-                                    row.querySelector('.ingredient-carbs').value = foodItem.carbs.toFixed(1);
-                                    row.querySelector('.ingredient-fat').value = foodItem.fat.toFixed(1);
-                                    row.querySelector('.ingredient-sugar').value = foodItem.sugar.toFixed(1);
-                                    row.querySelector('.ingredient-sodium').value = foodItem.sodium.toFixed(0);
-                                    row.querySelector('.ingredient-potassium').value = foodItem.potassium.toFixed(0);
-                                    updateRecipeTotals();
-                                    validateLastRow();
-                                }
-                                hideModal(ui.foodScannerModal); // Close scanner after populating
-                            }
-                        }
-                    };
-
-                    resultElement.querySelector('.loader')?.remove();
-                    resultElement.appendChild(detailsContainer);
-                    resultElement.appendChild(logButton);
-
-                } catch (error) {
-                    resultElement.querySelector('.loader')?.remove();
-                    resultElement.innerHTML += `<p class="text-red-400 text-xs">Error finding barcode data. ${error.message}</p>`;
-                }
-            }
-
-
-            async function startAiCamera() {
-                ui.foodScannerInitialOptions.classList.add('hidden');
-                ui.liveCameraContainer.classList.remove('hidden');
-                ui.foodScannerStatus.textContent = 'Starting camera...';
-                try {
-                    foodCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                    ui.foodCameraVideo.srcObject = foodCameraStream;
-                    ui.foodScannerStatus.textContent = 'Camera active. Point and capture.';
-                } catch (err) {
-                    console.error("Camera access error:", err);
-                    ui.foodScannerStatus.textContent = 'Could not access camera.';
-                    stopAiCamera();
-                }
-            }
-
-            function stopAiCamera() {
-                if (foodCameraStream) {
-                    foodCameraStream.getTracks().forEach(track => track.stop());
-                }
-                foodCameraStream = null;
-                ui.liveCameraContainer.classList.add('hidden');
-                ui.foodScannerInitialOptions.classList.remove('hidden');
-                ui.foodScannerStatus.textContent = '';
-                // Ensure html5QrCode scanner is stopped if it was running
-                if (html5QrCode && html5QrCode.isScanning) {
-                    html5QrCode.stop().catch(err => console.error("Error stopping barcode scanner:", err));
-                }
-            }
-
-            function captureAiPhoto() {
-                const video = ui.foodCameraVideo;
-                const canvas = ui.foodCameraCanvas;
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const context = canvas.getContext('2d');
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                canvas.toBlob(blob => {
-                    if (blob) {
-                        const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-                        handleAiScanFiles([file]);
-                    }
-                }, 'image/jpeg', 0.9);
-            }
-
-            ui.closeFoodScannerModalBtn.addEventListener('click', () => {
-                stopAiCamera();
-                hideModal(ui.foodScannerModal);
-            });
-
-            ui.startFoodCameraBtn.addEventListener('click', startAiCamera);
-            ui.stopFoodCameraBtn.addEventListener('click', stopAiCamera);
-            ui.captureFoodPhotoBtn.addEventListener('click', captureAiPhoto);
-
-
-            async function processFoodImageAI(imagePart, resultElement) {
-                resultElement.querySelector('.loader')?.classList.remove('hidden'); // Show loader
-                try {
-                    let prompt = `Identify the food in this image. Respond ONLY with a valid JSON object with these fields: "name", "brand", "servings" (estimated number of standard servings shown), "totalGrams" (estimated total grams for all servings shown), "calories", "protein", "carbs", "fat", "sugar", "sodium", "potassium". The nutritional values (calories, protein, etc.) should be for the TOTAL amount of food pictured.`;
-
-                    const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-                    const payload = { contents: [{ parts: [{ text: prompt }, imagePart] }], generationConfig: { responseMimeType: "application/json" } };
-
-                    const result = await fetchWithBackoff(apiUrl, payload);
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
-
-                    const data = JSON.parse(result.candidates[0].content.parts[0].text);
-                    resultElement.querySelector('.loader')?.remove();
-
-                    const detailsDiv = document.createElement('div');
-                    detailsDiv.className = 'text-xs text-gray-400 whitespace-normal';
-
-                    detailsDiv.innerHTML = `
-                        <p class="font-bold text-sm text-white mb-1">${capitalizeWords(data.name) || 'Unknown Food'} (${(data.servings || 1).toFixed(1)} serv.)</p>
-                        <p>${data.totalGrams?.toFixed(0) || '?'}g | ${data.calories?.toFixed(0) || '?'} kcal</p>
-                        <p>${data.protein?.toFixed(1) || '?'}p | ${data.carbs?.toFixed(1) || '?'}c | ${data.fat?.toFixed(1) || '?'}f</p>
-                    `;
-
-                    const logButton = document.createElement('button');
-                    logButton.className = 'btn btn-primary !p-2 mt-3 w-full';
-                    logButton.innerHTML = 'Log this';
-                    logButton.isLogged = false;
-                    logButton.logId = null;
-
-                    logButton.onclick = () => {
-                         const servings = data.servings || 1;
-                         const grams = data.totalGrams || 0;
-                         const perServingGrams = servings > 0 ? grams / servings : 0;
-
-                        if (logButton.isLogged) {
-                            // UNLOG
-                            const logIndex = getDayLog(viewDate).entries.findIndex(entry => entry.logId === logButton.logId);
-                            if (logIndex > -1) {
-                                getDayLog(viewDate).entries.splice(logIndex, 1);
-                                saveData();
-                                updateDayView(viewDate);
-                            }
-                            logButton.textContent = 'Log this';
-                            logButton.classList.remove('btn-secondary');
-                            logButton.classList.add('btn-primary');
-                            logButton.isLogged = false;
-                            logButton.logId = null;
-                        } else {
-                            // LOG
-                            const logId = Date.now();
-                            const foodItem = {
-                                logId: logId, name: capitalizeWords(data.name) || 'Scanned Food', brand: data.brand || '',
-                                servings: servings, grams: grams,
-                                calories: data.calories || 0, protein: data.protein || 0, carbs: data.carbs || 0, fat: data.fat || 0,
-                                sugar: data.sugar || 0, sodium: data.sodium || 0, potassium: data.potassium || 0,
-                            };
-                            const dayLog = getDayLog(viewDate);
-                            dayLog.entries.unshift(foodItem);
-                            saveData();
-                            updateDayView(viewDate);
-
-                            logButton.textContent = 'Logged! (Tap to undo)';
-                            logButton.classList.remove('btn-primary');
-                            logButton.classList.add('btn-secondary');
-                            logButton.isLogged = true;
-                            logButton.logId = logId;
-
-                             // NEW: Populate ingredient row if applicable
-                            if (activeRecipeScanBtn) {
-                                const row = activeRecipeScanBtn.closest('.ingredient-row');
-                                if (row) {
-                                    row.querySelector('.ingredient-name').value = foodItem.name;
-                                    row.querySelector('.ingredient-quantity').value = foodItem.servings;
-                                    row.querySelector('.ingredient-grams').value = foodItem.grams.toFixed(0);
-                                    row.querySelector('.ingredient-calories').value = foodItem.calories.toFixed(0);
-                                    row.querySelector('.ingredient-protein').value = foodItem.protein.toFixed(1);
-                                    row.querySelector('.ingredient-carbs').value = foodItem.carbs.toFixed(1);
-                                    row.querySelector('.ingredient-fat').value = foodItem.fat.toFixed(1);
-                                    row.querySelector('.ingredient-sugar').value = foodItem.sugar.toFixed(1);
-                                    row.querySelector('.ingredient-sodium').value = foodItem.sodium.toFixed(0);
-                                    row.querySelector('.ingredient-potassium').value = foodItem.potassium.toFixed(0);
-                                    updateRecipeTotals();
-                                    validateLastRow();
-                                }
-                                hideModal(ui.foodScannerModal); // Close scanner after populating
-                            }
-                        }
-                    };
-                    resultElement.appendChild(detailsDiv);
-                    resultElement.appendChild(logButton);
-
-                } catch (error) {
-                    console.error("AI Image Scan Error:", error);
-                    resultElement.querySelector('.loader')?.remove();
-                     resultElement.innerHTML += `<p class="text-red-400 text-xs">Error analyzing. ${error.message}</p>`;
-                }
-            }
-
-            async function classifyAndProcessImage(file, resultElement) {
-                try {
-                    const imagePart = await fileToGenerativePart(file);
-                    const classification = await getAiImageClassification(imagePart);
-
-                    if (classification.includes('barcode')) {
-                        ui.foodScannerStatus.textContent = 'Barcode detected, scanning...';
-                        try {
-                            if (!html5QrCode) {
-                                html5QrCode = new Html5Qrcode("barcode-reader-hidden-helper");
-                            }
-                            const decodedText = await html5QrCode.scanFile(file, false);
-                            await processBarcodeScan(decodedText, file, resultElement);
-                        } catch (err) {
-                             console.warn("Local barcode scan failed, falling back to food AI:", err);
-                            ui.foodScannerStatus.textContent = 'Barcode scan failed, trying food analysis...';
-                            await processFoodImageAI(imagePart, resultElement);
-                        }
-                    } else if (classification.includes('food')) {
-                        ui.foodScannerStatus.textContent = 'Food detected, analyzing...';
-                        await processFoodImageAI(imagePart, resultElement);
-                    } else {
-                        throw new Error("Could not classify image.");
-                    }
-                } catch (error) {
-                     console.error("Image Processing Error:", error);
-                    resultElement.querySelector('.loader')?.remove();
-                    resultElement.innerHTML += `<p class="text-red-400 text-xs">Scan failed. ${error.message}</p>`;
-                } finally {
-                     resultElement.querySelector('.loader')?.remove(); // Ensure loader removed on error too
-                }
-            }
-
-
-            function handleAiScanFiles(files) {
-                if (!files || files.length === 0) return;
-                 // FIX 1: Show carousel wrapper when files are present
-                 ui.foodScannerCarouselWrapper.classList.remove('hidden');
-                 ui.scannerResultsContainer.innerHTML = ''; // Clear previous results
-
-                const filesArray = Array.from(files);
-
-                for(const file of filesArray) {
-                    const resultElement = document.createElement('div');
-                    // FIX 1: Added !flex-shrink-0 to ensure items don't shrink and stay in the single row
-                    resultElement.className = 'scroll-item p-4 bg-input-bg rounded-lg text-center !flex-shrink-0';
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        resultElement.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-24 object-cover rounded-md mb-2">
-                            <div class="loader mx-auto hidden"></div>
-                        `;
-                         // Call classifyAndProcessImage *after* the initial HTML is set
-                        classifyAndProcessImage(file, resultElement);
-                    };
-                     reader.onerror = () => { // Handle file read errors
-                        resultElement.innerHTML = `<p class="text-red-400 text-xs">Error reading file.</p>`;
-                    };
-                    reader.readAsDataURL(file);
-                    ui.scannerResultsContainer.appendChild(resultElement);
-                }
-                 // Re-setup carousel after adding items
-                 setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next');
-            }
-
-            ui.uploadPhotoInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files));
-
-            ui.editFavoriteForm.addEventListener('submit', (e) => {
-                e.preventDefault(); const favIndex = favoriteFoods.findIndex(f => f.name === editingFavoriteFoodName); if (favIndex === -1) return;
-                const newName = capitalizeWords(document.getElementById('edit-fav-food-name').value.trim());
-                if (newName.toLowerCase() !== editingFavoriteFoodName.toLowerCase() && (favoriteFoods.some(f => f.name.toLowerCase() === newName.toLowerCase()) || savedRecipes.some(r => r.name.toLowerCase() === newName.toLowerCase()))) { showCustomAlert('Name Exists', 'A favorite food or recipe with this name already exists.'); return; }
-                favoriteFoods[favIndex].name = newName; favoriteFoods[favIndex].calories = parseFloat(document.getElementById('edit-fav-food-calories').value); favoriteFoods[favIndex].protein = parseFloat(document.getElementById('edit-fav-food-protein').value); favoriteFoods[favIndex].carbs = parseFloat(document.getElementById('edit-fav-food-carbs').value); favoriteFoods[favIndex].fat = parseFloat(document.getElementById('edit-fav-food-fat').value);
-                 favoriteFoods[favIndex].sugar = parseFloat(document.getElementById('edit-fav-food-sugar')?.value) || 0;
-                 favoriteFoods[favIndex].sodium = parseFloat(document.getElementById('edit-fav-food-sodium')?.value) || 0;
-                 favoriteFoods[favIndex].potassium = parseFloat(document.getElementById('edit-fav-food-potassium')?.value) || 0;
-                saveData(); fullRender(); hideModal(ui.editFavoriteModal);
-            });
-
-
-            // OTHER MODAL LISTENERS
-            ui.closeEditFavoriteModalBtn.addEventListener('click', () => hideModal(ui.editFavoriteModal));
-            ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
-            ui.confirmModalCancelBtn.addEventListener('click', () => hideModal(ui.confirmModal));
-            ui.confirmModalConfirmBtn.addEventListener('click', () => { if (confirmCallback) confirmCallback(); hideModal(ui.confirmModal); });
-            ui.promptModalCancelBtn.addEventListener('click', () => { if (promptCallback) promptCallback(null); hideModal(ui.promptModal); });
-            ui.promptModalOkBtn.addEventListener('click', () => { if(promptCallback) promptCallback(ui.promptModalInput.value); hideModal(ui.promptModal); });
-
-            ui.openNutritionistChatBtn.addEventListener('click', () => {
-                renderChatHistory();
-                showModal(ui.aiNutritionistModal);
-            });
+            // AI Chat Modal (if opened via other means)
             ui.closeAiNutritionistModalBtn.addEventListener('click', () => hideModal(ui.aiNutritionistModal));
             ui.aiChatSendBtn.addEventListener('click', handleAiChatSend);
             ui.aiChatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiChatSend(); } });
@@ -3303,21 +2930,7 @@
             // --- NEW: Compound Food Modal Initialization ---
             lucide.createIcons({ nodes: [ui.compoundFoodModal.querySelector('.disabled-overlay')] });
 
-            // Open modal button
-            ui.openCompoundFoodModalBtn.addEventListener('click', () => {
-                 // Reset form state before showing
-                ui.recipeNameInput.value = '';
-                ui.ingredientListContainer.innerHTML = ''; // Clear existing rows
-                addIngredientRow(); // Add the first empty row
-                updateRecipeTotals(); // Reset totals display
-                ui.ingredientListContainer.classList.add('section-disabled'); // Start disabled
-                ui.addIngredientBtn.disabled = true; // Start disabled
-                showModal(ui.compoundFoodModal);
-                lucide.createIcons({ nodes: [ui.compoundFoodModal] });
-                 setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient'); // Setup carousel
-            });
-
-            // Close modal button
+            // Close modal button (This modal is no longer opened by a button, but listener is harmless)
             if (ui.closeCompoundFoodModalBtn && ui.compoundFoodModal) {
                 ui.closeCompoundFoodModalBtn.addEventListener('click', () => {
                     hideModal(ui.compoundFoodModal);
@@ -3434,17 +3047,15 @@
                     // UPDATED: Handle recipe scan button click
                      if (scanBtn && row) {
                         activeRecipeScanBtn = scanBtn; // Store the button that was clicked
-                        ui.scannerResultsContainer.innerHTML = ''; // Clear previous scan results
-                        ui.foodScannerStatus.textContent = '';
-                        ui.liveCameraContainer.classList.add('hidden');
-                        ui.foodScannerInitialOptions.classList.remove('hidden');
-                        ui.foodScannerCarouselWrapper.classList.add('hidden');
-                        showModal(ui.foodScannerModal); // Show the main scanner modal
-                        // Initialize scanner if needed
-                         if (!html5QrCode) {
-                            html5QrCode = new Html5Qrcode("barcode-reader-hidden-helper");
-                         }
-                    }
+                        
+                        // Redirect to the scan page
+                        window.location.href = 'assets/nutrition/scan-combined.html?context=recipe';
+                        
+                        // The scanner modal logic is no longer needed here
+                        // ui.scannerResultsContainer.innerHTML = ''; 
+                        // ...
+                        // showModal(ui.foodScannerModal); 
+                     }
 
                 });
 
@@ -3470,7 +3081,48 @@
             loadData();
             updateDayView(viewDate);
             setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next'); // Setup scanner carousel
-            // --- END INITIAL LOAD AND RENDER ---
+
+            // --- NEW: Check for URL parameters from standalone pages ---
+            function checkUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const swapFood = urlParams.get('swapFood');
+                const tempScannedItem = localStorage.getItem('fitTrackAI_tempScannedItem');
+
+                if (swapFood) {
+                    ui.foodNameInput.value = swapFood;
+                    // Clear macros so AI lookup is triggered
+                    const macroInputs = ui.logMealForm.querySelectorAll('.macro-input');
+                    macroInputs.forEach(input => input.value = '');
+                    ui.foodGramsInput.value = '';
+                    ui.foodBrandInput.value = '';
+                    ui.foodServingsInput.value = 1;
+
+                    // Scroll to form and optionally trigger lookup
+                    ui.logMealForm.scrollIntoView({ behavior: 'smooth' });
+                    showCustomAlert("Swap Applied", `Loaded "${swapFood}". Click the AI button to find macros.`);
+                    
+                    // Clear the URL param
+                    history.replaceState(null, '', window.location.pathname);
+                }
+                
+                if (tempScannedItem) {
+                    try {
+                        const item = JSON.parse(tempScannedItem);
+                        // Add this item to the log
+                        const dayLog = getDayLog(viewDate);
+                        dayLog.entries.unshift(item);
+                        saveData();
+                        fullRender(); // Re-render the UI
+                        showCustomAlert("Item Logged", `Successfully logged "${item.name}" from scanner.`);
+                    } catch (e) {
+                        console.error("Error parsing scanned item:", e);
+                    }
+                    // Clear the item from localStorage
+                    localStorage.removeItem('fitTrackAI_tempScannedItem');
+                }
+            }
+            checkUrlParams(); // Run this on load
+            // --- END URL PARAM CHECK ---
 
         });
     </script>
