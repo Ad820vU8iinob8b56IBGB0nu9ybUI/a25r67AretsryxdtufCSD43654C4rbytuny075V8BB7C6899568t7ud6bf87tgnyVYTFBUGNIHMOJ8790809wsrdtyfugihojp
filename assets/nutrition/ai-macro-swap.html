@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-AR">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | AI Macro Swap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Standalone page styles */
+        body {
+            /* Make the modal backdrop visible by default */
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <script>
+        // Apply theme immediately
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <!-- AI Macro Swap Modal -->
+    <div id="ai-macro-swap-modal" class="modal-backdrop" style="display: flex; position: relative; height: auto; min-height: 300px;">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="replace" class="w-5 h-5 text-blue-400"></i>AI Macro Swap</h2>
+                <!-- Changed to an <a> tag to go back -->
+                <a href="../../nutrition.html" id="close-ai-macro-swap-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</a>
+            </div>
+            <p class="text-gray-400 mb-4 text-sm">Healthier alternatives for <strong id="ai-swap-food-name" class="text-white">...</strong></p>
+            <div id="ai-macro-swap-output" class="space-y-3 min-h-[150px]">
+                <!-- Suggestions will be injected here -->
+                <div class="loader mx-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Alert Modal -->
+    <div id="alert-modal" class="modal-backdrop" style="z-index: 80;">
+        <div class="modal-content">
+            <h2 id="alert-modal-title" class="text-2xl font-bold mb-4">Alert</h2>
+            <p id="alert-modal-text" class="text-gray-300 mb-6"></p>
+            <button id="alert-modal-ok-btn" class="btn btn-primary w-full">OK</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // --- UI ELEMENTS ---
+            const ui = {
+                aiMacroSwapOutput: document.getElementById('ai-macro-swap-output'),
+                aiSwapFoodName: document.getElementById('ai-swap-food-name'),
+                alertModal: document.getElementById('alert-modal'),
+                alertModalTitle: document.getElementById('alert-modal-title'),
+                alertModalText: document.getElementById('alert-modal-text'),
+                alertModalOkBtn: document.getElementById('alert-modal-ok-btn')
+            };
+
+            // --- STATE ---
+            let userProfile = {}; // Store minimal profile if needed
+            
+            // --- MODAL FUNCTIONS ---
+            function showModal(modalElement) {
+                modalElement.style.display = 'flex';
+            }
+            function hideModal(modalElement) {
+                modalElement.style.display = 'none';
+            }
+            function showCustomAlert(title, text) {
+                if (ui.alertModal.style.display === 'flex') return;
+                ui.alertModalTitle.textContent = title;
+                ui.alertModalText.textContent = text;
+                showModal(ui.alertModal);
+            }
+            ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+
+            // --- GEMINI API ---
+            const getApiUrl = (model, action = 'generateContent') => {
+                 const apiKey = ""; // Leave empty for Canvas environment
+                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
+            };
+
+            async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            const hasText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                            const hasStructuredResponse = payload.generationConfig?.responseMimeType === "application/json";
+
+                           if (hasText || hasStructuredResponse) {
+                                return result; // Successful response
+                            } else {
+                                if (i === maxRetries - 1) throw new Error("Invalid API response format after retries.");
+                            }
+                        } else if (response.status === 429 || response.status >= 500) {
+                            if (i === maxRetries - 1) throw new Error(`API Error: ${response.status} after ${maxRetries} attempts.`);
+                            const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            throw new Error(`API Error: ${response.status} - ${await response.text()}`);
+                        }
+                    } catch (error) {
+                        console.error(`Fetch attempt ${i + 1} failed:`, error);
+                        if (i === maxRetries - 1) throw error;
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+                throw new Error("API call failed after all retries.");
+            }
+
+            async function getAiMacroSwaps(foodName) {
+                // Load user profile to get goal
+                userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { goal: 'maintain weight' };
+                
+                const systemPrompt = `User is considering eating '${foodName}'. Their goal is ${userProfile.goal}. Suggest 3-5 healthier alternatives that fit a similar craving (e.g., salty, sweet, crunchy). For each, provide 'name' and 'reason' (why it's better, e.g., "Lower in fat", "Higher in protein"). Respond ONLY with a valid JSON array of objects: [{name: "Food 1", reason: "Lower in fat"}, {name: "Food 2", reason: "Higher in protein"}]`;
+
+                const userQuery = `Suggest swaps for ${foodName}`;
+
+                const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
+                const payload = {
+                     contents: [{ parts: [{ text: userQuery }] }],
+                     tools: [{ "google_search": {} }],
+                     systemInstruction: { parts: [{ text: systemPrompt }] },
+                     generationConfig: { responseMimeType: "application/json" }
+                };
+
+                try {
+                    const result = await fetchWithBackoff(apiUrl, payload);
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
+                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                } catch (error) {
+                    console.error("getAiMacroSwaps Error:", error);
+                    throw error;
+                }
+            }
+
+            // --- PAGE LOGIC ---
+            
+            // 1. Get food name from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const foodName = urlParams.get('foodName') || 'your item';
+            ui.aiSwapFoodName.textContent = foodName;
+
+            // 2. Immediately fetch swaps
+            (async () => {
+                try {
+                    const swaps = await getAiMacroSwaps(foodName);
+
+                    if (swaps && swaps.length > 0) {
+                        ui.aiMacroSwapOutput.innerHTML = swaps.map(swap => `
+                            <button type="button" class="btn btn-secondary w-full !justify-between !text-left swap-suggestion-btn" data-food-name="${swap.name}">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-white">${swap.name}</span>
+                                    <span class="text-xs text-gray-400 font-normal">${swap.reason}</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                            </button>
+                        `).join('');
+                        lucide.createIcons();
+                    } else {
+                        ui.aiMacroSwapOutput.innerHTML = `<p class="text-gray-400 text-center">No swap suggestions found for "${foodName}".</p>`;
+                    }
+
+                } catch (error) {
+                    console.error("AI Macro Swap Error:", error);
+                    ui.aiMacroSwapOutput.innerHTML = `<p class="text-red-400">${error.message}</p>`;
+                }
+            })();
+
+            // 3. Add click listener to navigate back with swapped food
+            ui.aiMacroSwapOutput.addEventListener('click', (e) => {
+                const swapBtn = e.target.closest('.swap-suggestion-btn');
+                if (swapBtn) {
+                    const newFoodName = swapBtn.dataset.foodName;
+                    if (newFoodName) {
+                        // Navigate back to nutrition.html and pass the new food name
+                        window.location.href = `../../nutrition.html?swapFood=${encodeURIComponent(newFoodName)}`;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
