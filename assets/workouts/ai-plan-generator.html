@@ -12,105 +12,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Link to shared styles -->
+    <link rel="stylesheet" href="../styles.css">
     <style>
-        /* Shared dark theme variables from other app files */
-        :root {
-            --background: #000000;
-            --primary-text: #eaeaea;
-            --secondary-text: #888888;
-            --card-bg: #111111;
-            --input-bg: #191919;
-            --border-color: #222222;
-            --accent: #FFFFFF;
-            --accent-hover: #DDDDDD; /* Added hover for consistency */
-            --danger: #E53E3E; /* Added danger color */
-            --nav-footer-height: 64px; /* Footer nav height */
-            --validation-error: #F87171; /* red-400 */
-        }
+        /* Page-specific styles */
 
-        html, body {
-            overscroll-behavior-y: contain;
-            /* Ensure content has room above the fixed footer */
-            padding-bottom: var(--nav-footer-height);
-        }
-
-        body {
-            background-color: var(--background);
-            color: var(--primary-text);
-            font-family: 'Manrope', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        /* Footer Nav Styles (copied from index.html) */
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            height: 100%;
-            transition: color 0.3s ease;
-            color: var(--primary-text); /* UPDATED: Changed from secondary-text to primary-text */
-            font-size: 0.75rem;
-            text-decoration: none;
-            padding-top: 4px;
-        }
-        .nav-link:hover { color: var(--accent); } /* Hover uses accent */
-        .nav-link.active { color: #60a5fa; } /* UPDATED: Changed to blue for active link */
-        .nav-link.active .nav-icon { color: #60a5fa; } /* UPDATED: Changed to blue for active icon */
-        .nav-icon { color: var(--primary-text); margin-bottom: 2px; width: 24px; height: 24px; } /* UPDATED: Changed from accent to primary-text */
-        #mobile-footer-nav { background-color: var(--background); } /* Match page background */
-        /* End Footer Nav Styles */
-
-
-        /* Content Card Style */
-        .content-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1.5rem; /* Consistent padding */
-            overflow: hidden; /* Added for wizard */
-        }
-
-        /* Form Element Styles */
-        .form-input, .form-select, .form-textarea {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            color: var(--primary-text);
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); /* Consistent focus ring */
-        }
-        .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-        .form-label {
-            color: var(--secondary-text);
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-bottom: 0.25rem;
-            width: 100%;
-        }
         /* Required field indicator */
         .form-label.required::after {
             content: '*';
@@ -121,14 +27,7 @@
         /* Help Icon */
         .help-icon { color: var(--secondary-text); cursor: help; }
 
-        /* Button Styles (consistent with app) */
-        .btn { border-radius: 0.5rem; font-weight: 600; padding: 0.75rem 1.5rem; transition: all 0.2s ease-in-out; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transform: translateY(0); }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: translateY(0); }
-        .btn-primary { background-color: var(--accent); color: var(--background); }
-        .btn-primary:hover:not(:disabled) { background-color: var(--accent-hover); }
-        .btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--primary-text); }
-        .btn-secondary:hover:not(:disabled) { background-color: var(--border-color); border-color: var(--accent); /* Added accent border on hover */ }
+        /* Icon button */
         .btn-icon-sm { padding: 0.25rem; border-radius: 0.375rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--secondary-text); }
         .btn-icon-sm:hover { background-color: #2a2a2a; color: var(--primary-text); }
 
@@ -148,31 +47,8 @@
         .img-radio-label input:checked + div { border-color: var(--accent); background-color: #222; }
         .img-radio-label input:checked + div span { color: var(--primary-text); font-weight: 600; }
 
-        /* Modal styles (consistent with app) */
-        .modal-backdrop { display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; padding: 1rem; animation: fadeIn 0.3s ease; }
-        .modal-content { background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 0.75rem; width: 95%; max-width: 550px; max-height: 90vh; display: flex; flex-direction: column; animation: slideIn 0.3s ease; }
-        .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 0.5rem; margin-right: -0.5rem; }
-        .modal-body::-webkit-scrollbar { width: 6px; }
-        .modal-body::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
-        .modal-body::-webkit-scrollbar-thumb { background-color: #444; border-radius: 3px; }
-        .modal-body::-webkit-scrollbar-thumb:hover { background-color: #666; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Loader */
-        .loader { border: 2px solid #333; border-top: 2px solid var(--accent); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         /* Custom Split List Item */
         .split-list-item { display: flex; align-items: center; justify-content: space-between; background-color: var(--input-bg); padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); }
-
-        /* Toggle Switch */
-        .toggle-switch { position: relative; display: inline-block; width: 34px; height: 20px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--input-bg); border: 1px solid var(--border-color); transition: .4s; border-radius: 20px; }
-        .toggle-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--secondary-text); transition: .4s; border-radius: 50%; }
-        input:checked + .toggle-slider { background-color: #3B82F6; border-color: #3B82F6; }
-        input:checked + .toggle-slider:before { background-color: white; transform: translateX(14px); }
 
         /* Validation Error Styles */
         .error-message { color: var(--validation-error); font-size: 0.75rem; margin-top: 0.25rem; display: none; /* Hidden by default */ }
@@ -258,7 +134,7 @@
     <div class="container mx-auto max-w-7xl px-4 py-6">
         <!-- Header -->
         <header class="flex items-center justify-between mb-8 pb-4 border-b border-border-color">
-             <a href="index.html" class="flex items-center gap-3">
+             <a href="../../index.html" class="flex items-center gap-3"> <!-- MODIFIED path -->
                 <svg width="100" height="24" viewBox="0 0 100 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg" style="height: 24px; width: auto;">
                     <style>
                         .logo-text { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.05em; fill: var(--primary-text); } /* Dynamic fill */
@@ -357,7 +233,7 @@
                                             <label class="img-radio-label"><input type="radio" name="body-fat" value="15-17%"><div><img src="https://placehold.co/100x60/333/555?text=~15-17%25" alt="15-17% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>15-17%</span></div></label>
                                             <label class="img-radio-label"><input type="radio" name="body-fat" value="20-22%"><div><img src="https://placehold.co/100x60/333/555?text=~20-22%25" alt="20-22% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>20-22%</span></div></label>
                                             <label class="img-radio-label"><input type="radio" name="body-fat" value="25%"><div><img src="https://placehold.co/100x60/333/555?text=~25%25" alt="25% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>25%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="30%"><div><img src="https://placehold.co/100x60/333/555?text=~30%25" alt="30% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>30%</span></div></label>
+                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="30%"><div><img src="https" alt="30% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>30%</span></div></label>
                                             <label class="img-radio-label"><input type="radio" name="body-fat" value="35%"><div><img src="https://placehold.co/100x60/333/555?text=~35%25" alt="35% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>35%</span></div></label>
                                             <label class="img-radio-label"><input type="radio" name="body-fat" value="40-45%"><div><img src="https://placehold.co/100x60/333/555?text=~40-45%25" alt="40-45% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>40-45%</span></div></label>
                                         </div>
@@ -907,27 +783,27 @@
     <nav id="mobile-footer-nav" class="fixed bottom-0 left-0 right-0 h-16 z-50">
         <!-- Inner container to match header/main width, now with top border -->
         <div class="container mx-auto max-w-7xl px-4 h-full flex justify-around items-center border-t border-border-color">
-            <a href="index.html" class="nav-link active"> <!-- Active -->
+            <a href="../../index.html" class="nav-link" data-page="index"> <!-- MODIFIED path -->
                 <i data-lucide="home" class="nav-icon"></i>
                 <span>Home</span>
             </a>
-            <a href="nutrition.html" class="nav-link">
+            <a href="../../nutrition.html" class="nav-link" data-page="nutrition"> <!-- MODIFIED path -->
                 <i data-lucide="utensils" class="nav-icon"></i>
                 <span>Nutrition</span>
             </a>
-            <a href="workouts.html" class="nav-link">
+            <a href="../../workouts.html" class="nav-link active" data-page="workouts"> <!-- MODIFIED path & active -->
                 <i data-lucide="dumbbell" class="nav-icon"></i>
                 <span>Workouts</span>
             </a>
-            <a href="sleep.html" class="nav-link">
+            <a href="../../sleep.html" class="nav-link" data-page="sleep"> <!-- MODIFIED path -->
                 <i data-lucide="moon" class="nav-icon"></i>
                 <span>Sleep</span>
             </a>
-            <a href="progress.html" class="nav-link">
+            <a href="../../progress.html" class="nav-link" data-page="progress"> <!-- MODIFIED path -->
                 <i data-lucide="trending-up" class="nav-icon"></i>
                 <span>Progress</span>
             </a>
-            <a href="social.html" class="nav-link">
+            <a href="../../social.html" class="nav-link" data-page="social"> <!-- MODIFIED path -->
                 <i data-lucide="users" class="nav-icon"></i>
                 <span>Social</span>
             </a>
@@ -1349,7 +1225,8 @@
 
             async function loadExerciseData() {
                 try {
-                    const response = await fetch('exercises.json'); // Assumes exercises.json is in the same directory
+                    // MODIFIED: Load from the root /data/exercises.json
+                    const response = await fetch('/data/exercises.json'); 
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     exerciseDB = data.exercises || [];
@@ -2469,6 +2346,11 @@ Ensure the JSON is valid and complete according to the structure. Select appropr
                     showCustomAlert("Success", "Your new workout plan has been generated and saved!");
                     // Hide the save button to prevent double-saving
                     ui.saveNewPlanBtn.classList.add('hidden');
+                    
+                    // MODIFIED: Redirect back to workouts.html after saving
+                    setTimeout(() => {
+                        window.location.href = '../../workouts.html';
+                    }, 1500);
 
                } catch (error) {
                    console.error("Error applying plan:", error);
