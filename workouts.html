@@ -114,31 +114,8 @@
 
     <div class="container mx-auto max-w-7xl px-4 py-6">
 
-        <!-- REPLACED HEADER: Copied from progress.html -->
-        <header class="flex items-center justify-between mb-8 pb-4 border-b border-border-color">
-            <a href="index.html" class="flex items-center gap-3">
-                <!-- Inline SVG Logo -->
-                <svg width="100" height="24" viewBox="0 0 100 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="height: 24px; width: auto;">
-                    <style>
-                        .logo-text { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
-                        .halo-text { font-family: 'Manrope', sans-serif; font-size: 4px; font-weight: 500; }
-                    </style>
-                    <text x="6" y="19" class="logo-text">K</text>
-                    <!-- Smiley face -->
-                    <circle cx="28" cy="12" r="7" />
-                    <circle cx="25" cy="10" r="1.5" fill="var(--background)"/>
-                    <circle cx="31" cy="10" r="1.5" fill="var(--background)"/>
-                    <!-- Halo -->
-                    <ellipse cx="28" cy="2" rx="6" ry="1" stroke="currentColor" stroke-width="0.8" fill="none"/>
-                    <text x="25.5" y="8" class="halo-text"></text>
-                    <text x="37" y="19" class="logo-text">WBI</text>
-                </svg>
-            </a>
-            <!-- Settings Icon Button -->
-            <a href="settings.html" class="p-2 rounded-full hover:bg-input-bg transition-colors" title="Settings">
-                <i data-lucide="settings" class="w-6 h-6 text-secondary-text"></i>
-            </a>
-        </header>
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
 
         <main>
              <div class="flex flex-col justify-between items-center mb-8 px-2">
@@ -238,32 +215,8 @@
         </main>
     </div>
 
-    <!-- REPLACED FOOTER NAV: Copied from progress.html -->
-    <nav id="mobile-footer-nav" class="fixed bottom-0 left-0 right-0 h-16 z-50">
-        <!-- Inner container to match header/main width, now with top border -->
-        <div class="container mx-auto max-w-7xl px-4 h-full flex justify-around items-center border-t border-border-color">
-            <a href="index.html" class="nav-link">
-                <i data-lucide="home" class="nav-icon"></i>
-            </a>
-            <a href="nutrition.html" class="nav-link">
-                <i data-lucide="utensils" class="nav-icon"></i>
-            </a>
-            <!-- UPDATED: Added 'active' class -->
-            <a href="workouts.html" class="nav-link active">
-                <i data-lucide="dumbbell" class="nav-icon"></i>
-            </a>
-            <a href="sleep.html" class="nav-link">
-                <i data-lucide="moon" class="nav-icon"></i>
-            </a>
-            <!-- UPDATED: Removed 'active' class -->
-            <a href="progress.html" class="nav-link">
-                <i data-lucide="trending-up" class="nav-icon"></i>
-            </a>
-            <a href="social.html" class="nav-link">
-                <i data-lucide="users" class="nav-icon"></i>
-            </a>
-        </div>
-    </nav>
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
 
     <!-- Modals here... -->
     <div id="ai-plan-generator-modal" class="modal-backdrop"><div class="modal-content !max-w-3xl"><div class="flex justify-between items-center mb-4"><h2 class="text-xl sm:text-2xl font-bold">AI Plan Generator</h2><button id="close-ai-plan-generator-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button></div><div id="ai-plan-panel"><form id="ai-plan-generator-form" class="space-y-4"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="ai-plan-goal" class="form-label">Primary Goal</label><select id="ai-plan-goal" class="form-select mt-1"><option value="muscle hypertrophy">Muscle Hypertrophy</option><option value="fat loss">Fat Loss</option><option value="body recomposition">Body Recomposition</option><option value="general fitness">General Fitness</option><option value="strength gain">Strength Gain</option><option value="custom">Custom</option></select></div><div id="ai-plan-split-container"><label for="ai-plan-split-select" class="form-label">Workout Split Template</label><select id="ai-plan-split-select" class="form-select mt-1"><option value="Push, Pull, Legs">Push, Pull, Legs</option><option value="Optimized PPL">Optimized PPL (Pre-built)</option><option value="Upper, Lower">Upper, Lower</option><option value="Full Body">Full Body</option></select></div></div><div id="ai-plan-goal-text-container" class="hidden"><label for="ai-plan-goal-text" class="form-label">Describe Your Goal</label><textarea id="ai-plan-goal-text" rows="2" class="form-input mt-1" placeholder="e.g., 'I want to build bigger arms and get a six-pack.'"></textarea></div><details class="pt-2" open><summary class="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center justify-between"><span>Weekly Schedule & Duration</span><i data-lucide="chevron-down" class="w-4 h-4"></i></summary><div class="pt-4 mt-4 border-t border-gray-800 space-y-4"><p class="text-xs text-secondary-text">Click each day to cycle through available workout types to build your weekly schedule.</p><div id="ai-plan-schedule-builder"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="ai-plan-duration" class="form-label">Default Duration (minutes)</label><input type="number" id="ai-plan-duration" value="60" class="form-input mt-1"><button type="button" id="customize-duration-btn" class="text-sm text-blue-400 hover:underline mt-2">Customize per day</button><div id="ai-plan-durations-container" class="space-y-2 mt-2 hidden"></div></div><div><label for="ai-plan-rest" class="form-label">Rest Between Sets (minutes)</label><input type="number" id="ai-plan-rest" value="2" step="0.5" min="0" class="form-input mt-1"></div></div></div></details><details class="pt-2" open><summary class="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center justify-between"><span>Equipment & Focus</span><i data-lucide="chevron-down" class="w-4 h-4"></i></summary><div class="space-y-4 pt-4 mt-4 border-t border-gray-800">
@@ -400,7 +353,51 @@
     </div>
 
     <script type="module">
-        document.addEventListener('DOMContentLoaded', () => {
+        // --- Script to load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'workouts'; // This page is 'workouts'
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeWorkoutsPage();
+        }
+        // --- End Load Header and Footer ---
+
+
+        // --- MAIN WORKOUTS.HTML SCRIPT (wrapped) ---
+        function initializeWorkoutsPage() {
             // --- STATE MANAGEMENT ---
             let workoutPlan = {};
             let workoutHistory = [];
@@ -600,7 +597,7 @@
 
             // --- CORE & HELPER FUNCTIONS ---
             const getApiUrl = (model, action = 'generateContent') => {
-                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // API key is handled by the environment
+                 const apiKey = ""; // API key is handled by the environment
                  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
              };
 
@@ -1858,7 +1855,7 @@
                      ui.aiPlanExplanation.innerHTML = reasoningHtml; ui.aiPlanJsonOutput.textContent = JSON.stringify(parsedPlan, null, 2);
                  } catch (error) { console.error("AI Plan Generation Error:", error); ui.aiPlanExplanation.textContent = "Sorry, couldn't generate a plan. The AI might be unavailable or the request was too complex. Please try again.";
                  } finally { btn.disabled = false; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; }
-             });
+            });
             ui.cancelNewPlanBtn.addEventListener('click', () => ui.aiPlanOutput.classList.add('hidden'));
             ui.saveNewPlanBtn.addEventListener('click', () => {
                 const todayKey = dateToKey(new Date()); const hasWorkedOutToday = workoutHistory.some(log => log.date === todayKey);
@@ -2344,7 +2341,11 @@
 
 
             initializeApp();
-        });
+        }
+        // --- END MAIN SCRIPT ---
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
     </script>
 </body>
 </html>
