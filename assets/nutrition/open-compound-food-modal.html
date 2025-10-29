@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | Recipe Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Added for barcode scanning within ingredients (optional but kept for structure) -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        /* Dark theme is the default */
+        :root {
+            --background: #000000;
+            --primary-text: #eaeaea;
+            --secondary-text: #888888;
+            --card-bg: #111111;
+            --input-bg: #191919;
+            --border-color: #222222;
+            --accent: #FFFFFF;
+            --accent-hover: #DDDDDD;
+            --danger: #E53E3E;
+            --edit: #3b82f6;
+        }
+
+        /* Light theme overrides */
+        [data-theme="light"] {
+            --background: #f8fafc;
+            --primary-text: #0f172a;
+            --secondary-text: #64748b;
+            --card-bg: #ffffff;
+            --input-bg: #f1f5f9;
+            --border-color: #e2e8f0;
+            --accent: #0f172a;
+            --accent-hover: #334155;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--primary-text);
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .form-input, .form-select {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--primary-text);
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+        }
+         /* Prevents number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        .form-label {
+            color: var(--secondary-text);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transform: translateY(0);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--background);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-text);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--border-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--primary-text);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+             background-color: #C53030;
+        }
+
+        /* Make modal backdrop visible by default */
+        .modal-backdrop {
+            display: flex;
+            position: fixed;
+            z-index: 50;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            padding: 0;
+        }
+
+        /* Adjusted modal content for recipe builder */
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem; /* Reduced padding slightly for mobile */
+            border-radius: 0.75rem;
+            width: 95%; /* Increased width */
+            max-width: 600px; /* Increased max-width */
+            height: 90vh; /* Use viewport height */
+            max-height: 700px; /* Max height */
+            display: flex; /* Enable flex column layout */
+            flex-direction: column;
+            overflow: hidden; /* Prevent parent scrolling */
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+         @media (min-width: 768px) {
+            .modal-content {
+                padding: 2rem; /* Restore padding on larger screens */
+            }
+        }
+
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .loader {
+            border: 2px solid #333;
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+
+        /* Scoped scrollbar styles */
+        .custom-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+
+        /* Carousel Styles */
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background-color: rgba(17, 17, 17, 0.7);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .carousel-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .carousel-btn:hover {
+            background-color: var(--input-bg);
+        }
+        .carousel-prev { left: -0.75rem; }
+        .carousel-next { right: -0.75rem; }
+
+        .horizontal-scroll-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            gap: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            /* Hide scrollbars */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-item {
+            flex: 0 0 100%; /* Make items fill width */
+            width: 100%;
+            scroll-snap-align: center; /* Center snap */
+            white-space: normal;
+        }
+        /* Remove side padding for full-width items */
+        .horizontal-scroll-container::before,
+        .horizontal-scroll-container::after {
+            content: none;
+        }
+
+        /* --- Compound Food Modal Specific Styles --- */
+        #recipe-name-input::placeholder {
+            color: var(--accent);
+            font-weight: 700;
+            opacity: 0.8;
+        }
+        .section-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .disabled-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none; /* Hide by default */
+            align-items: center; justify-content: center;
+            background-color: rgba(17, 17, 17, 0.8); /* --card-bg with opacity */
+            z-index: 5;
+            border-radius: 0.5rem;
+            text-align: center; padding: 1rem;
+            color: var(--primary-text); font-weight: 500;
+        }
+        .section-disabled + .disabled-overlay { display: flex; }
+
+        .ingredient-row {
+            width: 100%;
+            white-space: normal;
+        }
+        .ingredient-number {
+            width: 1.5rem; height: 1.5rem;
+            background-color: var(--accent); color: var(--background);
+            border-radius: 9999px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.875rem; font-weight: 700;
+            flex-shrink: 0; /* Prevent number from shrinking */
+        }
+         /* --- END: Compound Food Modal Styles --- */
+
+    </style>
+</head>
+<body class="antialiased">
+
+     <script>
+        // Apply theme immediately
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <!-- Compound Food Modal Structure (Visible by default) -->
+    <div id="compound-food-modal" class="modal-backdrop">
+        <!-- modal-content is (flex flex-col overflow-hidden) -->
+        <div class="modal-content">
+            <!-- Close button absolutely positioned -->
+            <button id="close-compound-food-modal-btn" class="absolute top-4 right-4 md:top-4 md:right-4 text-gray-400 hover:text-white text-5xl w-8 h-8 flex items-center justify-center z-10">&times;</button>
+
+            <!-- Modal Header (Non-scrolling) -->
+            <div class="flex-shrink-0 flex justify-between items-center mb-2">
+                <div class="w-8 flex-shrink-0"></div> <!-- Spacer -->
+                <input type="text" id="recipe-name-input" form="compound-food-form" class="form-input !py-1.5 text-xl font-bold flex-grow text-center" required placeholder="Build Your Creation">
+                <div class="w-8 flex-shrink-0"></div> <!-- Spacer -->
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 mb-4">
+                <form id="compound-food-form" class="space-y-4">
+
+                    <div class="border-t border-gray-800 pt-4"> <!-- Added top border -->
+                        <h3 class="font-semibold text-sm text-center mb-2">Ingredients</h3>
+                        <div id="recipe-carousel-wrapper" class="carousel-wrapper">
+                            <button id="recipe-prev-ingredient" type="button" class="carousel-btn carousel-prev"><i data-lucide="chevron-left"></i></button>
+                            <div id="ingredient-list-container" class="horizontal-scroll-container recipe-carousel items-start border border-border-color rounded-lg p-2 section-disabled">
+                                <!-- INGREDIENT ROWS Will be added here by JS -->
+                            </div>
+                            <!-- Added overlay -->
+                            <div class="disabled-overlay">
+                                <p class="flex items-center gap-2 text-sm"><i data-lucide="arrow-up" class="w-4 h-4 -mt-1"></i> Enter a name above to start</p>
+                            </div>
+                            <button id="recipe-next-ingredient" type="button" class="carousel-btn carousel-next"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Totals Container (now inside form, will scroll) -->
+                    <div id="recipe-totals-container" class="flex-shrink-0 border-t border-gray-800 pt-4 px-2"> <!-- Added top border -->
+                        <h3 class="text-lg font-semibold text-center mb-2">Total Macros</h3>
+                        <div id="recipe-totals" class="grid grid-cols-4 gap-x-2 gap-y-3 text-center">
+                            <div><p class="text-xs text-secondary-text">Calories</p><p id="recipe-total-calories" class="font-bold text-sm">0</p></div>
+                            <div><p class="text-xs text-secondary-text">Protein</p><p class="font-bold text-sm"><span id="recipe-total-protein">0</span>g</p></div>
+                            <div><p class="text-xs text-secondary-text">Carbs</p><p class="font-bold text-sm"><span id="recipe-total-carbs">0</span>g</p></div>
+                            <div><p class="text-xs text-secondary-text">Fat</p><p class="font-bold text-sm"><span id="recipe-total-fat">0</span>g</p></div>
+                            <div><p class="text-xs text-secondary-text">Grams</p><p id="recipe-total-grams" class="font-bold text-sm">0</p></div>
+                            <div><p class="text-xs text-secondary-text">Sugar</p><p class="font-bold text-sm"><span id="recipe-total-sugar">0</span>g</p></div>
+                            <div><p class="text-xs text-secondary-text">Sodium</p><p class="font-bold text-sm"><span id="recipe-total-sodium">0</span>mg</p></div>
+                            <div><p class="text-xs text-secondary-text">Potassium</p><p class="font-bold text-sm"><span id="recipe-total-potassium">0</span>mg</p></div>
+                        </div>
+                    </div>
+                </form> <!-- End of Form -->
+            </div> <!-- End of Scrollable Area -->
+
+            <!-- Sticky Footer / Action Bar (Non-scrolling) -->
+            <div class="flex-shrink-0 border-t border-gray-800 pt-4"> <!-- Added top border -->
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button type="button" id="add-ingredient-btn" class="btn btn-secondary w-full !py-1 !text-sm" disabled><i data-lucide="plus"></i>Add Ingredient</button>
+                    <button type="submit" form="compound-food-form" id="save-recipe-btn" class="btn btn-primary w-full !py-1 !text-sm">Save Recipe</button>
+                    <!-- Removed the "Save & Log" specific wording for standalone -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for Ingredient Row -->
+    <template id="ingredient-row-template">
+      <div class="scroll-item ingredient-row bg-input-bg rounded-lg space-y-2 p-3">
+        <div class="flex items-end gap-2">
+            <div class="flex-grow">
+                <label class="form-label text-xs">Ingredient Name</label>
+                <input type="text" list="favorite-foods-datalist" placeholder="e.g., Chicken" class="form-input ingredient-name text-sm !py-1.5" value="">
+            </div>
+            <div class="flex-shrink-0 w-16">
+                <label class="form-label text-xs">Qty</label>
+                <input type="number" min="0" placeholder="Qty" class="form-input ingredient-quantity text-sm !py-1.5" value="1">
+            </div>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+            <div><label class="form-label text-xs">Calories</label><input type="number" step="0.01" min="0" placeholder="kcal" class="form-input ingredient-calories text-xs !py-1.5" value=""></div>
+            <div><label class="form-label text-xs">Protein</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-protein text-xs !py-1.5" value=""></div>
+            <div><label class="form-label text-xs">Carbs</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-carbs text-xs !py-1.5" value=""></div>
+            <div><label class="form-label text-xs">Fat</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-fat text-xs !py-1.5" value=""></div>
+        </div>
+         <div class="grid grid-cols-4 gap-2">
+            <div><label class="form-label text-xs">Sugar</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-sugar text-xs !py-1.5" value=""></div>
+            <div><label class="form-label text-xs">Sodium</label><input type="number" step="0.01" min="0" placeholder="mg" class="form-input ingredient-sodium text-xs !py-1.5" value=""></div>
+            <div><label class="form-label text-xs">Potassium</label><input type="number" step="0.01" min="0" placeholder="mg" class="form-input ingredient-potassium text-xs !py-1.5" value=""></div>
+            <div>
+                <label class="form-label text-xs">Grams</label>
+                <input type="number" placeholder="g" min="0" class="form-input ingredient-grams text-xs !py-1.5" value="">
+            </div>
+        </div>
+        <div class="flex justify-between items-center gap-2">
+            <div class="flex-shrink-0" style="width: 1.5rem; height: 1.5rem;"></div> <!-- Spacer -->
+            <div class="flex-grow flex justify-center items-center gap-2">
+                <!-- Scan button kept for potential future use, but functionality might be limited in standalone -->
+                <button type="button" class="recipe-scan-btn btn btn-secondary !p-2 flex-shrink-0" title="Scan Ingredient"><i data-lucide="scan-line" class="w-4 h-4 pointer-events-none"></i></button>
+                <button type="button" class="remove-ingredient-btn btn btn-secondary !p-2 flex-shrink-0" title="Remove Ingredient"><i data-lucide="x" class="w-4 h-4 pointer-events-none"></i></button>
+                <button type="button" class="find-macros-ai-btn btn btn-secondary !p-2 flex-shrink-0" title="Find Macros with AI">
+                    <i data-lucide="sparkles" class="w-4 h-4 pointer-events-none lucide-icon"></i>
+                    <div class="loader hidden !w-4 !h-4"></div>
+                </button>
+            </div>
+            <span class="ingredient-number">1</span> <!-- Ingredient number -->
+        </div>
+       </div>
+    </template>
+
+    <!-- Datalist for potential favorite foods (can be empty) -->
+    <datalist id="favorite-foods-datalist"></datalist>
+
+    <!-- Standalone alert modal for errors/success -->
+    <div id="alert-modal" class="modal-backdrop" style="z-index: 80; display: none;">
+        <div class="modal-content">
+            <h2 id="alert-modal-title" class="text-2xl font-bold mb-4">Alert</h2>
+            <p id="alert-modal-text" class="text-gray-300 mb-6"></p>
+            <button id="alert-modal-ok-btn" class="btn btn-primary w-full">OK</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE (Minimal for standalone) ---
+            let openModalCount = 1; // Start at 1
+            let ingredientAbortController = null; // Controller for AI fetches
+            let activeRecipeScanBtn = null; // Store scan button for context (might be limited)
+            let html5QrCode = null; // Scanner instance
+
+            // --- UI ELEMENTS ---
+            const ui = {
+                compoundFoodModal: document.getElementById('compound-food-modal'),
+                closeCompoundFoodModalBtn: document.getElementById('close-compound-food-modal-btn'),
+                addIngredientBtn: document.getElementById('add-ingredient-btn'),
+                ingredientListContainer: document.getElementById('ingredient-list-container'),
+                compoundFoodForm: document.getElementById('compound-food-form'),
+                ingredientTemplate: document.getElementById('ingredient-row-template'),
+                recipeNameInput: document.getElementById('recipe-name-input'),
+                recipeCarouselPrev: document.getElementById('recipe-prev-ingredient'),
+                recipeCarouselNext: document.getElementById('recipe-next-ingredient'),
+                saveRecipeBtn: document.getElementById('save-recipe-btn'),
+                // Alert Modal Elements
+                alertModal: document.getElementById('alert-modal'),
+                alertModalTitle: document.getElementById('alert-modal-title'),
+                alertModalText: document.getElementById('alert-modal-text'),
+                alertModalOkBtn: document.getElementById('alert-modal-ok-btn'),
+                 // Scanner Modal Elements (needed if scan button is used)
+                foodScannerModal: null, // Will try to find dynamically if scan is clicked
+                closeFoodScannerModalBtn: null,
+                scannerResultsContainer: null,
+                foodScannerStatus: null,
+                foodScannerInitialOptions: null,
+                liveCameraContainer: null,
+                startFoodCameraBtn: null,
+                stopFoodCameraBtn: null,
+                captureFoodPhotoBtn: null,
+                foodCameraVideo: null,
+                foodCameraCanvas: null,
+                uploadPhotoInput: null,
+                foodScannerCarouselWrapper: null,
+                foodScannerPrev: null,
+                foodScannerNext: null
+            };
+
+             // --- CORE & HELPER FUNCTIONS ---
+             function capitalizeWords(str) { if (!str) return ''; return str.replace(/\b\w/g, char => char.toUpperCase()); }
+
+            // --- GEMINI API ---
+            const getApiUrl = (model, action = 'generateContent') => {
+                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // Leave empty
+                 // Construct the correct API URL structure
+                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
+            };
+            async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
+                 for (let i = 0; i < maxRetries; i++) {
+                     try {
+                         // Add console log to check the final URL being used
+                         console.log("Fetching API URL:", apiUrl);
+                         const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                         if (response.ok) {
+                             const result = await response.json();
+                             const hasText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                             const hasStructuredResponse = payload.generationConfig?.responseMimeType === "application/json";
+                            if (hasText || hasStructuredResponse) { return result; }
+                             else {
+                                 console.warn("API response unexpected:", result);
+                                 // Check for blockReason which might indicate safety issues
+                                 const blockReason = result.promptFeedback?.blockReason;
+                                 if (blockReason) {
+                                     throw new Error(`API request blocked due to: ${blockReason}. Please revise your input.`);
+                                 }
+                                 if (i === maxRetries - 1) throw new Error("Invalid API response format.");
+                             }
+                         } else if (response.status === 429 || response.status >= 500) { // Retry on rate limit or server error
+                             if (i === maxRetries - 1) throw new Error(`API Error: ${response.status} after ${maxRetries} attempts.`);
+                             const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                             await new Promise(resolve => setTimeout(resolve, delay));
+                         } else { // Don't retry other client errors (4xx)
+                            const errorText = await response.text(); // Get error details from response body
+                            console.error(`API Error Response (${response.status}):`, errorText);
+                             throw new Error(`API Error: ${response.status} - ${errorText || 'See console for details.'}`);
+                         }
+                     } catch (error) {
+                         console.error(`Fetch attempt ${i + 1} failed:`, error);
+                         if (i === maxRetries - 1) throw error; // Re-throw final error
+                         const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                         await new Promise(resolve => setTimeout(resolve, delay));
+                     }
+                 }
+                 throw new Error("API call failed after all retries.");
+             }
+            // --- END GEMINI API ---
+
+            // --- Modal Functions ---
+            function showModal(modalElement) { modalElement.style.display = 'flex'; openModalCount++; }
+            function hideModal(modalElement) {
+                modalElement.style.display = 'none'; openModalCount--;
+                if (openModalCount <= 0) { openModalCount = 0; }
+            }
+            function showCustomAlert(title, text) {
+                if (ui.alertModal.style.display === 'flex') return;
+                ui.alertModalTitle.textContent = title; ui.alertModalText.textContent = text; showModal(ui.alertModal);
+            }
+
+            // --- CAROUSEL ---
+            function setupCarousel(containerId, prevBtnId, nextBtnId) {
+                const container = document.getElementById(containerId);
+                const prevBtn = document.getElementById(prevBtnId);
+                const nextBtn = document.getElementById(nextBtnId);
+                if (!container || !prevBtn || !nextBtn) return;
+                const updateButtons = () => { const { scrollLeft, scrollWidth, clientWidth } = container; prevBtn.classList.toggle('visible', scrollLeft > 10); nextBtn.classList.toggle('visible', scrollLeft < scrollWidth - clientWidth - 10); };
+                const scrollAmount = () => { const firstItem = container.querySelector('.scroll-item'); return firstItem ? firstItem.offsetWidth + 16 : container.offsetWidth * 0.9; };
+                prevBtn.onclick = () => container.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+                nextBtn.onclick = () => container.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+                container.addEventListener('scroll', updateButtons); setTimeout(updateButtons, 100);
+            }
+
+            // --- COMPOUND FOOD FUNCTIONS ---
+            function addIngredientRow() {
+                const newRowFragment = ui.ingredientTemplate.content.cloneNode(true);
+                const newRow = newRowFragment.firstElementChild;
+                const ingredientNumber = ui.ingredientListContainer.querySelectorAll('.ingredient-row').length + 1;
+                newRow.querySelector('.ingredient-number').textContent = ingredientNumber;
+                const uniqueIdSuffix = `_row_${ingredientNumber}`;
+                newRow.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => { const label = input.closest('div').querySelector('label'); if (label) { const idName = Array.from(input.classList).find(c => c.startsWith('ingredient-')); if (idName) { const newId = `${idName}${uniqueIdSuffix}`; input.id = newId; label.setAttribute('for', newId); } } });
+                ui.ingredientListContainer.appendChild(newRow);
+                lucide.createIcons({ nodes: [newRow] });
+                updateIngredientNumbers();
+                newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                validateLastRow();
+                setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient');
+            }
+
+            function validateLastRow() {
+                const hasRecipeName = ui.recipeNameInput.value.trim() !== '';
+                if (!hasRecipeName) { ui.addIngredientBtn.disabled = true; return false; }
+                const allRows = ui.ingredientListContainer.querySelectorAll('.ingredient-row');
+                if (allRows.length === 0) { ui.addIngredientBtn.disabled = false; ui.addIngredientBtn.removeAttribute('title'); return true; }
+                const lastRow = allRows[allRows.length - 1]; const name = lastRow.querySelector('.ingredient-name').value.trim();
+                const isValid = name !== ''; ui.addIngredientBtn.disabled = !isValid;
+                if (isValid) { ui.addIngredientBtn.removeAttribute('title'); } else { ui.addIngredientBtn.setAttribute('title', 'Please fill out the ingredient name first.'); }
+                return isValid;
+            }
+
+            function updateIngredientNumbers() {
+                ui.ingredientListContainer.querySelectorAll('.ingredient-row').forEach((row, index) => { const numSpan = row.querySelector('.ingredient-number'); if (numSpan) numSpan.textContent = index + 1; });
+            }
+
+            function updateRecipeTotals() {
+                let total = { calories: 0, protein: 0, carbs: 0, fat: 0, grams: 0, sugar: 0, sodium: 0, potassium: 0 };
+                ui.ingredientListContainer.querySelectorAll('.ingredient-row').forEach(row => { const getVal = (sel) => parseFloat(row.querySelector(sel).value) || 0; const qty = getVal('.ingredient-quantity') || 1; total.grams += getVal('.ingredient-grams') * qty; total.calories += getVal('.ingredient-calories') * qty; total.protein += getVal('.ingredient-protein') * qty; total.carbs += getVal('.ingredient-carbs') * qty; total.fat += getVal('.ingredient-fat') * qty; total.sugar += getVal('.ingredient-sugar') * qty; total.sodium += getVal('.ingredient-sodium') * qty; total.potassium += getVal('.ingredient-potassium') * qty; });
+                const setTotal = (id, val, dec = 1) => { const el = document.getElementById(id); if (el) el.textContent = parseFloat(val.toFixed(dec)); };
+                const setTotalSpan = (id, val, dec = 1) => { const el = document.getElementById(id); if (el) el.textContent = parseFloat(val.toFixed(dec)); };
+                setTotal('recipe-total-calories', total.calories, 0); setTotalSpan('recipe-total-protein', total.protein); setTotalSpan('recipe-total-carbs', total.carbs); setTotalSpan('recipe-total-fat', total.fat); setTotal('recipe-total-grams', total.grams, 0); setTotalSpan('recipe-total-sugar', total.sugar); setTotalSpan('recipe-total-sodium', total.sodium, 0); setTotalSpan('recipe-total-potassium', total.potassium, 0);
+            }
+
+            async function fetchIngredientMacros(recipeName, ingredientData, signal) {
+                const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
+                let userQuery = `Recipe context: "${recipeName}". Ingredient: "${ingredientData.quantity || 1} ${ingredientData.name}".`;
+                const providedInfo = [];
+                // Only include *known* macros
+                if (ingredientData.grams && ingredientData.grams > 0) providedInfo.push(`Amount: ${ingredientData.grams}g`);
+                if (ingredientData.calories && ingredientData.calories > 0) providedInfo.push(`Calories: ${ingredientData.calories}kcal`);
+                if (ingredientData.protein && ingredientData.protein > 0) providedInfo.push(`Protein: ${ingredientData.protein}g`);
+                if (ingredientData.carbs && ingredientData.carbs > 0) providedInfo.push(`Carbs: ${ingredientData.carbs}g`);
+                if (ingredientData.fat && ingredientData.fat > 0) providedInfo.push(`Fat: ${ingredientData.fat}g`);
+
+                if (providedInfo.length > 0) {
+                    userQuery += ` Provided info: ${providedInfo.join(', ')}.`;
+                }
+
+                 if (ingredientData.grams && ingredientData.grams > 0) {
+                    userQuery += ` Please find all nutritional data for the specified ${ingredientData.grams}g amount.`;
+                } else {
+                    userQuery += ` Amount not specified, so please estimate a typical single serving size in grams and find all nutritional data for that estimated amount.`;
+                }
+
+                const systemPrompt = "You are a nutritional database. Given a recipe context, an ingredient name, and (optionally) some existing nutritional data (like grams or protein), find all missing nutritional information and return the complete set. Respond only with the valid JSON object described in the schema. Do not include 'g' or 'mg' units, just the numbers. For sugar, sodium, and potassium, if data is unavailable, return 0.";
+
+                // Define the payload, REMOVING the 'tools' property for JSON output
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    // tools: [{ "google_search": {} }], // REMOVED THIS LINE
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "grams": { "type": "NUMBER", "description": "The weight in grams. Use the provided amount or estimate if not provided." },
+                                "calories": { "type": "NUMBER", "description": "Total kilocalories." },
+                                "protein": { "type": "NUMBER", "description": "Grams of protein." },
+                                "carbs": { "type": "NUMBER", "description": "Grams of carbohydrates." },
+                                "fat": { "type": "NUMBER", "description": "Grams of fat." },
+                                "sugar": { "type": "NUMBER", "description": "Grams of sugar. Return 0 if unknown." },
+                                "sodium": { "type": "NUMBER", "description": "Milligrams of sodium. Return 0 if unknown." },
+                                "potassium": { "type": "NUMBER", "description": "Milligrams of potassium. Return 0 if unknown." }
+                            },
+                            required: ["grams", "calories", "protein", "carbs", "fat", "sugar", "sodium", "potassium"]
+                        }
+                    }
+                };
+
+                // Use fetchWithBackoff for retries
+                 try {
+                     // Pass signal if fetchWithBackoff is updated to support it
+                    const result = await fetchWithBackoff(apiUrl, payload);
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    const parsedJson = JSON.parse(jsonText);
+                    return parsedJson;
+                 } catch (error) {
+                      if (error.name === 'AbortError') {
+                        console.log("Ingredient fetch aborted.");
+                      } else {
+                        console.error("Fetch Ingredient Error:", error);
+                      }
+                      throw error; // Re-throw to be caught by the caller
+                 }
+            }
+
+
+            function handleSaveRecipe() { // Renamed from handleSaveRecipeAndLog
+                const recipeName = capitalizeWords(ui.recipeNameInput.value.trim());
+                const totalGrams = parseFloat(document.getElementById('recipe-total-grams').textContent) || 0;
+                if (!recipeName) { showCustomAlert('Missing Name', 'Please enter a name for your recipe.'); return; }
+                if (ui.ingredientListContainer.querySelectorAll('.ingredient-row').length === 0 || totalGrams <= 0 || parseFloat(document.getElementById('recipe-total-calories').textContent) <= 0) { showCustomAlert('Missing Ingredients', 'Please add at least one ingredient with calories.'); return; }
+
+                // In standalone, we just collect the data and show it
+                const recipeData = {
+                    name: recipeName, type: 'recipe', servings: 1, // Treat batch as 1 serving
+                    grams: totalGrams,
+                    calories: parseFloat(document.getElementById('recipe-total-calories').textContent) || 0,
+                    protein: parseFloat(document.getElementById('recipe-total-protein').textContent) || 0,
+                    carbs: parseFloat(document.getElementById('recipe-total-carbs').textContent) || 0,
+                    fat: parseFloat(document.getElementById('recipe-total-fat').textContent) || 0,
+                    sugar: parseFloat(document.getElementById('recipe-total-sugar').textContent) || 0,
+                    sodium: parseFloat(document.getElementById('recipe-total-sodium').textContent) || 0,
+                    potassium: parseFloat(document.getElementById('recipe-total-potassium').textContent) || 0,
+                    // Optionally include individual ingredients
+                    ingredients: Array.from(ui.ingredientListContainer.querySelectorAll('.ingredient-row')).map(row => ({
+                        name: row.querySelector('.ingredient-name').value.trim(),
+                        quantity: parseFloat(row.querySelector('.ingredient-quantity').value) || 1,
+                        grams: parseFloat(row.querySelector('.ingredient-grams').value) || 0,
+                        calories: parseFloat(row.querySelector('.ingredient-calories').value) || 0,
+                        protein: parseFloat(row.querySelector('.ingredient-protein').value) || 0,
+                        carbs: parseFloat(row.querySelector('.ingredient-carbs').value) || 0,
+                        fat: parseFloat(row.querySelector('.ingredient-fat').value) || 0,
+                        sugar: parseFloat(row.querySelector('.ingredient-sugar').value) || 0,
+                        sodium: parseFloat(row.querySelector('.ingredient-sodium').value) || 0,
+                        potassium: parseFloat(row.querySelector('.ingredient-potassium').value) || 0,
+                    }))
+                };
+
+                // Show the saved data in an alert or log it
+                console.log("Recipe Data:", recipeData);
+                showCustomAlert('Recipe Saved (Locally)', `Recipe "${recipeName}" created. Check console for data.`);
+
+                // Reset modal for potential next use
+                hideModal(ui.compoundFoodModal);
+                ui.recipeNameInput.value = '';
+                ui.ingredientListContainer.innerHTML = '';
+                addIngredientRow();
+                ui.ingredientListContainer.classList.add('section-disabled');
+                document.getElementById('recipe-totals-container').querySelectorAll('p:not(.text-xs)').forEach(p => p.textContent = '0');
+            }
+
+            // --- EVENT LISTENERS ---
+            ui.closeCompoundFoodModalBtn.addEventListener('click', () => {
+                // Consider closing window in standalone
+                hideModal(ui.compoundFoodModal);
+                 // window.close();
+            });
+
+            ui.recipeNameInput.addEventListener('input', () => {
+                const hasName = ui.recipeNameInput.value.trim() !== '';
+                if (hasName) { ui.ingredientListContainer.classList.remove('section-disabled'); validateLastRow(); }
+                else { ui.ingredientListContainer.classList.add('section-disabled'); ui.addIngredientBtn.disabled = true; }
+            });
+
+            ui.addIngredientBtn.addEventListener('click', addIngredientRow);
+
+            // Save button listener
+            ui.saveRecipeBtn.addEventListener('click', (e) => {
+                 e.preventDefault(); // Prevent default form submission if triggered by submit button
+                 handleSaveRecipe();
+            });
+            // Also handle form submission directly
+            ui.compoundFoodForm.addEventListener('submit', (e) => {
+                 e.preventDefault();
+                 handleSaveRecipe();
+            });
+
+
+            ui.ingredientListContainer.addEventListener('click', async (e) => {
+                const removeBtn = e.target.closest('.remove-ingredient-btn');
+                const aiBtn = e.target.closest('.find-macros-ai-btn');
+                const scanBtn = e.target.closest('.recipe-scan-btn');
+                const row = e.target.closest('.ingredient-row');
+
+                if (removeBtn && row) {
+                    if (ui.ingredientListContainer.querySelectorAll('.ingredient-row').length > 1) { row.remove(); updateIngredientNumbers(); }
+                    else { row.querySelectorAll('input').forEach(input => { input.value = input.classList.contains('ingredient-quantity') ? '1' : ''; }); }
+                    updateRecipeTotals(); validateLastRow(); setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient');
+                }
+
+                if (aiBtn && row) {
+                    e.preventDefault(); if (aiBtn.disabled) return;
+                    const loader = aiBtn.querySelector('.loader'); const icon = aiBtn.querySelector('.lucide-icon');
+                    const recipeName = ui.recipeNameInput.value.trim();
+                    const ingredientData = { name: row.querySelector('.ingredient-name').value.trim(), quantity: row.querySelector('.ingredient-quantity').value.trim(), grams: row.querySelector('.ingredient-grams').value.trim(), calories: row.querySelector('.ingredient-calories').value.trim(), protein: row.querySelector('.ingredient-protein').value.trim(), carbs: row.querySelector('.ingredient-carbs').value.trim(), fat: row.querySelector('.ingredient-fat').value.trim(), sugar: row.querySelector('.ingredient-sugar').value.trim(), sodium: row.querySelector('.ingredient-sodium').value.trim(), potassium: row.querySelector('.ingredient-potassium').value.trim() };
+                    if (!ingredientData.name) { return; }
+                    if (ingredientAbortController) { ingredientAbortController.abort(); } ingredientAbortController = new AbortController();
+                    row.dataset.loading = 'true'; aiBtn.disabled = true; loader.classList.remove('hidden'); icon.classList.add('hidden');
+                    try {
+                        const data = await fetchIngredientMacros(recipeName, ingredientData, ingredientAbortController.signal);
+                        if (ingredientAbortController.signal.aborted) return;
+                        row.querySelector('.ingredient-grams').value = data.grams.toFixed(0); row.querySelector('.ingredient-calories').value = data.calories.toFixed(0); row.querySelector('.ingredient-protein').value = data.protein.toFixed(1); row.querySelector('.ingredient-carbs').value = data.carbs.toFixed(1); row.querySelector('.ingredient-fat').value = data.fat.toFixed(1); row.querySelector('.ingredient-sugar').value = data.sugar.toFixed(1); row.querySelector('.ingredient-sodium').value = data.sodium.toFixed(0); row.querySelector('.ingredient-potassium').value = data.potassium.toFixed(0);
+                        updateRecipeTotals();
+                    } catch (error) {
+                        // Display API errors to the user
+                        if (error.name !== 'AbortError') {
+                             console.error("AI Macro Search Failed:", error);
+                             // Show a user-friendly message based on the error
+                             let userMessage = `Could not fetch macros. ${error.message}`;
+                             if (error.message.includes("401")) {
+                                 // Specific message for 401
+                                 userMessage = "Authentication failed. The API key might be missing or invalid in this environment.";
+                             } else if (error.message.includes("blocked due to")) {
+                                 userMessage = `Request blocked by safety settings: ${error.message.split(': ')[1]}`;
+                             } else if (error.message.includes("Invalid API response format")) {
+                                 userMessage = "Received an unexpected response from the AI. Please try again.";
+                             } else if (error.message.includes("400")) {
+                                // Specific message for 400 related to tools + JSON
+                                userMessage = "AI configuration error. Cannot use Search and JSON output together.";
+                             }
+                             showCustomAlert("AI Error", userMessage);
+                         }
+                    }
+                    finally {
+                        // Ensure button state is reset only if not aborted
+                        if (!ingredientAbortController || !ingredientAbortController.signal.aborted) {
+                            if(aiBtn) aiBtn.disabled = false;
+                            if(loader) loader.classList.add('hidden');
+                            if(icon) icon.classList.remove('hidden');
+                            if(row) delete row.dataset.loading;
+                        }
+                        ingredientAbortController = null; // Clear controller once done or aborted
+                    }
+                }
+
+                 if (scanBtn && row) {
+                    showCustomAlert("Scan Not Supported", "Scanning ingredients requires the main nutrition page integration.");
+                    // In a real scenario, you might try to open the ai-scanner-popup.html and pass context back.
+                    // For now, it's disabled in the standalone recipe builder.
+                }
+            });
+
+            ui.ingredientListContainer.addEventListener('input', (e) => {
+                if (e.target.type === 'number' && parseFloat(e.target.value) < 0) e.target.value = '';
+                updateRecipeTotals(); validateLastRow();
+                const row = e.target.closest('.ingredient-row');
+                if (row && ingredientAbortController && row.dataset.loading) { ingredientAbortController.abort(); }
+            });
+
+            // Alert modal OK button
+             ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+
+            // --- INITIALIZATION ---
+            lucide.createIcons();
+            addIngredientRow(); // Add the first empty row on load
+            setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient'); // Setup carousel
+            ui.recipeNameInput.focus(); // Focus recipe name input
+            // Update totals initially (should be all 0)
+            updateRecipeTotals();
+        });
+    </script>
+</body>
+</html>
