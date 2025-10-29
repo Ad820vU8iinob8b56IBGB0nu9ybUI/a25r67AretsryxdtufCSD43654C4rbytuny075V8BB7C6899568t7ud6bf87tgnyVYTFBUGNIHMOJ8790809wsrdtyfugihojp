@@ -1,0 +1,329 @@
+/* Dark theme is the default */
+:root {
+    --background: #000000;
+    --primary-text: #eaeaea; /* Changed this to a lighter gray for better contrast */
+    --secondary-text: #888888;
+    --card-bg: #111111;
+    --input-bg: #191919;
+    --border-color: #222222;
+    --accent: #FFFFFF; /* Using white as the main accent */
+    --accent-hover: #DDDDDD;
+    --danger: #E53E3E;
+    --edit: #3b82f6; /* Added from workouts.html */
+    --validation-error: #F87171; /* Added from workoutplangeneratorpopup.html */
+    --nav-footer-height: 64px; /* Set height of the new fixed footer nav */
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+    --background: #f8fafc; /* slate-50 */
+    --primary-text: #0f172a; /* slate-900 */
+    --secondary-text: #64748b; /* slate-500 */
+    --card-bg: #ffffff;
+    --input-bg: #f1f5f9; /* slate-100 */
+    --border-color: #e2e8f0; /* slate-200 */
+    --accent: #0f172a; /* slate-900 */
+    --accent-hover: #334155; /* slate-700 */
+}
+
+html, body {
+    overscroll-behavior-y: contain;
+    /* Ensure content has room above the fixed footer */
+    padding-bottom: var(--nav-footer-height);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--primary-text);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+/* Footer Nav Styles */
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    height: 100%;
+    transition: color 0.3s ease;
+    color: var(--primary-text);
+    font-size: 0.75rem;
+    text-decoration: none;
+    padding-top: 4px;
+}
+
+.nav-link:hover {
+    color: var(--accent); /* Hover uses accent */
+}
+
+.nav-link.active {
+    color: #60a5fa; /* Blue for active link */
+}
+
+.nav-link.active .nav-icon {
+    color: #60a5fa; /* Blue for active icon */
+}
+
+.nav-icon {
+    color: var(--primary-text);
+    margin-bottom: 2px;
+    width: 24px;
+    height: 24px;
+}
+
+#mobile-footer-nav {
+    background-color: var(--background); /* Match page background */
+}
+/* End Footer Nav Styles */
+
+.content-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem; /* Mobile first padding */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+/* Desktop padding */
+@media (min-width: 640px) {
+    .content-card {
+        padding: 2rem;
+    }
+}
+
+/* Styles kept from original index.html */
+.clickable-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Added transition */
+}
+.clickable-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--accent) 5%, transparent), 0 4px 6px -2px color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+/* Input/Form styles (merged from various files) */
+.form-input, .form-select, .form-textarea {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--primary-text);
+    padding: 0.75rem 1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+[data-theme="light"] .form-select {
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23334155' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Style for date/time inputs */
+.form-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+[data-theme="light"] .form-input::-webkit-calendar-picker-indicator {
+    filter: none;
+}
+
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.form-label { color: var(--secondary-text); font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; }
+
+/* Required field indicator */
+.form-label.required::after {
+    content: '*';
+    color: var(--validation-error);
+    margin-left: 0.25rem;
+    font-weight: bold;
+}
+/* Help Icon */
+.help-icon { color: var(--secondary-text); cursor: help; }
+
+
+.btn { border-radius: 0.5rem; font-weight: 600; padding: 0.75rem 1.5rem; transition: all 0.2s ease-in-out; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transform: translateY(0); }
+.btn:hover:not(:disabled) { transform: translateY(-2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: translateY(0); }
+.btn-primary { background-color: var(--accent); color: var(--background); }
+.btn-primary:hover:not(:disabled) { background-color: var(--accent-hover); }
+.btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--primary-text); }
+.btn-secondary:hover:not(:disabled) { background-color: var(--border-color); }
+.btn-danger { background-color: var(--danger); color: var(--primary-text); }
+.btn-danger:hover:not(:disabled) { background-color: #C53030; }
+
+ /* Loader style */
+.loader { border: 2px solid #333; border-top: 2px solid var(--accent); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.hidden { display: none; }
+
+/* Modal styles (merged) */
+.modal-backdrop { display: none; position: fixed; z-index: 50; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; animation: fadeIn 0.3s ease; }
+.modal-content { background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 0.75rem; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease; }
+@media (min-width: 640px) {
+    .modal-content { padding: 2rem; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Chart range buttons (from progress.html) */
+.chart-range-btn {
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+}
+.chart-range-btn:hover {
+    background-color: var(--border-color);
+}
+.chart-range-btn.active {
+    background-color: #60a5fa; /* blue-400 */
+    color: var(--background);
+    border-color: #60a5fa;
+}
+
+/* Star rating (from sleep.html) */
+.star-rating > button {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #4b5563; /* gray-600 */
+    background: none;
+    border: none;
+    padding: 0 0.2rem;
+}
+.star-rating > button.selected, .star-rating > button:hover, .star-rating:hover > button:hover ~ button {
+    color: #f59e0b; /* amber-500 */
+}
+ .star-rating:hover > button {
+    color: #f59e0b;
+}
+
+/* Tab Styles (from progress.html / social.html) */
+.tab-btn {
+    flex-grow: 1;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--secondary-text);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+}
+.tab-btn:hover {
+    color: var(--primary-text);
+}
+.tab-btn.active {
+    color: var(--primary-text);
+    border-bottom-color: var(--accent);
+}
+.tab-panel {
+    display: none; /* Hidden by default */
+}
+.tab-panel.active {
+    display: block; /* Shown when active */
+    animation: fadeIn 0.5s ease; /* Add fade-in for panels */
+}
+
+/* Segmented Control (from social.html) */
+.segmented-control {
+    display: flex;
+    background-color: var(--input-bg);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border-color);
+}
+.segmented-control .tab-btn { /* Style buttons within segmented control differently */
+    border-bottom: none; /* Remove bottom border */
+    border-radius: 0.375rem; /* Rounded corners for segments */
+    padding: 0.5rem 0.5rem; /* Reduced padding */
+}
+.segmented-control .tab-btn.active {
+    background-color: var(--card-bg); /* Use card background for active */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); /* Subtle shadow */
+    color: var(--primary-text);
+    border-bottom-color: transparent; /* Ensure no bottom border */
+}
+[data-theme="light"] .segmented-control .tab-btn.active {
+     box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* Custom Scrollbar (from workouts.html / nutrition.html) */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #666; }
+/* Hide scrollbar for Firefox/IE */
+.custom-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Details/Summary Styles (from nutrition.html) */
+details > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary .chevron { transition: transform 0.2s ease; }
+details[open] > summary .chevron { transform: rotate(180deg); }
+
+/* Swipe Styles (from nutrition.html / workouts.html) */
+.swipe-item { position: relative; overflow: hidden; user-select: none; }
+.swipe-actions { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; }
+.swipe-action-container { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+.swipe-action-container.left { justify-content: flex-start; background: linear-gradient(to right, hsl(0, 72%, 51%), hsl(0, 82%, 61%)); } /* Delete */
+.swipe-action-container.right { justify-content: flex-end; background: linear-gradient(to left, hsl(217, 91%, 60%), hsl(217, 81%, 70%)); } /* Edit */
+.swipe-actions .action { height: 100%; display: flex; align-items: center; justify-content: center; color: white; padding: 0 1.5rem; }
+.swipe-content { position: relative; background-color: var(--card-bg); touch-action: pan-y; cursor: pointer; }
+.swipe-content.swiping { transition: none; }
+.swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+/* Water Button Specific Styles (from nutrition.html) */
+#add-water-btn { position: relative; overflow: hidden; touch-action: none; }
+#water-fill { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; background-color: #3b82f6; height: 0%; transition: height 0.3s ease-out; z-index: 1; }
+#add-water-btn > i, #add-water-btn > div > i { position: relative; z-index: 2; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
+#water-swipe-content.swiping { transition: none; }
+#water-swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#add-water-btn:hover:not(:disabled) #water-swipe-content { background-color: var(--border-color); }
+/* Specific swipe backgrounds for water button */
+#water-swipe-bg-top { position: absolute; opacity: 0; background: linear-gradient(to bottom, hsl(262, 83%, 60%), hsl(262, 83%, 70%)); height: 0; transition: height 0.3s ease, opacity 0.3s ease; top: 0; left: 0; right: 0; bottom: auto; display: flex; align-items: flex-start; justify-content: center; }
+#water-swipe-bg-left { background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%)); }
+#water-swipe-bg-right { background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%)); }
+
+/* Toggle Switch (from settings.html) */
+.toggle-switch { position: relative; display: inline-block; width: 34px; height: 20px; flex-shrink: 0;}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--input-bg); border: 1px solid var(--border-color); transition: .4s; border-radius: 20px; }
+.toggle-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--secondary-text); transition: .4s; border-radius: 50%; }
+input:checked + .toggle-slider { background-color: #3B82F6; border-color: #3B82F6; }
+input:checked + .toggle-slider:before { background-color: white; transform: translateX(14px); }
+
+/* Setting Row Layout (from settings.html) */
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-weight: 500; }
+.setting-description { font-size: 0.8rem; color: var(--secondary-text); margin-top: 0.1rem; }
+.setting-control { flex-shrink: 0; margin-left: 1rem; }
+
+/* Undo Toast (from nutrition.html / workouts.html) */
+#undo-toast { position: fixed; bottom: calc(var(--nav-footer-height) + 1rem); /* Above footer nav */ left: 50%; transform: translateX(-50%) translateY(100%); opacity: 0; background-color: #27272a; /* zinc-800 */ color: var(--primary-text); padding: 0.75rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1rem; z-index: 100; transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+#undo-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#undo-toast-btn { font-weight: 600; color: #60a5fa; /* blue-400 */ background: none; border: none; padding: 0; cursor: pointer; }
+#undo-toast-btn:hover { color: #93c5fd; /* blue-300 */ }
