@@ -849,7 +849,7 @@
                 let baseExercises = [];
                 let baseWarmups = {};
                 try {
-                    const response = await fetch('assets/exercises.json');
+                    const response = await fetch('/data/exercises.json');
                     if (!response.ok) throw new Error('Failed to fetch exercise data');
                     const data = await response.json();
                     baseExercises = data.exercises || [];
