@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | sleep</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Link Shared CSS -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <!-- Page Specific Styles (if any) -->
+    <style>
+        /* Add page-specific styles here if needed */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Theme script (should be early) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6">
+
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+             <div class="space-y-8">
+                <!-- Log Sleep Card -->
+                <div class="content-card">
+                    <h2 class="text-2xl font-semibold mb-4">Log Your Sleep</h2>
+                    <form id="sleep-log-form" class="space-y-6">
+                         <div>
+                            <label for="sleep-date" class="form-label">Date of Sleep</label>
+                            <input type="date" id="sleep-date" class="form-input mt-1" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="sleep-start-time" class="form-label">Went to bed</label>
+                                <input type="time" id="sleep-start-time" class="form-input mt-1" required>
+                            </div>
+                            <div>
+                                <label for="sleep-end-time" class="form-label">Woke up</label>
+                                <input type="time" id="sleep-end-time" class="form-input mt-1" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label mb-2 block">Sleep Quality</label>
+                            <div id="sleep-quality-rating" class="star-rating flex flex-row-reverse justify-end items-center">
+                                <button type="button" data-value="5">&starf;</button>
+                                <button type="button" data-value="4">&starf;</button>
+                                <button type="button" data-value="3">&starf;</button>
+                                <button type="button" data-value="2">&starf;</button>
+                                <button type="button" data-value="1">&starf;</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="sleep-notes" class="form-label">Notes (Optional)</label>
+                            <textarea id="sleep-notes" rows="3" class="form-input mt-1" placeholder="e.g., Woke up during the night, felt well-rested..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full btn btn-primary">Log Sleep</button>
+                    </form>
+                </div>
+
+                <!-- Sleep Cycle Calculator Card -->
+                <div class="content-card">
+                    <h2 class="text-2xl font-semibold mb-4">Sleep Cycle Calculator</h2>
+                    <div>
+                        <h3 class="font-semibold mb-2">When to wake up?</h3>
+                        <p class="text-secondary-text mb-4 text-sm">If you go to sleep now, aim to wake up at one of these times:</p>
+                        <div id="sleep-wake-times" class="grid grid-cols-3 gap-3 text-center"></div>
+                        <p class="text-xs text-secondary-text mt-4">Based on 90-min sleep cycles and 15 mins to fall asleep.</p>
+                    </div>
+                    <hr class="border-border-color my-6">
+                    <div>
+                        <h3 class="font-semibold mb-2">When to go to bed?</h3>
+                        <p class="text-secondary-text mb-4 text-sm">If you want to wake up at a specific time, try falling asleep at one of these times:</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex-grow">
+                                <label for="wake-up-at-time" class="form-label sr-only">Wake up time</label>
+                                <input type="time" id="wake-up-at-time" class="form-input">
+                            </div>
+                            <button id="calculate-bed-time-btn" class="btn btn-secondary">Calculate</button>
+                        </div>
+                        <div id="bed-times-results" class="grid grid-cols-3 gap-3 text-center mt-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                 <!-- Sleep Analytics Card -->
+                 <div class="content-card">
+                    <h2 class="text-2xl font-semibold mb-4">Sleep Analytics</h2>
+                    <div id="sleep-analytics-stats" class="grid grid-cols-2 gap-4 py-4">
+                        <p class="text-secondary-text col-span-2 text-center">Log sleep to see your analytics.</p>
+                    </div>
+                </div>
+
+                 <!-- Sleep Trends Chart -->
+                 <div class="content-card">
+                    <h2 class="text-2xl font-semibold mb-4">Sleep Trends (Last 14 Nights)</h2>
+                    <div class="w-full h-64"><canvas id="sleep-chart"></canvas></div>
+                </div>
+
+                <!-- Sleep History Card -->
+                <div class="content-card">
+                    <h2 class="text-2xl font-semibold mb-4">Sleep History</h2>
+                    <div id="sleep-history" class="space-y-4 max-h-[30rem] overflow-y-auto pr-2">
+                        <p class="text-secondary-text">No sleep logged yet.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="edit-sleep-modal" class="modal-backdrop"> <div class="modal-content"> <div class="flex justify-between items-center mb-6"> <h2 class="text-2xl font-bold">Edit Sleep Log</h2> <button id="close-edit-sleep-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button> </div> <form id="edit-sleep-log-form" class="space-y-6"> <div> <label for="edit-sleep-date" class="form-label">Date</label> <input type="date" id="edit-sleep-date" class="form-input mt-1" required> </div> <div class="grid grid-cols-2 gap-4"> <div> <label for="edit-sleep-start-time" class="form-label">Went to bed</label> <input type="time" id="edit-sleep-start-time" class="form-input mt-1" required> </div> <div> <label for="edit-sleep-end-time" class="form-label">Woke up</label> <input type="time" id="edit-sleep-end-time" class="form-input mt-1" required> </div> </div> <div> <label class="form-label mb-2 block">Sleep Quality</label> <div id="edit-sleep-quality-rating" class="star-rating flex flex-row-reverse justify-end items-center"> <button type="button" data-value="5">&starf;</button> <button type="button" data-value="4">&starf;</button> <button type="button" data-value="3">&starf;</button> <button type="button" data-value="2">&starf;</button> <button type="button" data-value="1">&starf;</button> </div> </div> <div> <label for="edit-sleep-notes" class="form-label">Notes</label> <textarea id="edit-sleep-notes" rows="3" class="form-input mt-1"></textarea> </div> <button type="submit" class="w-full btn btn-primary">Update Sleep Log</button> </form> </div> </div>
+    <div id="confirm-modal" class="modal-backdrop"><div class="modal-content"><h2 id="confirm-modal-title" class="text-xl font-bold mb-4">Are you sure?</h2><p id="confirm-modal-text" class="text-gray-300 mb-6">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="confirm-modal-cancel-btn" class="btn btn-secondary">Cancel</button><button id="confirm-modal-confirm-btn" class="btn btn-danger">Confirm</button></div></div></div>
+    <div id="alert-modal" class="modal-backdrop"><div class="modal-content"><h2 id="alert-modal-title" class="text-xl font-bold mb-4">Alert</h2><p id="alert-modal-text" class="text-gray-300 mb-6"></p><div class="flex justify-end"><button id="alert-modal-ok-btn" class="btn btn-primary">OK</button></div></div></div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Script to load Header/Footer and Page Logic -->
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'sleep'; // This should be 'sleep'
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeSleepPage();
+        }
+        // --- End Load Header and Footer ---
+
+        // --- Original script from sleep.html (wrapped in a function) ---
+        function initializeSleepPage() {
+            // --- STATE MANAGEMENT ---
+            let userProfile = { sleepHistory: [] };
+            let currentSleepQuality = 0;
+            let currentEditSleepQuality = 0;
+            let editingSleepLogIndex = null;
+            let confirmCallback = null;
+            let chartTextColor, chartGridColor;
+
+             // --- UI ELEMENTS ---
+            const ui = {
+                sleepLogForm: document.getElementById('sleep-log-form'),
+                sleepDateInput: document.getElementById('sleep-date'),
+                sleepQualityRating: document.getElementById('sleep-quality-rating'),
+                sleepHistoryDiv: document.getElementById('sleep-history'),
+                sleepWakeTimesDiv: document.getElementById('sleep-wake-times'),
+                editSleepModal: document.getElementById('edit-sleep-modal'),
+                closeEditSleepModalBtn: document.getElementById('close-edit-sleep-modal-btn'),
+                editSleepLogForm: document.getElementById('edit-sleep-log-form'),
+                editSleepQualityRating: document.getElementById('edit-sleep-quality-rating'),
+                confirmModal: document.getElementById('confirm-modal'),
+                confirmModalTitle: document.getElementById('confirm-modal-title'),
+                confirmModalText: document.getElementById('confirm-modal-text'),
+                confirmModalCancelBtn: document.getElementById('confirm-modal-cancel-btn'),
+                confirmModalConfirmBtn: document.getElementById('confirm-modal-confirm-btn'),
+                alertModal: document.getElementById('alert-modal'),
+                alertModalTitle: document.getElementById('alert-modal-title'),
+                alertModalText: document.getElementById('alert-modal-text'),
+                alertModalOkBtn: document.getElementById('alert-modal-ok-btn'),
+                analyticsStatsDiv: document.getElementById('sleep-analytics-stats'),
+                wakeUpAtInput: document.getElementById('wake-up-at-time'),
+                calculateBedTimeBtn: document.getElementById('calculate-bed-time-btn'),
+                bedTimesResultsDiv: document.getElementById('bed-times-results'),
+            };
+
+            // --- CHART.JS SETUP ---
+             function updateChartThemeColors() { chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-text').trim(); chartGridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim(); Chart.defaults.color = chartTextColor; }
+            updateChartThemeColors(); // Initial setup
+
+            const sleepCtx = document.getElementById('sleep-chart').getContext('2d');
+            let sleepChart = new Chart(sleepCtx, {
+                type: 'bar', data: { labels: [], datasets: [] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { id: 'y', position: 'left', beginAtZero: true, ticks: { color: chartTextColor, callback: (value) => value + 'h' }, grid: { color: chartGridColor } }, y2: { id: 'y2', position: 'right', type: 'linear', min: 0, max: 5, ticks: { color: '#f59e0b', callback: (value) => value + '★' }, grid: { drawOnChartArea: false } }, x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } }, plugins: { legend: { display: true, labels: { color: chartTextColor } }, tooltip: { callbacks: { label: (context) => { if (context.dataset.yAxisID === 'y2') return ` Quality: ${context.raw} stars`; return ` Duration: ${context.raw.toFixed(2)} hours`; } } } } }
+            });
+
+            // --- CORE FUNCTIONS ---
+            function showModal(modal) { modal.style.display = 'flex'; }
+            function hideModal(modal) { modal.style.display = 'none'; }
+            function showCustomAlert(title, text) { ui.alertModalTitle.textContent = title; ui.alertModalText.textContent = text; showModal(ui.alertModal); }
+            function showConfirmModal(title, text, onConfirm) { ui.confirmModalTitle.textContent = title; ui.confirmModalText.textContent = text; confirmCallback = onConfirm; showModal(ui.confirmModal); }
+            function loadData() { userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [] }; if (!userProfile.sleepHistory) userProfile.sleepHistory = []; }
+            function saveData() { localStorage.setItem('fitTrackAI_userProfile', JSON.stringify(userProfile)); }
+            function calculateWakeTimesFromNow() { const now = new Date(); const fallAsleepMinutes = 15; ui.sleepWakeTimesDiv.innerHTML = ''; for(let i = 4; i <= 6; i++) { const cycleDurationMs = (90 * i * 60 * 1000) + (fallAsleepMinutes * 60 * 1000); const wakeUpDate = new Date(now.getTime() + cycleDurationMs); const timeString = wakeUpDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); const timeEl = document.createElement('div'); timeEl.className = 'bg-input-bg border border-border-color p-2 rounded-md text-center'; timeEl.innerHTML = `<span class="font-semibold text-lg">${timeString}</span><span class="text-xs text-secondary-text block">${i} cycles</span>`; ui.sleepWakeTimesDiv.appendChild(timeEl); } }
+            function calculateBedTimes() { const wakeTime = ui.wakeUpAtInput.value; if (!wakeTime) { showCustomAlert('Missing Time', 'Please select a time you want to wake up.'); return; } const [wakeHours, wakeMinutes] = wakeTime.split(':').map(Number); const wakeDate = new Date(); wakeDate.setHours(wakeHours, wakeMinutes, 0, 0); const fallAsleepMinutes = 15; ui.bedTimesResultsDiv.innerHTML = ''; for (let i = 4; i <= 6; i++) { const cycleDurationMs = (90 * i * 60 * 1000) + (fallAsleepMinutes * 60 * 1000); const bedDate = new Date(wakeDate.getTime() - cycleDurationMs); const timeString = bedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); const timeEl = document.createElement('div'); timeEl.className = 'bg-input-bg border border-border-color p-2 rounded-md text-center'; timeEl.innerHTML = `<span class="font-semibold text-lg">${timeString}</span><span class="text-xs text-secondary-text block">${i} cycles</span>`; ui.bedTimesResultsDiv.appendChild(timeEl); } }
+            function renderAnalytics() { const history = userProfile.sleepHistory; if (!history || history.length === 0) { ui.analyticsStatsDiv.innerHTML = '<p class="text-secondary-text col-span-2 text-center">Log sleep to see your analytics.</p>'; return; } let totalMinutes = 0; let totalQuality = 0; history.forEach(log => { const { durationInMinutes } = calculateDuration(log.startTime, log.endTime, log.date); totalMinutes += durationInMinutes; totalQuality += log.quality; }); const avgMinutes = totalMinutes / history.length; const avgQuality = totalQuality / history.length; const avgHours = Math.floor(avgMinutes / 60); const avgMins = Math.round(avgMinutes % 60); ui.analyticsStatsDiv.innerHTML = `<div class="text-center"><div class="text-3xl font-bold">${avgHours}h ${avgMins}m</div><div class="text-sm text-secondary-text">Avg. Duration</div></div><div class="text-center"><div class="text-3xl font-bold">${avgQuality.toFixed(1)} <span class="text-amber-400">&starf;</span></div><div class="text-sm text-secondary-text">Avg. Quality</div></div>`; }
+            function renderSleepHistory() { if (!userProfile.sleepHistory || userProfile.sleepHistory.length === 0) { ui.sleepHistoryDiv.innerHTML = '<p class="text-secondary-text">No sleep logged yet.</p>'; return; } const sortedHistory = [...userProfile.sleepHistory].sort((a,b) => new Date(b.date) - new Date(a.date)); ui.sleepHistoryDiv.innerHTML = sortedHistory.map((log, index) => { const originalIndex = userProfile.sleepHistory.indexOf(log); const { durationHours, durationMinutes } = calculateDuration(log.startTime, log.endTime, log.date); return `<div class="bg-black/30 p-4 rounded-lg border border-border-color"><div class="flex justify-between items-start mb-2"><div><h4 class="font-bold text-lg">${new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</h4><div class="flex items-center gap-1 mt-1 text-amber-400">${'★'.repeat(log.quality)}<span class="text-gray-600">${'★'.repeat(5 - log.quality)}</span></div></div><div class="flex gap-2"><button class="edit-sleep-btn p-1 text-secondary-text hover:text-primary-text rounded-md transition-colors" data-index="${originalIndex}" title="Edit"><i data-lucide="pencil" class="w-5 h-5 pointer-events-none"></i></button><button class="delete-sleep-btn p-1 text-secondary-text hover:text-danger rounded-md transition-colors" data-index="${originalIndex}" title="Delete"><i data-lucide="trash-2" class="w-5 h-5 pointer-events-none"></i></button></div></div><p class="text-sm text-primary-text"><strong>Duration:</strong> ${durationHours}h ${durationMinutes}m</p><p class="text-sm text-primary-text"><strong>Time:</strong> ${log.startTime} - ${log.endTime}</p>${log.notes ? `<p class="text-sm mt-2 pt-2 border-t border-border-color text-primary-text"><strong>Notes:</strong> ${log.notes}</p>` : ''}</div>`; }).join(''); lucide.createIcons(); }
+            function renderSleepChart() { if (!userProfile.sleepHistory || userProfile.sleepHistory.length === 0) { sleepChart.data = { labels: [], datasets: [] }; sleepChart.update(); return; } const sortedHistory = [...userProfile.sleepHistory].sort((a,b) => new Date(a.date) - new Date(b.date)).slice(-14); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const durationData = sortedHistory.map(log => { const { durationInMinutes } = calculateDuration(log.startTime, log.endTime, log.date); return (durationInMinutes / 60); }); const qualityData = sortedHistory.map(log => log.quality); updateChartThemeColors(); sleepChart.options.scales.y.ticks.color = chartTextColor; sleepChart.options.scales.y.grid.color = chartGridColor; sleepChart.options.scales.x.ticks.color = chartTextColor; sleepChart.options.scales.x.grid.color = chartGridColor; sleepChart.options.plugins.legend.labels.color = chartTextColor; sleepChart.data = { labels, datasets: [ { label: 'Duration (hours)', data: durationData, backgroundColor: 'rgba(96, 165, 250, 0.5)', borderColor: '#60a5fa', borderWidth: 2, borderRadius: 4, yAxisID: 'y', }, { label: 'Quality (stars)', data: qualityData, type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', yAxisID: 'y2', tension: 0.1 } ] }; sleepChart.update(); }
+            function calculateDuration(startTime, endTime, dateStr) { const startDate = new Date(`${dateStr}T${startTime}`); const endDate = new Date(`${dateStr}T${endTime}`); if(endDate <= startDate) endDate.setDate(endDate.getDate() + 1); const durationMs = endDate - startDate; const durationInMinutes = Math.floor(durationMs / (1000 * 60)); const durationHours = Math.floor(durationInMinutes / 60); const durationMinutes = durationInMinutes % 60; return { durationHours, durationMinutes, durationInMinutes }; }
+            function openEditSleepModal(index) { const log = userProfile.sleepHistory[index]; if (!log) return; editingSleepLogIndex = index; document.getElementById('edit-sleep-date').value = log.date; document.getElementById('edit-sleep-start-time').value = log.startTime; document.getElementById('edit-sleep-end-time').value = log.endTime; document.getElementById('edit-sleep-notes').value = log.notes; currentEditSleepQuality = log.quality; updateStarRating(ui.editSleepQualityRating, currentEditSleepQuality); showModal(ui.editSleepModal); }
+            function updateStarRating(container, quality) { Array.from(container.children).forEach(button => button.classList.toggle('selected', parseInt(button.dataset.value, 10) <= quality)); }
+            function handleRating(container, e, isEdit = false) { const button = e.target.closest('button'); if (button && button.dataset.value) { const quality = parseInt(button.dataset.value, 10); if (isEdit) currentEditSleepQuality = quality; else currentSleepQuality = quality; updateStarRating(container, quality); } }
+            function fullRender() { renderSleepHistory(); renderSleepChart(); renderAnalytics(); calculateWakeTimesFromNow(); lucide.createIcons(); }
+
+            // --- EVENT LISTENERS ---
+            ui.sleepLogForm.addEventListener('submit', (e) => { e.preventDefault(); const date = ui.sleepDateInput.value; const startTime = document.getElementById('sleep-start-time').value; const endTime = document.getElementById('sleep-end-time').value; const notes = document.getElementById('sleep-notes').value; if (!date || !startTime || !endTime || currentSleepQuality === 0) { showCustomAlert('Missing Info', 'Please fill in date, sleep/wake times and select a quality rating.'); return; } const sleepLog = { date, startTime, endTime, quality: currentSleepQuality, notes }; userProfile.sleepHistory.push(sleepLog); saveData(); fullRender(); ui.sleepLogForm.reset(); ui.sleepDateInput.value = new Date().toISOString().split('T')[0]; currentSleepQuality = 0; updateStarRating(ui.sleepQualityRating, 0); });
+            ui.editSleepLogForm.addEventListener('submit', (e) => { e.preventDefault(); if (editingSleepLogIndex === null) return; const updatedLog = { date: document.getElementById('edit-sleep-date').value, startTime: document.getElementById('edit-sleep-start-time').value, endTime: document.getElementById('edit-sleep-end-time').value, notes: document.getElementById('edit-sleep-notes').value, quality: currentEditSleepQuality }; userProfile.sleepHistory[editingSleepLogIndex] = updatedLog; saveData(); fullRender(); hideModal(ui.editSleepModal); editingSleepLogIndex = null; });
+            ui.sleepQualityRating.addEventListener('click', (e) => handleRating(ui.sleepQualityRating, e, false));
+            ui.editSleepQualityRating.addEventListener('click', (e) => handleRating(ui.editSleepQualityRating, e, true));
+            ui.sleepHistoryDiv.addEventListener('click', (e) => { const editBtn = e.target.closest('.edit-sleep-btn'); const deleteBtn = e.target.closest('.delete-sleep-btn'); if (editBtn) openEditSleepModal(parseInt(editBtn.dataset.index)); if (deleteBtn) { const indexToDelete = parseInt(deleteBtn.dataset.index); showConfirmModal('Delete Sleep Log?', 'Are you sure?', () => { userProfile.sleepHistory.splice(indexToDelete, 1); saveData(); fullRender(); }); } });
+            ui.calculateBedTimeBtn.addEventListener('click', calculateBedTimes);
+            ui.closeEditSleepModalBtn.addEventListener('click', () => hideModal(ui.editSleepModal));
+            ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+            ui.confirmModalCancelBtn.addEventListener('click', () => hideModal(ui.confirmModal));
+            ui.confirmModalConfirmBtn.addEventListener('click', () => { if(confirmCallback) confirmCallback(); hideModal(ui.confirmModal); });
+            window.addEventListener('storage', (event) => { if (event.key === 'fitTrackAI_theme') renderSleepChart(); });
+
+            // --- INITIALIZATION ---
+            loadData();
+            fullRender();
+            ui.sleepDateInput.value = new Date().toISOString().split('T')[0];
+            const defaultWakeTime = new Date(); defaultWakeTime.setHours(7, 0, 0); ui.wakeUpAtInput.value = `${String(defaultWakeTime.getHours()).padStart(2, '0')}:${String(defaultWakeTime.getMinutes()).padStart(2, '0')}`;
+            setInterval(calculateWakeTimesFromNow, 60000);
+        }
+        // --- End Original script ---
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>

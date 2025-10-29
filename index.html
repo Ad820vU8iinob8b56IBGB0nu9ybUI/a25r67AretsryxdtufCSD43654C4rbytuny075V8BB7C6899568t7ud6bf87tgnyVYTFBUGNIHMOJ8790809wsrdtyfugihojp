@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | Home</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Link Shared CSS -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <!-- Page Specific Styles (if any) -->
+    <style>
+        /* Add page-specific styles here if needed */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Theme script (should be early) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6">
+
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
+
+        <!-- Main content -->
+        <main class="space-y-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold">Welcome Back!</h2>
+                <p class="text-lg text-secondary-text mt-2">Here's a quick summary of your progress.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <!-- Nutrition Summary -->
+                <a href="nutrition.html" class="content-card clickable-card">
+                    <h3 class="text-2xl font-bold mb-4">Nutrition at a Glance</h3>
+                    <div class="flex items-center gap-6">
+                        <div class="w-24 h-24 flex-shrink-0">
+                            <canvas id="macro-chart-summary"></canvas>
+                        </div>
+                        <div class="w-full grid grid-cols-1 gap-y-2 text-sm">
+                            <div class="flex justify-between items-baseline"><span class="text-secondary-text">Calories:</span> <span class="font-semibold"><span id="summary-current-calories">0</span> / <span id="summary-goal-calories">2000</span></span></div>
+                            <div class="flex justify-between items-baseline"><span class="text-secondary-text">Protein:</span> <span class="font-semibold"><span id="summary-current-protein">0</span> / <span id="summary-goal-protein">150</span> g</span></div>
+                            <div class="flex justify-between items-baseline"><span class="text-secondary-text">Carbs:</span> <span class="font-semibold"><span id="summary-current-carbs">0</span> / <span id="summary-goal-carbs">225</span> g</span></div>
+                            <div class="flex justify-between items-baseline"><span class="text-secondary-text">Fat:</span> <span class="font-semibold"><span id="summary-current-fat">0</span> / <span id="summary-goal-fat">60</span> g</span></div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Workout Summary -->
+                <a href="workouts.html" class="content-card clickable-card">
+                    <h3 class="text-2xl font-bold mb-4">Today's Workout</h3>
+                    <div id="workout-summary" class="text-center text-secondary-text">
+                        <p>No workout data available.</p>
+                        <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log a workout</span>
+                    </div>
+                </a>
+
+                <!-- Sleep Summary -->
+                <a href="sleep.html" class="content-card clickable-card">
+                    <h3 class="text-2xl font-bold mb-4">Last Night's Sleep</h3>
+                    <div id="sleep-summary" class="text-center text-secondary-text">
+                        <p>No sleep data available.</p>
+                         <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</span>
+                    </div>
+                </a>
+
+                 <!-- Daily Check-in Card -->
+                <div class="content-card">
+                    <h3 class="text-2xl font-semibold mb-4">Daily Check-in</h3>
+                    <p class="text-sm text-secondary-text mb-4">Log your weight for today.</p>
+                    <form id="check-in-form" class="flex flex-col gap-4"> <!-- Simplified layout -->
+                        <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
+                        <!-- SMM input removed -->
+                        <button type="submit" id="check-in-btn" class="btn btn-primary w-full"> <!-- Full width button -->
+                            <span class="btn-text">Check In</span>
+                            <div class="loader hidden"></div>
+                        </button>
+                    </form>
+                    <div id="check-in-feedback" class="mt-4 text-sm h-5 text-center"></div>
+                    <!-- Note: This form requires JavaScript from progress.html to function fully -->
+                </div>
+                <!-- END ADDED Daily Check-in Card -->
+
+            </div>
+
+             <div class="content-card">
+                <h3 class="text-2xl font-bold mb-4">Weekly Progress (Weight & Calories)</h3>
+                 <div class="h-64">
+                    <canvas id="weekly-progress-chart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Script to load Header/Footer and Page Logic -->
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'index'; // Change this for each page (e.g., 'nutrition', 'workouts')
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeIndexPage();
+        }
+        // --- End Load Header and Footer ---
+
+        // --- Original script from index.html (wrapped in a function) ---
+        function initializeIndexPage() {
+            // --- STATE MANAGEMENT ---
+            let appData = {};
+            let chartTextColor, chartGridColor;
+
+            // --- CHART.JS SETUP ---
+            function updateChartThemeColors() {
+                chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-text').trim();
+                chartGridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+                Chart.defaults.color = chartTextColor;
+            }
+            updateChartThemeColors(); // Call it once to set initial colors
+
+
+            const macroCtx = document.getElementById('macro-chart-summary').getContext('2d');
+            const macroChart = new Chart(macroCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        data: [1, 1, 1],
+                        backgroundColor: ['#3b82f6', '#10b981', '#ef4444'],
+                        borderColor: 'var(--card-bg)', // Use CSS var
+                        borderWidth: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed !== null) label += context.parsed.toFixed(1) + 'g';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const weeklyCtx = document.getElementById('weekly-progress-chart').getContext('2d');
+            const weeklyProgressChart = new Chart(weeklyCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Calories', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', yAxisID: 'y', tension: 0.3, fill: true, },
+                        { label: 'Weight (kg)', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.2)', yAxisID: 'y1', tension: 0.3, }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: chartTextColor }, grid: { drawOnChartArea: false }, },
+                        x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } }
+                    },
+                    plugins: { legend: { labels: { color: chartTextColor } } }
+                }
+            });
+
+            // --- HELPER FUNCTIONS ---
+            function dateToKey(date) { return date.toISOString().split('T')[0]; }
+            function getWorkoutDayType(date) {
+                 const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
+                 const schedule = savedPlan.schedule || { "Monday": "Push", "Tuesday": "Pull", "Wednesday": "Legs", "Thursday": "Push", "Friday": "Pull", "Saturday": "Legs", "Sunday": "Rest" };
+                 const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                 return { type: schedule[dayName] || 'Rest' };
+            }
+            function calculateDuration(startTime, endTime, dateStr) {
+                const startDate = new Date(`${dateStr}T${startTime}`);
+                const endDate = new Date(`${dateStr}T${endTime}`);
+                if(endDate <= startDate) endDate.setDate(endDate.getDate() + 1);
+                const durationMs = endDate - startDate;
+                const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+                const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                if (durationMs < 0 || durationHours > 24) return { durationHours: 0, durationMinutes: 0 };
+                return { durationHours, durationMinutes };
+            }
+
+            // --- DATA LOADING ---
+            function loadData() {
+                const todayKey = dateToKey(new Date());
+                const defaultGoals = { calories: 2000, protein: 150, carbs: 225, fat: 60 };
+                appData.allDailyLogs = JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs')) || {};
+                appData.userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [], weightHistory: [] };
+                appData.workoutHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutHistory')) || [];
+                appData.workoutStatusHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutStatus')) || {};
+                appData.goals = JSON.parse(localStorage.getItem('fitTrackAI_goals')) || defaultGoals;
+                const todayLogData = appData.allDailyLogs[todayKey] || { entries: [], water: 0 };
+                appData.todayLog = todayLogData.entries || [];
+                appData.goals = { ...defaultGoals, ...appData.goals };
+            }
+
+            // --- RENDERING FUNCTIONS ---
+            function renderNutritionSummary() {
+                const totals = appData.todayLog.reduce((acc, item) => ({ calories: acc.calories + (item.calories || 0), protein: acc.protein + (item.protein || 0), carbs: acc.carbs + (item.carbs || 0), fat: acc.fat + (item.fat || 0) }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+                document.getElementById('summary-current-calories').textContent = totals.calories.toFixed(0);
+                document.getElementById('summary-goal-calories').textContent = appData.goals.calories.toFixed(0);
+                document.getElementById('summary-current-protein').textContent = totals.protein.toFixed(1);
+                document.getElementById('summary-goal-protein').textContent = appData.goals.protein.toFixed(0);
+                document.getElementById('summary-current-carbs').textContent = totals.carbs.toFixed(1);
+                document.getElementById('summary-goal-carbs').textContent = appData.goals.carbs.toFixed(0);
+                document.getElementById('summary-current-fat').textContent = totals.fat.toFixed(1);
+                document.getElementById('summary-goal-fat').textContent = appData.goals.fat.toFixed(0);
+                const macroSum = totals.protein + totals.carbs + totals.fat;
+                macroChart.data.datasets[0].data = macroSum > 0 ? [totals.protein, totals.carbs, totals.fat] : [1, 1, 1];
+                macroChart.data.datasets[0].borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+                macroChart.update();
+            }
+
+            function renderWorkoutSummary() {
+                const today = new Date(); today.setHours(0,0,0,0); const todayKey = dateToKey(today);
+                const dayInfo = getWorkoutDayType(today);
+                const loggedExercises = appData.workoutHistory.filter(log => dateToKey(new Date(log.date)) === todayKey);
+                const status = appData.workoutStatusHistory[todayKey];
+                let summaryHtml = '';
+                if (dayInfo.type === 'Rest') {
+                    summaryHtml = `<p class="text-3xl font-bold text-green-400 mb-2">Rest Day</p><p class="text-lg font-semibold text-primary-text">Recovery is key!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full plan</a>`;
+                } else if (loggedExercises.length > 0) {
+                     const firstExercise = loggedExercises[0].name;
+                     const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
+                     const statusText = status === 'full' ? 'Complete' : (status === 'started' ? 'In Progress' : 'Logged');
+                     summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises. Started with ${firstExercise}.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
+                } else {
+                    summaryHtml = `<p class="text-lg font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p>Time to hit the gym!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Start your workout</a>`;
+                }
+                document.getElementById('workout-summary').innerHTML = summaryHtml;
+            }
+
+            function renderSleepSummary() {
+                const sleepHistory = (appData.userProfile.sleepHistory || []).sort((a,b) => new Date(b.date) - new Date(a.date));
+                const lastLog = sleepHistory[0]; let summaryHtml = '';
+                if (lastLog) {
+                    const { durationHours, durationMinutes } = calculateDuration(lastLog.startTime, lastLog.endTime, lastLog.date);
+                    const totalMinutes = durationHours * 60 + durationMinutes;
+                    if (totalMinutes <= 0) {
+                         summaryHtml = `<p>No recent valid sleep data.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                    } else {
+                        const qualityText = '★'.repeat(lastLog.quality) + '☆'.repeat(5 - lastLog.quality);
+                        summaryHtml = `<p class="text-3xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-lg text-yellow-400 font-semibold mb-2">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View details</a>`;
+                    }
+                } else {
+                    summaryHtml = `<p>No sleep data available.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                }
+                document.getElementById('sleep-summary').innerHTML = summaryHtml;
+            }
+
+            function renderWeeklyProgressChart() {
+                const daysToDisplay = 7; const labels = []; const calorieData = []; const weightData = [];
+                for (let i = daysToDisplay - 1; i >= 0; i--) {
+                    const date = new Date(); date.setDate(date.getDate() - i); const dateKey = dateToKey(date);
+                    labels.push(date.toLocaleDateString(undefined, { weekday: 'short' }));
+                    const dailyLogData = appData.allDailyLogs[dateKey] || { entries: [], water: 0 };
+                    const dailyLogEntries = dailyLogData.entries || [];
+                    const totalCalories = dailyLogEntries.reduce((sum, item) => sum + (item.calories || 0), 0);
+                    calorieData.push(totalCalories || null);
+                    const historicalWeight = (appData.userProfile.weightHistory || []).filter(entry => new Date(entry.date.replace(/-/g, '/')) <= date).sort((a, b) => new Date(b.date.replace(/-/g, '/')) - new Date(a.date.replace(/-/g, '/')))[0];
+                    weightData.push(historicalWeight ? historicalWeight.weight : null);
+                }
+                weeklyProgressChart.data.labels = labels; weeklyProgressChart.data.datasets[0].data = calorieData; weeklyProgressChart.data.datasets[1].data = weightData;
+                const validCalories = calorieData.filter(d => d !== null && d > 0); const validWeights = weightData.filter(d => d !== null);
+                updateChartThemeColors();
+                weeklyProgressChart.options.scales.y.ticks.color = chartTextColor; weeklyProgressChart.options.scales.y.grid.color = chartGridColor;
+                weeklyProgressChart.options.scales.y1.ticks.color = chartTextColor; weeklyProgressChart.options.scales.x.ticks.color = chartTextColor; weeklyProgressChart.options.scales.x.grid.color = chartGridColor; weeklyProgressChart.options.plugins.legend.labels.color = chartTextColor;
+                weeklyProgressChart.options.scales.y.min = validCalories.length > 0 ? Math.min(...validCalories) * 0.9 : 0;
+                weeklyProgressChart.options.scales.y1.min = validWeights.length > 0 ? Math.min(...validWeights) * 0.95 : 60;
+                weeklyProgressChart.update();
+            }
+
+            function fullRender() {
+                loadData();
+                renderNutritionSummary();
+                renderWorkoutSummary();
+                renderSleepSummary();
+                renderWeeklyProgressChart();
+            }
+
+            // --- INITIALIZATION ---
+            fullRender();
+
+            // Placeholder Check-in Listener
+            const checkInForm = document.getElementById('check-in-form');
+            if (checkInForm) {
+                checkInForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const feedbackDiv = document.getElementById('check-in-feedback');
+                    if (feedbackDiv) {
+                        feedbackDiv.textContent = "Check-in logged (UI only)";
+                        feedbackDiv.classList.remove('text-red-400'); feedbackDiv.classList.add('text-green-400');
+                        setTimeout(() => { feedbackDiv.textContent = ''; }, 2000);
+                    }
+                    checkInForm.reset();
+                    console.warn("Check-in form submitted, but functionality requires JavaScript from progress.html");
+                });
+            }
+
+            // Dynamic Update Listener
+            window.addEventListener('storage', (event) => {
+                if (event.key && (event.key.startsWith('fitTrackAI_') || event.key === null)) {
+                    console.log('localStorage change detected. Re-rendering dashboard.');
+                    fullRender();
+                }
+            });
+
+            // Theme Change Listener
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'fitTrackAI_theme') {
+                    updateChartThemeColors();
+                    renderWeeklyProgressChart();
+                    renderNutritionSummary();
+                }
+            });
+        }
+        // --- End Original script ---
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>

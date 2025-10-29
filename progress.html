@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | progress</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Link Shared CSS -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <!-- Page Specific Styles (if any) -->
+    <style>
+        /* Add page-specific styles here if needed */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Theme script (should be early) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6">
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content Area -->
+        <main>
+            <h1 class="text-3xl font-bold text-center mb-6">Your Progress</h1>
+
+            <!-- Tab Navigation -->
+            <nav class="flex flex-wrap sm:flex-nowrap border-b border-border-color mb-8">
+                <button id="general-tab" class="tab-btn active w-1/3 sm:w-auto" data-tab="general">General</button>
+                <button id="goals-tab" class="tab-btn w-1/3 sm:w-auto" data-tab="goals">Goals</button>
+                <button id="nutrition-tab" class="tab-btn w-1/3 sm:w-auto" data-tab="nutrition">Nutrition</button>
+                <button id="workout-tab" class="tab-btn w-1/2 sm:w-auto" data-tab="workout">Workout</button>
+                <button id="sleep-tab" class="tab-btn w-1/2 sm:w-auto" data-tab="sleep">Sleep</button>
+            </nav>
+
+            <!-- Tab Content Panels -->
+            <div>
+                <!-- Section 1: General Progress Panel (Body Composition & Check-in) -->
+                <section id="general-panel" class="tab-panel active space-y-8">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Daily Check-in</h2>
+                        <p class="text-sm text-secondary-text mb-4">Log your weight and optional body composition stats daily.  </p>
+                        <form id="check-in-form" class="flex flex-col sm:flex-row gap-4">
+                            <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
+                             <input type="number" step="0.1" id="check-in-smm" placeholder="SMM (kg) - Optional" class="form-input w-full">
+                            <button type="submit" id="check-in-btn" class="btn btn-primary sm:w-auto flex-shrink-0">
+                                <span class="btn-text">Check In</span>
+                                <div class="loader hidden"></div>
+                            </button>
+                        </form>
+                        <div id="check-in-feedback" class="mt-4 text-sm h-5 text-center"></div>
+                    </div>
+
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Key Performance Indicators</h2>
+                        <div id="key-stats-output">
+                            <p class="text-secondary-text text-center">Not enough data to calculate stats. Keep logging!</p>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Body Composition Progress</h2>
+                        <div class="flex justify-center gap-2 mb-4">
+                            <button id="chart-range-30d" class="chart-range-btn" data-range="30d">30D</button>
+                            <button id="chart-range-90d" class="chart-range-btn" data-range="90d">90D</button>
+                            <button id="chart-range-1y" class="chart-range-btn" data-range="1y">1Y</button>
+                            <button id="chart-range-all" class="chart-range-btn active" data-range="all">All Time</button>
+                        </div>
+                        <div class="w-full h-96 flex items-center justify-center"><canvas id="progress-chart"></canvas></div>
+                    </div>
+
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">AI Progress Insights</h2>
+                        <ul id="progress-insights-output" class="list-disc list-inside space-y-2 text-secondary-text">
+                            <li>Log your weight daily to generate powerful insights.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 2: Goals Panel (Profile Form & Adaptive Plan) -->
+                <section id="goals-panel" class="tab-panel space-y-8">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-6">Health & Fitness Stats</h2>
+                        <form id="profile-form" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="age" class="form-label">Age</label><input type="number" id="age" class="form-input mt-1" required></div><div><label for="gender" class="form-label">Gender</label><select id="gender" class="form-input mt-1"><option value="male">Male</option><option value="female">Female</option></select></div></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="height" class="form-label">Height (cm)</label><input type="number" id="height" class="form-input mt-1" required></div><div><label for="weight" class="form-label">Weight (kg) - Auto-filled</label><input type="number" id="weight" step="0.1" class="form-input mt-1" required readonly></div></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="smm" class="form-label">Skeletal Muscle Mass (kg) (Optional)</label><input type="number" step="0.1" id="smm" class="form-input mt-1"></div><div><label for="bfm" class="form-label">Body Fat Mass (kg) (Optional)</label><input type="number" id="bfm" step="0.1" class="form-input mt-1"></div></div>
+                            <div><label for="activity-level" class="form-label">Activity Level</label><select id="activity-level" class="form-input mt-1"><option value="1.2">Sedentary</option><option value="1.375">Lightly active</option><option value="1.55" selected>Moderately active</option><option value="1.725">Very active</option><option value="1.9">Extra active</option></select></div>
+                            <div><label for="user-goal" class="form-label">Primary Goal</label><select id="user-goal" class="form-select mt-1"><option value="lose">Fat Loss</option><option value="maintain">Maintain Weight</option><option value="gain">Muscle Gain</option><option value="recomposition" selected>Recomposition</option></select></div>
+                            <div id="recomp-deficit-container" class="hidden"><label for="recomp-deficit-input" class="form-label">Calorie Deficit (kcal)</label><input type="number" id="recomp-deficit-input" value="500" class="form-input mt-1"></div>
+                            <button type="submit" class="w-full btn btn-primary !mt-6"><span class="btn-text">Save & Calculate Goals</span><div class="loader hidden"></div></button>
+                            <div class="pt-4 mt-4 border-t border-border-color space-y-2 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <label for="bmr-input" class="font-semibold text-secondary-text">BMR (Override):</label>
+                                    <input type="number" id="bmr-input" class="form-input !w-24 !p-1 text-center" placeholder="Auto">
+                                    <span class="text-secondary-text">kcal</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <label for="bmi-input" class="font-semibold text-secondary-text">BMI:</label>
+                                    <input type="number" step="0.1" id="bmi-input" class="form-input !w-24 !p-1 text-center bg-transparent border-0" readonly>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">AI Adaptive Calorie & Macro Plan</h2>
+                        <div id="calorie-plan-output"><p class="text-secondary-text">Please fill out your profile stats to generate a plan.</p></div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Nutrition Progress Panel -->
+                <section id="nutrition-panel" class="tab-panel">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Nutrition Progress</h2>
+                        <p class="text-secondary-text mb-4">Track your **calorie and protein intake** against your goals over time.</p>
+                        <div class="w-full h-96 flex items-center justify-center">
+                            <canvas id="nutrition-progress-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Workout Progress Panel -->
+                <section id="workout-panel" class="tab-panel">
+                     <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Workout Progress</h2>
+                        <p class="text-secondary-text mb-4">See your **workout consistency** and logged **total volume** per week.</p>
+                         <div class="w-full h-96 flex items-center justify-center">
+                            <canvas id="workout-progress-chart"></canvas>
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Sleep Progress Panel -->
+                <section id="sleep-panel" class="tab-panel">
+                     <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Sleep Progress</h2>
+                        <p class="text-secondary-text mb-4">Monitor your **sleep duration and quality** patterns.</p>
+                         <div class="w-full h-96 flex items-center justify-center">
+                            <canvas id="sleep-progress-chart"></canvas>
+                         </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="alert-modal" class="modal-backdrop"><div class="modal-content"><h2 id="alert-modal-title" class="text-xl font-bold mb-4">Alert</h2><p id="alert-modal-text" class="text-secondary-text mb-6"></p><div class="flex justify-end"><button id="alert-modal-ok-btn" class="btn btn-primary">OK</button></div></div></div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Script to load Header/Footer and Page Logic -->
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'progress'; // Set this page as active
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeProgressPage();
+        }
+        // --- End Load Header and Footer ---
+
+        // --- Original script from progress.html (wrapped, Firebase removed) ---
+        function initializeProgressPage() {
+            // --- STATE MANAGEMENT ---
+            let userProfile = {
+                age: 30, gender: 'male', height: 175, weight: 70, smm: 30, bfm: 15, activityLevel: 1.55, goal: 'recomposition', recompDeficit: 500, tdee: 2500,
+                weightHistory: [], inbodyHistory: [], nutritionHistory: [], workoutHistory: [], sleepHistory: []
+            };
+            let goals = { calories: 2000, protein: 150, carbs: 225, fat: 60, water: 2500 };
+            let isDataLoaded = false;
+            let activeChartRange = 'all';
+
+            // --- UI ELEMENT DEFINITIONS ---
+            const ui = {
+                profileForm: document.getElementById('profile-form'),
+                caloriePlanOutput: document.getElementById('calorie-plan-output'),
+                checkInForm: document.getElementById('check-in-form'),
+                checkInBtn: document.getElementById('check-in-btn'),
+                checkInFeedback: document.getElementById('check-in-feedback'),
+                bmrInput: document.getElementById('bmr-input'),
+                bmiInput: document.getElementById('bmi-input'),
+                userGoalSelect: document.getElementById('user-goal'),
+                recompDeficitContainer: document.getElementById('recomp-deficit-container'),
+                alertModal: document.getElementById('alert-modal'),
+                alertModalOkBtn: document.getElementById('alert-modal-ok-btn'),
+                keyStatsOutput: document.getElementById('key-stats-output'),
+                progressInsightsOutput: document.getElementById('progress-insights-output'),
+                checkInWeightInput: document.getElementById('check-in-weight'),
+                checkInSmmInput: document.getElementById('check-in-smm'),
+                chartRange30d: document.getElementById('chart-range-30d'),
+                chartRange90d: document.getElementById('chart-range-90d'),
+                chartRange1y: document.getElementById('chart-range-1y'),
+                chartRangeAll: document.getElementById('chart-range-all'),
+                tabs: document.querySelectorAll('.tab-btn'),
+                panels: document.querySelectorAll('.tab-panel')
+            };
+
+            // --- CHART.JS SETUP ---
+            let chartTextColor, chartGridColor;
+            Chart.defaults.color = '#eaeaea';
+
+            function calculateSleepDuration(startTime, endTime, dateStr) {
+                const startDate = new Date(`${dateStr}T${startTime}`); const endDate = new Date(`${dateStr}T${endTime}`);
+                if (endDate <= startDate) endDate.setDate(endDate.getDate() + 1); const durationMs = endDate - startDate;
+                return { durationInMinutes: Math.floor(durationMs / (1000 * 60)) };
+            }
+
+            // --- CORE & HELPER FUNCTIONS ---
+            function showTab(tabName) {
+                ui.panels.forEach(panel => panel.classList.remove('active'));
+                ui.tabs.forEach(tab => tab.classList.remove('active'));
+                const activePanel = document.getElementById(tabName + '-panel'); const activeTab = document.getElementById(tabName + '-tab');
+                if (activePanel) activePanel.classList.add('active'); if (activeTab) activeTab.classList.add('active');
+                fullRenderAllCharts();
+            }
+
+            function updateChartAppearance() {
+                chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-text').trim(); chartGridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim(); Chart.defaults.color = chartTextColor;
+                [progressChart, sleepProgressChart, nutritionProgressChart, workoutProgressChart].forEach(chart => {
+                    if (chart && chart.options) {
+                        chart.options.plugins.legend.labels.color = chartTextColor;
+                        Object.keys(chart.options.scales).forEach(axisKey => {
+                            if (chart === sleepProgressChart && axisKey === 'y2') { chart.options.scales[axisKey].ticks.color = '#f59e0b'; chart.options.scales[axisKey].grid.drawOnChartArea = false; }
+                            else { chart.options.scales[axisKey].ticks.color = chartTextColor; chart.options.scales[axisKey].grid.color = chartGridColor; }
+                        }); chart.update();
+                    }
+                });
+            }
+            function updateChartThemeColors() { updateChartAppearance(); }
+
+            // Chart initializations (unchanged logic, just uses variables)
+            const progressCtx = document.getElementById('progress-chart').getContext('2d');
+            let progressChart = new Chart(progressCtx, { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } }, x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } }, plugins: { legend: { display: true, labels: { color: chartTextColor } } } } });
+            const sleepCtx = document.getElementById('sleep-progress-chart').getContext('2d');
+            let sleepProgressChart = new Chart(sleepCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { id: 'y', position: 'left', beginAtZero: true, ticks: { callback: (value) => value + 'h', color: chartTextColor }, grid: { color: chartGridColor } }, y2: { id: 'y2', position: 'right', type: 'linear', min: 0, max: 5, ticks: { callback: (value) => value + '★', color: '#f59e0b' }, grid: { drawOnChartArea: false } }, x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } }, plugins: { legend: { display: true, labels: { color: chartTextColor } } } } });
+            const nutritionCtx = document.getElementById('nutrition-progress-chart').getContext('2d');
+            let nutritionProgressChart = new Chart(nutritionCtx, { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: chartTextColor }, grid: { color: chartGridColor } }, x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } }, plugins: { legend: { display: true, labels: { color: chartTextColor } } } } });
+            const workoutCtx = document.getElementById('workout-progress-chart').getContext('2d');
+            let workoutProgressChart = new Chart(workoutCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: chartTextColor }, grid: { color: chartGridColor } }, x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } }, plugins: { legend: { display: true, labels: { color: chartTextColor } } } } });
+
+            // --- LOCALSTORAGE DATA FUNCTIONS ---
+            function saveData() {
+                try {
+                    const profileToSave = { ...userProfile };
+                    delete profileToSave.tdee; delete profileToSave.bmr; delete profileToSave.bmi; // Remove calculated values
+                    localStorage.setItem('fitTrackAI_userProfile', JSON.stringify(profileToSave));
+                    localStorage.setItem('fitTrackAI_goals', JSON.stringify(goals));
+                    // Also save other potentially modified data from different pages
+                    localStorage.setItem('fitTrackAI_allDailyLogs', localStorage.getItem('fitTrackAI_allDailyLogs') || '{}');
+                    localStorage.setItem('fitTrackAI_workoutHistory', localStorage.getItem('fitTrackAI_workoutHistory') || '[]');
+                } catch (error) {
+                    console.error("Error saving data to localStorage: ", error);
+                    showCustomAlert("Save Error", "Could not save your data. Local storage might be full or disabled.");
+                }
+            }
+
+            function loadData() {
+                try {
+                    const loadedProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile') || '{}');
+                    // Merge loaded profile with defaults, ensuring arrays exist
+                    userProfile = {
+                         ...{ age: 30, gender: 'male', height: 175, weight: 70, smm: 30, bfm: 15, activityLevel: 1.55, goal: 'recomposition', recompDeficit: 500 }, // Defaults
+                         ...loadedProfile, // Loaded data overrides defaults
+                         weightHistory: loadedProfile.weightHistory || [],
+                         inbodyHistory: loadedProfile.inbodyHistory || [],
+                         // Load histories from potentially other pages
+                         nutritionHistory: JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs') || '{}'), // Assuming logs are nutrition history
+                         workoutHistory: JSON.parse(localStorage.getItem('fitTrackAI_workoutHistory') || '[]'),
+                         sleepHistory: loadedProfile.sleepHistory || []
+                    };
+
+                    goals = { ...{ calories: 2000, protein: 150, carbs: 225, fat: 60, water: 2500 }, ...JSON.parse(localStorage.getItem('fitTrackAI_goals') || '{}') };
+
+                    // Ensure historical data is sorted by date
+                     ['weightHistory', 'inbodyHistory', 'workoutHistory', 'sleepHistory'].forEach(key => {
+                        if (Array.isArray(userProfile[key])) {
+                           userProfile[key].sort((a,b) => new Date(a.date) - new Date(b.date));
+                        }
+                    });
+                    // Special handling for nutritionHistory (logs) which are objects keyed by date
+                    // Convert logs to an array sorted by date for chart use
+                    userProfile.nutritionHistory = Object.entries(userProfile.nutritionHistory)
+                       .map(([date, logData]) => ({
+                            date: date,
+                            calories: (logData.entries || []).reduce((sum, item) => sum + (item.calories || 0), 0),
+                            protein: (logData.entries || []).reduce((sum, item) => sum + (item.protein || 0), 0)
+                       }))
+                       .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+
+                    isDataLoaded = true;
+                    if (userProfile.weightHistory.length > 0) {
+                        const latestWeight = userProfile.weightHistory[userProfile.weightHistory.length - 1].weight;
+                        userProfile.weight = latestWeight;
+                        if(ui.checkInWeightInput) ui.checkInWeightInput.value = latestWeight.toFixed(1);
+                    }
+                    if (userProfile.inbodyHistory && userProfile.inbodyHistory.length > 0) {
+                        const latestSmm = userProfile.inbodyHistory[userProfile.inbodyHistory.length - 1].smm;
+                         if (latestSmm && ui.checkInSmmInput) ui.checkInSmmInput.value = latestSmm.toFixed(1);
+                    } else if (userProfile.smm && ui.checkInSmmInput) {
+                        ui.checkInSmmInput.value = userProfile.smm.toFixed(1);
+                    }
+
+                    if (userProfile.age && userProfile.height && userProfile.weight) {
+                        calculateAndSaveGoals(false, true); // Recalculate locally
+                    }
+                    fullRender();
+                } catch (error) {
+                    console.error("Error loading data from localStorage:", error);
+                    showCustomAlert("Load Error", "Could not load data. It might be corrupted.");
+                    isDataLoaded = true; // Mark as loaded to prevent infinite loops maybe?
+                    fullRender(); // Try to render with defaults
+                }
+            }
+
+            // --- CHART RENDERING FUNCTIONS (unchanged logic) ---
+            function getStartDate(range) { /* ...unchanged... */ const now = new Date(); if (range === '30d') { now.setDate(now.getDate() - 30); return now; } if (range === '90d') { now.setDate(now.getDate() - 90); return now; } if (range === '1y') { now.setFullYear(now.getFullYear() - 1); return now; } return null; }
+            function filterHistory(history, range) { /* ...unchanged... */ const startDate = getStartDate(range); if (!startDate) return history; return history.filter(d => new Date(d.date.replace(/-/g, '/')) >= startDate); }
+
+            function renderProgressChart(timeRange = 'all') { /* ...unchanged logic... */ activeChartRange = timeRange; updateChartRangeButtons(); let weightData = filterHistory(userProfile.weightHistory, timeRange); let inbodyData = filterHistory(userProfile.inbodyHistory, timeRange); const allDates = new Set([...weightData.map(d => d.date), ...inbodyData.map(d => d.date)]); const sortedLabels = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b)); if (sortedLabels.length === 0) { progressChart.data = { labels: [], datasets: [] }; progressChart.update(); return; } const weightMap = new Map(weightData.map(d => [d.date, d.weight])); const smmMap = new Map(inbodyData.map(d => [d.date, d.smm])); const bfmMap = new Map(inbodyData.map(d => [d.date, d.bfm])); progressChart.data.labels = sortedLabels.map(date => new Date(date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); progressChart.data.datasets = [ { label: 'Weight (kg)', data: sortedLabels.map(date => weightMap.get(date) || null), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 }, { label: 'SMM (kg)', data: sortedLabels.map(date => smmMap.get(date) || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 }, { label: 'BFM (kg)', data: sortedLabels.map(date => bfmMap.get(date) || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 } ].filter(dataset => dataset.data.some(d => d !== null)); updateChartAppearance(); progressChart.update(); }
+            function renderSleepProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.sleepHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const durationData = sortedHistory.map(log => { if (!log.startTime || !log.endTime || !log.date) return null; const { durationInMinutes } = calculateSleepDuration(log.startTime, log.endTime, log.date); return (durationInMinutes / 60); }); const qualityData = sortedHistory.map(log => log.quality || null); sleepProgressChart.data = { labels, datasets: [ { label: 'Duration (hours)', data: durationData, backgroundColor: 'rgba(96, 165, 250, 0.7)', borderColor: '#60a5fa', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }, { label: 'Quality (stars)', data: qualityData, type: 'line', borderColor: '#f59e0b', backgroundColor: 'transparent', pointBackgroundColor: '#f59e0b', yAxisID: 'y2', tension: 0.4, borderWidth: 2, pointRadius: 5 } ] }; updateChartAppearance(); sleepProgressChart.update(); }
+            function renderNutritionProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.nutritionHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const calorieGoals = Array(labels.length).fill(goals.calories); const proteinGoals = Array(labels.length).fill(goals.protein); nutritionProgressChart.data = { labels, datasets: [ { label: 'Calories Consumed', data: sortedHistory.map(d => d.calories || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 2 }, { label: 'Protein Consumed (g)', data: sortedHistory.map(d => d.protein || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 3 }, { label: 'Calorie Goal', data: calorieGoals, borderColor: 'rgba(251, 191, 36, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 1 }, { label: 'Protein Goal', data: proteinGoals, borderColor: 'rgba(52, 211, 153, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 4 } ] }; updateChartAppearance(); nutritionProgressChart.update(); }
+            function renderWorkoutProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.workoutHistory, timeRange); const volumeByDay = {}; history.forEach(log => { const dateKey = log.date; const sets = typeof log.sets === 'string' ? JSON.parse(log.sets) : log.sets; const logVolume = sets.flat().reduce((total, s) => total + (s.weight * s.reps), 0); if (!volumeByDay[dateKey]) { volumeByDay[dateKey] = 0; } volumeByDay[dateKey] += logVolume; }); const workoutsByWeek = {}; const volumeByWeek = {}; Object.keys(volumeByDay).forEach(dateStr => { const date = new Date(dateStr.replace(/-/g, '/')); const dayOfWeek = date.getDay(); const firstDayOfWeek = new Date(date); firstDayOfWeek.setDate(date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); const weekKey = firstDayOfWeek.toISOString().split('T')[0]; if (!workoutsByWeek[weekKey]) workoutsByWeek[weekKey] = 0; if (!volumeByWeek[weekKey]) volumeByWeek[weekKey] = 0; workoutsByWeek[weekKey]++; volumeByWeek[weekKey] += volumeByDay[dateStr]; }); const sortedWeeks = Object.keys(workoutsByWeek).sort(); const labels = sortedWeeks.map(weekKey => new Date(weekKey.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const workoutCountData = sortedWeeks.map(weekKey => workoutsByWeek[weekKey]); const totalVolumeData = sortedWeeks.map(weekKey => volumeByWeek[weekKey] / 1000); workoutProgressChart.data = { labels, datasets: [ { label: 'Workouts Logged', data: workoutCountData, backgroundColor: 'rgba(239, 68, 68, 0.7)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 4, yAxisID: 'y', type: 'bar', order: 2 }, { label: 'Total Volume (MT/1000kg)', data: totalVolumeData, borderColor: '#fbbf24', backgroundColor: 'transparent', yAxisID: 'y', tension: 0.4, type: 'line', borderWidth: 2, pointRadius: 3, order: 1 } ] }; updateChartAppearance(); workoutProgressChart.update(); }
+
+            // --- UI UPDATE FUNCTIONS (unchanged logic) ---
+            function populateProfileForm() { /* ...unchanged... */ if (!isDataLoaded) return; if (userProfile.age) { ui.profileForm.age.value = userProfile.age; ui.profileForm.gender.value = userProfile.gender; ui.profileForm.height.value = userProfile.height; ui.profileForm.weight.value = userProfile.weight.toFixed(1); ui.profileForm.smm.value = userProfile.smm || ''; ui.profileForm.bfm.value = userProfile.bfm || ''; ui.profileForm['activity-level'].value = userProfile.activityLevel || 1.55; ui.profileForm['user-goal'].value = userProfile.goal || 'recomposition'; if(userProfile.bmr) ui.bmrInput.value = Math.round(userProfile.bmr); else ui.bmrInput.placeholder = 'Auto'; if(userProfile.bmi) ui.bmiInput.value = userProfile.bmi.toFixed(1); document.getElementById('recomp-deficit-input').value = userProfile.recompDeficit || 500; } updateGoalSpecificUI(); }
+            function generateCaloriePlan() { /* ...unchanged... */ if (!isDataLoaded) return; if(!goals.calories || goals.calories === 0 || !userProfile.tdee) { ui.caloriePlanOutput.innerHTML = '<p class="text-secondary-text">Please fill out your profile stats to generate a plan.</p>'; return; } const { tdee } = userProfile; let planHtml = `<p class="mb-4">Your estimated maintenance calories are <strong class="text-xl text-blue-400">${Math.round(tdee)} kcal</strong>. Based on your goal, here is your **AI Adaptive Plan**:</p>`; planHtml += `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Target Calories</p><p class="font-bold text-2xl text-white">${Math.round(goals.calories)}</p></div><div><p class="text-sm text-secondary-text">Protein</p><p class="font-bold text-2xl text-white">${Math.round(goals.protein)}g</p></div><div><p class="text-sm text-secondary-text">Carbs</p><p class="font-bold text-2xl text-white">${Math.round(goals.carbs)}g</p></div><div><p class="text-sm text-secondary-text">Fat</p><p class="font-bold text-2xl text-white">${Math.round(goals.fat)}g</p></div></div>`; planHtml += `<p class="text-xs text-secondary-text mt-4 text-center">This plan will adapt based on your daily check-ins to ensure consistent progress.</p>`; ui.caloriePlanOutput.innerHTML = planHtml; }
+            function calculateAndRenderAnalytics() { /* ...unchanged logic... */ if (!isDataLoaded) return; const { weightHistory, inbodyHistory, weight, bfm } = userProfile; let statsHtml = '<p class="text-secondary-text text-center">Not enough data to calculate stats. Keep logging!</p>'; let insightsHtml = '<li>Log your **weight and height** to fully utilize the goal calculator.</li>'; if (weightHistory && weightHistory.length >= 2) { const firstWeightEntry = weightHistory[0]; const lastWeightEntry = weightHistory[weightHistory.length - 1]; const totalWeightChange = lastWeightEntry.weight - firstWeightEntry.weight; const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28); const recentWeightData = weightHistory.filter(d => new Date(d.date.replace(/-/g, '/')) >= fourWeeksAgo); let weeklyWeightChange = 0; if (recentWeightData.length >= 2) { const firstRecent = recentWeightData[0]; const lastRecent = recentWeightData[recentWeightData.length - 1]; const daysBetween = (new Date(lastRecent.date.replace(/-/g, '/')) - new Date(firstRecent.date.replace(/-/g, '/'))) / (1000 * 60 * 60 * 24); if (daysBetween > 0) { const totalRecentChange = lastRecent.weight - firstRecent.weight; weeklyWeightChange = (totalRecentChange / daysBetween) * 7; } } let currentBfPercent = 0; if (weight && bfm) { currentBfPercent = (bfm / weight) * 100; } statsHtml = `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Total Weight Change</p><p class="font-bold text-2xl ${totalWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalWeightChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Avg. Weekly Change</p><p class="font-bold text-2xl ${weeklyWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${weeklyWeightChange.toFixed(2)} kg</p></div>${currentBfPercent > 0 ? `<div><p class="text-sm text-secondary-text">Current Body Fat %</p><p class="font-bold text-2xl text-blue-400">${currentBfPercent.toFixed(1)}%</p></div>` : ''}<div><p class="text-sm text-secondary-text">Total Check-ins</p><p class="font-bold text-2xl">${weightHistory.length}</p></div>`; insightsHtml = `<li>Your **average weekly weight change** over the last 4 weeks is **${weeklyWeightChange.toFixed(2)} kg**. ${weeklyWeightChange > 0 ? 'Consider reducing calorie intake slightly to accelerate fat loss.' : 'Great work maintaining or losing weight.'}</li><li>You've logged your weight **${recentWeightData.length} times** in the last 28 days. Keep this **consistency**!</li>`; } if (inbodyHistory && inbodyHistory.length >= 2) { const firstInBody = inbodyHistory[0]; const lastInBody = inbodyHistory[inbodyHistory.length - 1]; const totalSmmChange = lastInBody.smm - firstInBody.smm; const totalBfmChange = lastInBody.bfm - firstInBody.bfm; statsHtml = statsHtml.replace('</div>', ''); statsHtml += `<div><p class="text-sm text-secondary-text">Total SMM Change</p><p class="font-bold text-2xl ${totalSmmChange >= 0 ? 'text-green-400' : 'text-red-400'}">${totalSmmChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Total BFM Change</p><p class="font-bold text-2xl ${totalBfmChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalBfmChange.toFixed(1)} kg</p></div></div>`; insightsHtml += `<li>Your Skeletal Muscle Mass (SMM) has changed by **${totalSmmChange.toFixed(1)} kg**. ${totalSmmChange > 0 ? 'This indicates successful muscle preservation or growth! 💪' : 'Focus on protein intake to prevent muscle loss.'}</li><li>Your Body Fat Mass (BFM) has changed by **${totalBfmChange.toFixed(1)} kg**. ${totalBfmChange < 0 ? 'Excellent fat loss progress!' : 'If gaining, ensure your activity level is accurate.'}</li>`; } else if (statsHtml.includes('grid')) { statsHtml += `</div>`; } ui.keyStatsOutput.innerHTML = statsHtml; ui.progressInsightsOutput.innerHTML = insightsHtml; }
+            async function calculateAndSaveGoals(showFeedback = true, localOnly = false) { /* ...unchanged calculation logic, calls saveData() at the end unless localOnly... */ const btn = ui.profileForm.querySelector('button[type="submit"]'); if (btn && showFeedback) { btn.disabled = true; btn.querySelector('.btn-text').style.display = 'none'; btn.querySelector('.loader').classList.remove('hidden'); btn.querySelector('.btn-text').textContent = "Calculating..."; } if (!localOnly) { userProfile.age = parseInt(ui.profileForm.age.value); userProfile.gender = ui.profileForm.gender.value; userProfile.height = parseInt(ui.profileForm.height.value); userProfile.smm = parseFloat(ui.profileForm.smm.value) || null; userProfile.bfm = parseFloat(ui.profileForm.bfm.value) || null; userProfile.activityLevel = parseFloat(ui.profileForm['activity-level'].value); userProfile.goal = ui.profileForm['user-goal'].value; userProfile.recompDeficit = parseInt(document.getElementById('recomp-deficit-input').value) || 500; } userProfile.weight = parseFloat(ui.profileForm.weight.value); let bmr; const manualBMR = parseFloat(ui.bmrInput.value); if (manualBMR > 0) { bmr = manualBMR; } else { if (userProfile.gender === 'male') { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5; } else { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161; } ui.bmrInput.placeholder = Math.round(bmr); if (!localOnly) ui.bmrInput.value = ''; } userProfile.bmr = bmr; const bmi = userProfile.weight / ((userProfile.height / 100) ** 2); userProfile.bmi = bmi; ui.bmiInput.value = bmi.toFixed(1); const tdee = bmr * userProfile.activityLevel; userProfile.tdee = tdee; let calorieTarget = tdee; if(userProfile.goal === 'lose') calorieTarget -= 500; if(userProfile.goal === 'gain') calorieTarget += 300; if(userProfile.goal === 'recomposition') calorieTarget = tdee - userProfile.recompDeficit; goals.calories = Math.round(calorieTarget); goals.protein = Math.round(userProfile.weight * 2.2); goals.fat = Math.round(userProfile.weight * 0.8); goals.carbs = Math.round((goals.calories - (goals.protein * 4 + goals.fat * 9)) / 4); if (goals.carbs < 0) { goals.carbs = 0; goals.fat = Math.round((goals.calories - (goals.protein * 4)) / 9); } if (!localOnly) { saveData(); } if (btn) { btn.disabled = false; if (showFeedback) { btn.querySelector('.btn-text').textContent = "Saved!"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; setTimeout(() => { if (btn) btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; }, 2000); } else { btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; } } if (localOnly) fullRender(); }
+            function updateGoalSpecificUI() { /* ...unchanged... */ const recompContainer = document.getElementById('recomp-deficit-container'); if (recompContainer) { recompContainer.classList.toggle('hidden', ui.userGoalSelect.value !== 'recomposition'); } }
+            function updateChartRangeButtons() { /* ...unchanged... */ document.querySelectorAll('.chart-range-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.range === activeChartRange); }); }
+            function fullRenderAllCharts() { /* ...unchanged... */ if (!isDataLoaded) return; renderProgressChart(activeChartRange); renderSleepProgressChart(activeChartRange); renderNutritionProgressChart(activeChartRange); renderWorkoutProgressChart(activeChartRange); }
+            function fullRender() { /* ...unchanged... */ if (!isDataLoaded) return; populateProfileForm(); generateCaloriePlan(); calculateAndRenderAnalytics(); fullRenderAllCharts(); }
+
+            // --- EVENT LISTENERS (unchanged logic, just calls saveData()) ---
+            function setupEventListeners() {
+                ui.profileForm.addEventListener('submit', async (e) => { e.preventDefault(); if(!ui.profileForm.age.value || !ui.profileForm.height.value || !ui.profileForm.weight.value){ showCustomAlert('Missing Information', 'Please fill in Age, Height, and Weight to calculate your goals.'); return; } ui.profileForm.weight.value = ui.checkInWeightInput.value; await calculateAndSaveGoals(); });
+                ui.checkInForm.addEventListener('submit', async (e) => { e.preventDefault(); const btn = ui.checkInBtn; const newWeight = parseFloat(ui.checkInWeightInput.value); const newSmm = parseFloat(ui.checkInSmmInput.value) || null; if (!newWeight || newWeight <= 0) { ui.checkInFeedback.textContent = "Please enter a valid weight."; ui.checkInFeedback.classList.add('text-red-400'); return; } if (!userProfile.age) { ui.checkInFeedback.textContent = "Please fill out your profile first (Goals tab)."; ui.checkInFeedback.classList.add('text-red-400'); return; } btn.disabled = true; btn.querySelector('.btn-text').style.display = 'none'; btn.querySelector('.loader').classList.remove('hidden'); const today = new Date().toISOString().split('T')[0]; const todayWeightIndex = userProfile.weightHistory.findIndex(entry => entry.date === today); if (todayWeightIndex > -1) { userProfile.weightHistory[todayWeightIndex].weight = newWeight; } else { userProfile.weightHistory.push({ date: today, weight: newWeight }); } if (newSmm) { const todayInBodyIndex = userProfile.inbodyHistory.findIndex(entry => entry.date === today); const estimatedBfm = (newSmm > 0 && userProfile.bfm && userProfile.weight > 0) ? newWeight * (userProfile.bfm / userProfile.weight) : null; const inBodyEntry = { date: today, smm: newSmm, bfm: estimatedBfm !== null ? estimatedBfm : (userProfile.bfm || 0) }; if (todayInBodyIndex > -1) { userProfile.inbodyHistory[todayInBodyIndex] = inBodyEntry; } else { userProfile.inbodyHistory.push(inBodyEntry); } userProfile.smm = newSmm; if(estimatedBfm !== null) userProfile.bfm = estimatedBfm; } userProfile.weight = newWeight; saveData(); await new Promise(resolve => setTimeout(resolve, 500)); ui.checkInFeedback.textContent = `Weight logged as ${newWeight} kg. Goals updated.`; ui.checkInFeedback.classList.remove('text-red-400'); ui.checkInFeedback.classList.add('text-green-400'); ui.checkInWeightInput.value = ''; ui.checkInSmmInput.value = ''; btn.disabled = false; btn.querySelector('.btn-text').style.display = 'inline'; btn.querySelector('.loader').classList.add('hidden'); document.getElementById('key-stats-output').scrollIntoView({ behavior: 'smooth' }); });
+                ui.userGoalSelect.addEventListener('change', updateGoalSpecificUI); ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+                const rangeButtons = [ui.chartRange30d, ui.chartRange90d, ui.chartRange1y, ui.chartRangeAll]; rangeButtons.forEach(btn => { btn.addEventListener('click', () => { const range = btn.dataset.range; activeChartRange = range; fullRenderAllCharts(); }); });
+                ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
+                if(ui.checkInWeightInput) { ui.checkInWeightInput.addEventListener('focus', () => { if (userProfile.weightHistory.length > 0) { const latestWeight = userProfile.weightHistory[userProfile.weightHistory.length - 1].weight; ui.checkInWeightInput.value = latestWeight.toFixed(1); } }); }
+            }
+
+            // --- INITIALIZATION ---
+            function showCustomAlert(title, text) { // Define helper here
+                const modal = ui.alertModal;
+                if (!modal) return;
+                modal.querySelector('#alert-modal-title').textContent = title;
+                modal.querySelector('#alert-modal-text').textContent = text;
+                modal.style.display = 'flex';
+            }
+             function hideModal(modal) { // Define helper here
+                if (modal) modal.style.display = 'none';
+            }
+
+            setupEventListeners();
+            loadData(); // Load data from Local Storage
+            updateChartThemeColors();
+            showTab('general'); // Show default tab
+            // No Firebase init needed
+        }
+        // --- End Original script ---
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>

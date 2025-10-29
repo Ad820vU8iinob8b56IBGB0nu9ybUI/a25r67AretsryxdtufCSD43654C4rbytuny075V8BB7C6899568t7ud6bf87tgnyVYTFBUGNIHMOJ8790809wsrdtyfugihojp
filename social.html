@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kowbi | social</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Link Shared CSS -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <!-- Page Specific Styles (if any) -->
+    <style>
+        /* Add page-specific styles here if needed */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Theme script (should be early) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <div class="container mx-auto max-w-7xl px-4 py-6">
+        <!-- Header Placeholder -->
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content Area -->
+        <main>
+             <!-- Removed h1 -->
+
+            <!-- Segmented Control Navigation -->
+            <nav class="segmented-control mb-8">
+                <button id="friends-tab" class="tab-btn active" data-tab="friends">Friends</button>
+                <button id="community-tab" class="tab-btn" data-tab="community">Community</button>
+                <button id="achievements-tab" class="tab-btn" data-tab="achievements">Gains</button>
+            </nav>
+
+            <!-- Tab Content Panels -->
+            <div>
+                <!-- Friends Panel -->
+                <section id="friends-panel" class="tab-panel active">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Friends</h2>
+                        <p class="text-secondary-text">Connect with friends and share your progress. (Coming Soon)</p>
+                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
+                            Friend List / Activity Feed Area
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Community Panel -->
+                <section id="community-panel" class="tab-panel">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Community</h2>
+                        <p class="text-secondary-text">Join challenges and discussions. (Coming Soon)</p>
+                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
+                            Community Forums / Challenges Area
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Achievements Panel -->
+                <section id="achievements-panel" class="tab-panel">
+                     <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-4">Achievements</h2>
+                        <p class="text-secondary-text">Unlock badges and celebrate milestones. (Coming Soon)</p>
+                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
+                            Achievements / Badges Area
+                         </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Script to load Header/Footer and Page Logic -->
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'social'; // Set this page as active
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeSocialPage();
+        }
+        // --- End Load Header and Footer ---
+
+        // --- Original script from social.html (wrapped, profile logic removed) ---
+        function initializeSocialPage() {
+             // --- UI ELEMENT DEFINITIONS ---
+            const ui = {
+                tabs: document.querySelectorAll('.tab-btn'),
+                panels: document.querySelectorAll('.tab-panel')
+            };
+
+            // --- TABBING LOGIC ---
+            function showTab(tabName) {
+                ui.panels.forEach(panel => { panel.classList.remove('active'); panel.style.display = 'none'; });
+                ui.tabs.forEach(tab => { tab.classList.remove('active'); });
+                const activePanel = document.getElementById(tabName + '-panel'); const activeTab = document.getElementById(tabName + '-tab');
+                if (activePanel) { activePanel.classList.add('active'); activePanel.style.display = 'block'; }
+                if (activeTab) { activeTab.classList.add('active'); }
+            }
+
+            // --- EVENT LISTENERS ---
+            ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
+
+            // --- INITIALIZATION ---
+            showTab('friends'); // Show friends tab by default
+            // Lucide icons are now rendered in initializeLayout
+        }
+        // --- End Original script ---
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
+    </script>
+</body>
+</html>
