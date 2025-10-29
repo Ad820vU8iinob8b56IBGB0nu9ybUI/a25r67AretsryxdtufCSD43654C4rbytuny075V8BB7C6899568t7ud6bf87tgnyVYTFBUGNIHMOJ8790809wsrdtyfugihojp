@@ -10,251 +10,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Link to the shared stylesheet -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <!-- Page-specific styles -->
     <style>
-        :root {
-            --background: #000000;
-            --primary-text: #eaeaea;
-            --secondary-text: #888888;
-            --card-bg: #111111;
-            --input-bg: #191919;
-            --border-color: #222222;
-            --accent: #FFFFFF;
-            --accent-hover: #DDDDDD;
-            --danger: #E53E3E;
-            --edit: #3B82F6;
-            --nav-footer-height: 64px; /* Set height of the new fixed footer nav */
-        }
-
-        /* Light theme overrides */
-        [data-theme="light"] {
-            --background: #f8fafc; /* slate-50 */
-            --primary-text: #0f172a; /* slate-900 */
-            --secondary-text: #64748b; /* slate-500 */
-            --card-bg: #ffffff;
-            --input-bg: #f1f5f9; /* slate-100 */
-            --border-color: #e2e8f0; /* slate-200 */
-            --accent: #0f172a; /* slate-900 */
-            --accent-hover: #334155; /* slate-700 */
-        }
-
-
-        html, body {
-            overscroll-behavior-y: contain;
-            /* Ensure content has room above the fixed footer */
-            padding-bottom: var(--nav-footer-height);
-        }
-
-        body {
-            background-color: var(--background);
-            color: var(--primary-text);
-            font-family: 'Manrope', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
         body.menu-open {
             overflow: hidden;
         }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-link {
-            /* Styles for the footer navigation links */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            height: 100%;
-            transition: color 0.3s ease;
-            color: var(--primary-text);
-            font-size: 0.75rem;
-            text-decoration: none;
-            padding-top: 4px;
-        }
-
-        .nav-link:hover {
-            color: var(--accent);
-        }
-
-        .nav-link.active {
-            color: #60a5fa;
-        }
-
-        /* Updated to match progress.html */
-        .nav-link.active .nav-icon {
-            color: #60a5fa; /* Active icon color (blue) */
-        }
-
-        /* Updated to match progress.html */
-        .nav-icon {
-            color: var(--primary-text); /* Default icon color (white in dark mode) */
-            margin-bottom: 2px;
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Updated to match progress.html */
-        #mobile-footer-nav {
-            background-color: var(--background); /* Match page background */
-        }
-
-
-        .content-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1.5rem; /* Adjusted for mobile */
-        }
-
-        /* Removed all md: media queries for full mobile optimization */
-        .content-card {
-            padding: 1.5rem;
-        }
-
-
-        .form-input, .form-select {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            color: var(--primary-text);
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-        .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-        }
-
-        .form-label {
-            color: var(--secondary-text);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .btn {
-            border-radius: 0.5rem;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transform: translateY(0);
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background-color: var(--accent);
-            color: var(--background);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--primary-text);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background-color: var(--border-color);
-        }
-
-        .btn-danger {
-            color: var(--danger);
-        }
-
-        .btn-danger:hover:not(:disabled) {
-            background-color: rgba(229, 62, 62, 0.1);
-        }
-
         .actions-dropdown {
             z-index: 50;
             background-color: var(--card-bg);
         }
-
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            width: 95%;
-            max-width: 550px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-
         /* MODIFICATION: Remove animation from exercise detail modal */
         #exercise-detail-modal, #exercise-detail-modal .modal-content {
             animation: none;
         }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .loader {
-            border: 2px solid #333;
-            border-top: 2px solid var(--accent);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #666; }
-
         .status-btn, .progress-range-btn {
             border: 1px solid var(--border-color);
             background-color: transparent;
             color: var(--secondary-text);
         }
-
         .status-btn.selected-full, .unit-toggle-btn.selected-full, .progress-range-btn.selected-full, #favorite-mode-toggle-btn.selected-full {
             background-color: #10b981;
             color: var(--background);
@@ -274,77 +49,12 @@
             color: var(--background);
             border-color: #f87171;
         }
-
-        details > summary {
-            list-style: none;
-        }
-        details > summary::-webkit-details-marker {
-            display: none;
-        }
-        details > summary .lucide-chevron-down {
-            transition: transform 0.2s ease-in-out;
-        }
-        details[open] > summary .lucide-chevron-down {
-            transform: rotate(180deg);
-        }
-
         .submenu {
             display: none;
         }
         .group.open > .submenu {
             display: block;
         }
-
-        /* --- NEW & IMPROVED SWIPE STYLES (Mobile Focus) --- */
-        .swipe-item {
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-        }
-        .swipe-actions {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-        }
-        .swipe-action-container {
-            position: absolute;
-            top: 0; bottom: 0;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            opacity: 0; /* Hidden by default */
-            transition: opacity 0.3s ease;
-        }
-        .swipe-action-container.left {
-            justify-content: flex-start;
-            background: linear-gradient(to right, hsl(0, 72%, 51%), hsl(0, 82%, 61%));
-        }
-        .swipe-action-container.right {
-            justify-content: flex-end;
-            background: linear-gradient(to left, hsl(217, 91%, 60%), hsl(217, 81%, 70%));
-        }
-        .swipe-actions .action {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 0 1.5rem;
-        }
-        .swipe-content {
-            position: relative;
-            background-color: var(--card-bg);
-            touch-action: pan-y; /* Allow vertical scroll while capturing horizontal */
-            cursor: pointer;
-        }
-        .swipe-content.swiping {
-            transition: none; /* No transition while actively dragging */
-        }
-        .swipe-content.returning {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
         /* --- ELEGANT INSTRUCTIONS TEXTAREA --- */
         #exercise-detail-instructions:disabled {
             background-color: transparent;
@@ -355,17 +65,6 @@
             line-height: 1.6;
             cursor: default;
         }
-
-        /* --- UNDO TOAST --- */
-        #undo-toast {
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-
-        #undo-toast.show {
-            transform: translate(-50%, 0);
-            opacity: 1;
-        }
-
         /* --- DAY NAVIGATION SWIPE (Mobile Focus) --- */
         #day-navigation-card {
             touch-action: pan-y;
@@ -374,7 +73,6 @@
         #day-navigation-card:active {
             cursor: grabbing;
         }
-
         /* Edit Plan Modal & Plan View Dragging Styles */
         .draggable-item, .plan-item-container[draggable="true"] {
             transition: background-color 0.2s ease;
@@ -393,7 +91,6 @@
         .draggable-item.drag-over, .plan-item-container.drag-over {
             border-top: 2px solid var(--edit);
         }
-
         /* Force mobile layout classes (removed all md: and lg: prefixes) */
         .grid-layout {
             grid-template-columns: 1fr;
@@ -401,7 +98,6 @@
         .col-span-full {
             grid-column: span 1 / span 1;
         }
-
     </style>
 </head>
 <body class="antialiased">
@@ -480,8 +176,10 @@
                                 <h5 class="font-semibold text-lg">Plan</h5>
                                 <div class="flex items-center gap-2">
                                     <button id="edit-plan-btn" class="btn btn-secondary !p-1.5" title="Edit Current Plan"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                    <!-- MODIFIED: Changed to btn-secondary for black color -->
-                                    <button id="ai-plan-generator-btn-inline" class="btn btn-secondary !p-1.5" title="New AI Plan"><i data-lucide="wand-2" class="w-4 h-4"></i></button>
+                                    <!-- MODIFIED: Replaced button with an <a> tag -->
+                                    <a id="ai-plan-generator-btn-inline" href="assets/workouts/ai-plan-generator.html" class="btn btn-secondary !p-1.5" title="New AI Plan">
+                                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                                    </a>
                                     <button id="add-temporary-warmup-btn" class="btn btn-secondary !p-1.5 hidden" title="Add Warm-up for Today"><i data-lucide="sun" class="w-4 h-4"></i></button>
                                     <button id="add-temporary-exercise-btn" class="btn btn-secondary !p-1.5 hidden" title="Add Exercise for Today"><i data-lucide="plus" class="w-4 h-4"></i></button>
                                 </div>
@@ -696,7 +394,7 @@
     </div>
 
     <!-- Undo Toast Notification -->
-    <div id="undo-toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-4 transform translate-y-20 opacity-0 z-[200]">
+    <div id="undo-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-4 transform translate-y-24 opacity-0 z-[200]">
         <span id="undo-toast-text"></span>
         <button id="undo-toast-btn" class="font-bold text-blue-400 hover:text-blue-300">Undo</button>
     </div>
@@ -761,10 +459,13 @@
                 workoutPlanForDay: document.getElementById('workout-plan-for-day'),
                 dayNavigationCard: document.getElementById('day-navigation-card'),
                 aiTabSpecific: document.getElementById('ai-tab-specific'), aiTabGeneral: document.getElementById('ai-tab-general'), aiPanelSpecific: document.getElementById('ai-panel-specific'), openWorkoutChatBtn: document.getElementById('open-workout-chat-btn'),
-                reorganizeAiBtn: document.getElementById('reorganize-ai-btn'),
+                // MODIFIED: This element no longer exists.
+                // reorganizeAiBtn: document.getElementById('reorganize-ai-btn'),
                 unitToggleKg: document.getElementById('unit-toggle-kg'), unitToggleLbs: document.getElementById('unit-toggle-lbs'),
                 aiPlanGeneratorModal: document.getElementById('ai-plan-generator-modal'), closeAiPlanGeneratorModalBtn: document.getElementById('close-ai-plan-generator-modal-btn'),
-                aiPlanGeneratorForm: document.getElementById('ai-plan-generator-form'), aiPlanGeneratorBtn: document.getElementById('ai-plan-generator-btn'),
+                aiPlanGeneratorForm: document.getElementById('ai-plan-generator-form'),
+                // MODIFIED: This element is now an <a> tag
+                aiPlanGeneratorBtn: document.getElementById('ai-plan-generator-btn-inline'),
                 aiPlanScheduleBuilder: document.getElementById('ai-plan-schedule-builder'),
                 aiPlanDurationsContainer: document.getElementById('ai-plan-durations-container'),
                 aiPlanSetsContainer: document.getElementById('ai-plan-sets-container'), aiPlanOutput: document.getElementById('ai-plan-output'),
@@ -849,7 +550,8 @@
                 let baseExercises = [];
                 let baseWarmups = {};
                 try {
-                    const response = await fetch('/data/exercises.json');
+                    // MODIFIED: Updated path to root
+                    const response = await fetch('data/exercises.json');
                     if (!response.ok) throw new Error('Failed to fetch exercise data');
                     const data = await response.json();
                     baseExercises = data.exercises || [];
@@ -1409,9 +1111,15 @@
                 pointerDelta = { x: 0, y: 0 };
 
                 setTimeout(() => {
-                    content.classList.remove('swiping', 'returning');
-                    content.style.transform = '';
-                    elementToClean.querySelectorAll('.swipe-action-container').forEach(el => el.style.opacity = '0');
+                    if (elementToClean && document.body.contains(elementToClean)) {
+                        const content = elementToClean.querySelector('.swipe-content');
+                        if (content && content.style.transform !== '') { // Only cleanup if not deleted
+                            content.classList.remove('swiping', 'returning');
+                            content.style.transform = '';
+                        }
+                        const actions = elementToClean.querySelectorAll('.swipe-action-container');
+                        if (actions) actions.forEach(el => el.style.opacity = '0');
+                    }
                 }, 300);
             }
 
@@ -1452,9 +1160,15 @@
 
                 ui.dayNavigationCard.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (isDayNavSwiping) {
+                    const today = new Date(); today.setHours(0,0,0,0);
                     if (dayNavCurrentX < -swipeThreshold) { // Swipe left for next day
-                        viewDate.setDate(viewDate.getDate() + 1);
-                        updateUI();
+                        const nextDay = new Date(viewDate);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        // Only allow swiping to today or past
+                        if (nextDay.getTime() <= today.getTime()) {
+                             viewDate.setDate(viewDate.getDate() + 1);
+                             updateUI();
+                        }
                     }
                     else if (dayNavCurrentX > swipeThreshold) { // Swipe right for previous day
                         viewDate.setDate(viewDate.getDate() - 1);
@@ -1463,7 +1177,7 @@
                 }
                 ui.dayNavigationCard.style.transform = 'translateX(0)'; ui.dayNavigationCard.style.opacity = '1';
                 isDayNavSwiping = false; dayNavCurrentX = 0;
-                setTimeout(() => { ui.dayNavigationCard.style.transition = ''; }, 300);
+                setTimeout(() => { if(ui.dayNavigationCard) ui.dayNavigationCard.style.transition = ''; }, 300);
             }
 
             // --- PLAN REORDERING DRAG & DROP ---
@@ -1553,6 +1267,8 @@
                 const infoBtn = e.target.closest('.info-btn');
 
                 if (infoBtn) {
+                    // Prevent tap logic from firing
+                    e.stopPropagation();
                     const { name, type, dayType } = infoBtn.dataset;
                     openExerciseDetailModal(name, type, dayType);
                 }
@@ -1789,23 +1505,24 @@
 
                 // Check for a specific media file (not a placeholder like logo.png)
                 if (mediaFilename && !mediaFilename.startsWith('data:') && mediaFilename !== 'logo.png') {
-                    const mediaPath = mediaFilename.startsWith('media/') ? mediaFilename : `media/${mediaFilename}`;
+                    // MODIFIED: Prepend 'assets/media/' to the filename
+                    const mediaPath = `assets/media/${mediaFilename}`;
                     const mediaType = mediaFilename.toLowerCase().match(/\.(mp4|mov|webm)$/) ? 'video' : 'image';
 
                     if (mediaType === 'video') {
-                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');"></video>`;
+                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='assets/logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');"></video>`;
                     } else if (mediaType === 'image' || mediaFilename.toLowerCase().match(/\.(jpg|png|jpeg|gif)$/)) {
-                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');">`;
+                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='assets/logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');">`;
                     } else {
                         // Fallback for unknown file types
-                        ui.exerciseMediaContainer.innerHTML = `<img src="logo.png" alt="FitTrack AI Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
+                        ui.exerciseMediaContainer.innerHTML = `<img src="assets/logo.png" alt="kowbi Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
                     }
                     ui.exerciseMediaLoader.classList.add('hidden');
                     return;
                 }
 
                 // --- Fallback to logo if no specific media is found ---
-                ui.exerciseMediaContainer.innerHTML = `<img src="logo.png" alt="FitTrack AI Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
+                ui.exerciseMediaContainer.innerHTML = `<img src="assets/logo.png" alt="kowbi Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
                 ui.exerciseMediaLoader.classList.add('hidden');
             }
 
@@ -1937,6 +1654,8 @@
 
             // --- PLAN GENERATOR FUNCTIONS ---
             function openAiPlanGenerator() {
+                // This function is no longer called by the button,
+                // but we keep it in case the modal is triggered by other means.
                 if (exerciseDB.length === 0) { showCustomAlert("Data Missing", "The exercise database (exercises.json) could not be loaded. The AI Plan Generator is unavailable."); return; }
                 const splitSelect = document.getElementById('ai-plan-split-select');
                 document.getElementById('ai-plan-equipment-container').innerHTML = ALL_EQUIPMENT_TYPES.map(e => `<label class="flex items-center gap-2"><input type="checkbox" name="equipment" value="${e}" checked class="form-checkbox h-4 w-4 bg-input-bg border-border-color rounded text-blue-500 focus:ring-blue-500"><span class="text-sm">${e}</span></label>`).join('');
@@ -1947,7 +1666,11 @@
                 focusMuscleContainer.dispatchEvent(new Event('change'));
                 showModal(ui.aiPlanGeneratorModal);
             }
-            document.getElementById('ai-plan-generator-btn-inline').addEventListener('click', openAiPlanGenerator);
+            // MODIFIED: This listener is now on an <a> tag, so it won't open the modal.
+            // We keep the function `openAiPlanGenerator` in case it's used elsewhere,
+            // but the click listener is effectively disabled.
+            // ui.aiPlanGeneratorBtn.addEventListener('click', openAiPlanGenerator);
+            
             // AI Coach Tab Listeners
             ui.aiTabSpecific.addEventListener('click', () => { ui.aiTabSpecific.classList.add('border-accent', 'text-primary-text'); ui.aiTabSpecific.classList.remove('border-transparent', 'text-secondary-text'); ui.aiTabGeneral.classList.add('border-transparent', 'text-secondary-text'); ui.aiTabGeneral.classList.remove('border-accent', 'text-primary-text'); ui.aiPanelSpecific.classList.remove('hidden'); document.getElementById('ai-panel-general').classList.add('hidden'); });
             ui.aiTabGeneral.addEventListener('click', () => { ui.aiTabGeneral.classList.add('border-accent', 'text-primary-text'); ui.aiTabGeneral.classList.remove('border-transparent', 'text-secondary-text'); ui.aiTabSpecific.classList.add('border-transparent', 'text-secondary-text'); ui.aiTabSpecific.classList.remove('border-accent', 'text-primary-text'); document.getElementById('ai-panel-general').classList.remove('hidden'); ui.aiPanelSpecific.classList.add('hidden'); });
@@ -2089,7 +1812,7 @@
             const renderExercisePreferences = () => {
                 const container = ui.aiPlanExercisePrefsContainer;
                 const checkedMuscles = Array.from(document.querySelectorAll('input[name="focusMuscle"]:checked')).map(cb => cb.value);
-                if (checkedMuscles.length === 0) { container.innerHTML = '<p class="text-secondary-text text-sm">Select one or more focus muscle groups to set preferences.</p>'; return; }
+                if (checkedMusles.length === 0) { container.innerHTML = '<p class="text-secondary-text text-sm">Select one or more focus muscle groups to set preferences.</p>'; return; }
                 container.innerHTML = checkedMuscles.map(muscle => { const allInGroupCount = exerciseDB.filter(ex => ex.group === muscle).length; const prefCount = (exercisePrefs[muscle] || []).length; const countText = prefCount === 0 || prefCount === allInGroupCount ? `All (${allInGroupCount})` : `${prefCount} selected`; return ` <button type="button" class="btn btn-secondary w-full justify-between" data-group="${muscle}"> <span>${muscle}</span> <span class="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full" id="pref-count-${muscle}">${countText}</span> </button> `}).join('');
                 container.querySelectorAll('button').forEach(btn => { btn.addEventListener('click', () => { libraryModalContext.purpose = 'pref'; libraryModalContext.group = btn.dataset.group; openExerciseLibrary(btn.dataset.group); }); });
             };
@@ -2359,7 +2082,7 @@
                         ui.customExerciseImg.classList.remove('hidden');
                     } else {
                         // NEW: Show logo.png for custom exercise if no media is present
-                        mediaContainer.innerHTML = `<img id="custom-exercise-img" src="logo.png" class="w-full h-full object-cover rounded-lg" oncontextmenu="return false;" draggable="false">`;
+                        mediaContainer.innerHTML = `<img id="custom-exercise-img" src="assets/logo.png" class="w-full h-full object-cover rounded-lg" oncontextmenu="return false;" draggable="false">`;
                         ui.customExerciseImg = document.getElementById('custom-exercise-img');
                         ui.customExerciseImg.classList.remove('hidden');
                     }
@@ -2409,7 +2132,7 @@
                      ui.customExerciseInstructions.value = details.instructions.join('\n'); ui.customExerciseRepRange.value = details.repRange;
 
                      // Removed AI image generation, fallback to logo
-                     mediaContainer.innerHTML = `<img id="custom-exercise-img" src="logo.png" class="w-full h-full object-contain p-4" oncontextmenu="return false;" draggable="false">`;
+                     mediaContainer.innerHTML = `<img id="custom-exercise-img" src="assets/logo.png" class="w-full h-full object-contain p-4" oncontextmenu="return false;" draggable="false">`;
                      ui.customExerciseImg = document.getElementById('custom-exercise-img');
 
                  } catch (error) { console.error("AI Custom Exercise Error:", error); showCustomAlert("AI Error", "Could not generate all details. Please try again or fill them manually.");
