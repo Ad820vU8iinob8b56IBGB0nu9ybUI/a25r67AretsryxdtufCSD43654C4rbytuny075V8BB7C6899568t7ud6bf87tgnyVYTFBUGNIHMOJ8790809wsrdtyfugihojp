@@ -699,6 +699,7 @@
                 populateProgressSelect();
                 renderProgressionChart(ui.progressExerciseSelect.value || 'general');
                 document.getElementById('plan-main-title').textContent = workoutPlan.name || "Your Workout Plan";
+                updateShareButtonVisibility();
                 lucide.createIcons();
             }
             function kgToLbs(kg) { return kg * 2.20462; }
