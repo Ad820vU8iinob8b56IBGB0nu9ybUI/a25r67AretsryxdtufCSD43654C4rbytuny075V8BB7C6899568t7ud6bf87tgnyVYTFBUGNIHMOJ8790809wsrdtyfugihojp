@@ -12,428 +12,21 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Added for barcode scanning -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <!-- 
+      FIX 1: Removed the large <style> block that was here.
+      FIX 2: Added the link to the shared stylesheet.
+    -->
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <!-- Page-specific styles (if any are needed, they can go here) -->
     <style>
-        /* Dark theme is the default */
-        :root {
-            --background: #000000;
-            --primary-text: #eaeaea;
-            --secondary-text: #888888;
-            --card-bg: #111111;
-            --input-bg: #191919;
-            --border-color: #222222;
-            --accent: #FFFFFF;
-            --accent-hover: #DDDDDD;
-            --danger: #E53E3E;
-            --edit: #3b82f6;
-            --nav-footer-height: 64px; /* Set height of the new fixed footer nav */
-        }
-
-        /* Light theme overrides */
-        [data-theme="light"] {
-            --background: #f8fafc; /* slate-50 */
-            --primary-text: #0f172a; /* slate-900 */
-            --secondary-text: #64748b; /* slate-500 */
-            --card-bg: #ffffff;
-            --input-bg: #f1f5f9; /* slate-100 */
-            --border-color: #e2e8f0; /* slate-200 */
-            --accent: #0f172a; /* slate-900 */
-            --accent-hover: #334155; /* slate-700 */
-        }
-
-
-        html, body {
-            overscroll-behavior-y: contain;
-            /* Ensure content has room above the fixed footer */
-            padding-bottom: var(--nav-footer-height);
-        }
-
-        body {
-            background-color: var(--background);
-            color: var(--primary-text);
-            font-family: 'Manrope', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        /* Footer Nav Styles */
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            height: 100%;
-            transition: color 0.3s ease;
-            color: var(--primary-text);
-            font-size: 0.75rem;
-            text-decoration: none;
-            padding-top: 4px;
-        }
-
-        .nav-link:hover {
-            color: var(--accent);
-        }
-
-        .nav-link.active {
-            color: #60a5fa;
-        }
-
-        .nav-link.active .nav-icon {
-            color: #60a5fa; /* Active icon color (blue) */
-        }
-
-        .nav-icon {
-            color: var(--primary-text); /* Default icon color (white in dark mode) */
-            margin-bottom: 2px;
-            width: 24px;
-            height: 24px;
-        }
-
-        #mobile-footer-nav {
-            background-color: var(--background); /* Match page background */
-        }
-        /* End Footer Nav Styles */
-
-
-        .content-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .form-input, .form-select { /* Added .form-select */
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            color: var(--primary-text);
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus { /* Added .form-select */
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); /* Adjusted shadow */
-        }
-
-        .form-input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .form-label {
-            color: var(--secondary-text);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .btn {
-            border-radius: 0.5rem;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transform: translateY(0);
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: translateY(0);
-        }
-
-        /* NEW: Water Button Styles */
-        #add-water-btn {
-            position: relative;
-            overflow: hidden;
-            /* Ensure gestures are captured */
-            touch-action: none;
-        }
-        #water-fill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            background-color: #3b82f6; /* Blue fill */
-            height: 0%; /* Starts at 0 */
-            /* This transition provides the fill animation */
-            transition: height 0.3s ease-out;
-            z-index: 1;
-        }
-        #add-water-btn > i {
-            position: relative;
-            z-index: 2;
-             /* Add a subtle shadow to make icon pop */
-            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4));
-        }
-        /* END: Water Button Styles */
-
-        .btn-primary {
-            background-color: var(--accent);
-            color: var(--background);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--primary-text);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background-color: var(--border-color);
-            /* border-color: var(--accent); */ /* Optional: highlight border on hover */
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: var(--primary-text);
-        }
-
-        .btn-danger:hover:not(:disabled) {
-             background-color: #C53030;
-        }
-
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            z-index: 50;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-            /* Added for mobile full-screen modals */
-            padding: 0;
-        }
-
-        /* Standard modal content */
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            border-radius: 0.75rem;
-            width: 90%;
-            max-width: 550px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-            position: relative; /* Added for absolute positioning of close button */
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .loader {
-            border: 2px solid #333;
-            border-top: 2px solid var(--accent);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #666; }
-
-        details > summary { list-style: none; }
-        details > summary::-webkit-details-marker { display: none; }
-
-        /* Style for details summary */
-        details summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding-bottom: 0.5rem;
-        }
-        details summary .chevron {
-            transition: transform 0.2s ease;
-        }
-        details[open] summary .chevron {
-            transform: rotate(180deg);
-        }
-
-
-        /* Prevents number input arrows */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type=number] {
-          -moz-appearance: textfield;
-        }
-
-        /* Swipe gesture styles */
-        .swipe-item {
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-        }
-        .swipe-actions {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-        }
-        .swipe-action-container {
-            position: absolute;
-            top: 0; bottom: 0;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            opacity: 0; /* Hidden by default */
-            transition: opacity 0.3s ease;
-        }
-        .swipe-action-container.left { /* Delete */
-            justify-content: flex-start;
-            background: linear-gradient(to right, hsl(0, 72%, 51%), hsl(0, 82%, 61%));
-        }
-        .swipe-action-container.right { /* Edit */
-            justify-content: flex-end;
-            background: linear-gradient(to left, hsl(217, 91%, 60%), hsl(217, 81%, 70%));
-        }
-        .swipe-actions .action {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 0 1.5rem;
-        }
-        .swipe-content {
-            position: relative;
-            background-color: var(--card-bg); /* Use card background for swipable item */
-            touch-action: pan-y; /* Allow vertical scroll while capturing horizontal */
-            cursor: pointer;
-        }
-        .swipe-content.swiping {
-            transition: none; /* No transition while actively dragging */
-        }
-        .swipe-content.returning {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        /* NEW styles for water button swipe */
-        #water-swipe-content.swiping { transition: none; }
-        #water-swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #add-water-btn:hover:not(:disabled) #water-swipe-content {
-             background-color: var(--border-color);
-        }
-
-        /* Carousel Styles */
-        .carousel-wrapper {
-            position: relative;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            background-color: rgba(17, 17, 17, 0.7);
-            color: var(--primary-text);
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            width: 2.5rem;
-            height: 2.5rem;
-            display: flex; /* Always display for proper alignment, hide via JS */
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-            cursor: pointer;
-
-            /* FIX 1: Ensure buttons are visually hidden initially by JS, but available for interaction */
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .carousel-btn.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .carousel-btn:hover {
-            background-color: var(--input-bg);
-        }
-        /* Adjusted positioning for better tap targets */
-        .carousel-prev { left: -0.75rem; }
-        .carousel-next { right: -0.75rem; }
-
-        .horizontal-scroll-container {
-            display: flex;
-            /* FIX 1: Ensure flex row layout */
-            flex-direction: row;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            scroll-snap-type: x mandatory;
-            gap: 1rem;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            /* Hide scrollbars */
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar {
-            display: none;
-        }
-        .scroll-item {
-            flex: 0 0 85%; /* Default item width */
-            width: 85%;
-            scroll-snap-align: center;
-            white-space: normal;
-        }
-        /* Centering padding */
-        .horizontal-scroll-container::before,
-        .horizontal-scroll-container::after {
-            content: '';
-            /* Adjust width calculation based on the default item width (85%) */
-            width: calc((100% - 85%) / 2 - 0.5rem);
-            flex-shrink: 0;
-        }
-
-        /* Wider items for scanner carousels */
-        .scanner-carousel .scroll-item {
-            flex: 0 0 95%; /* Make scanner items wider */
-            width: 95%;
-            scroll-snap-align: start; /* Align to start for better visibility */
-        }
-        .scanner-carousel::before,
-        .scanner-carousel::after {
-             /* Adjust width calculation based on the scanner item width (95%) */
-            width: calc((100% - 95%) / 2 - 0.5rem);
-        }
-
-        /* --- NEW: Compound Food Modal Styles --- */
+        /* This block is now much smaller and only contains styles
+          that might be *truly* unique to nutrition.html, 
+          though most are already in assets/styles.css
+        */
+        
+        /* --- Compound Food Modal Styles (scoped) --- */
         @media (min-width: 768px) {
             #compound-food-modal .modal-content {
                 width: 90vw;
@@ -511,16 +104,11 @@
 
         /* FIX 2: Layout for Desktop (md:) */
         @media (min-width: 768px) {
-            /* Since we are switching to a single centered column, this block can be safely removed or adapted for centering if needed,
-               but the primary changes are in the HTML structure.
-            */
             #main-centered-content {
-                 /* This ensures content is centered and stacked even on desktop */
                 max-width: 650px; /* Max width for readability */
                 margin: 0 auto;
             }
         }
-
     </style>
 </head>
 <body class="antialiased">
@@ -534,34 +122,11 @@
     </script>
 
     <div class="container mx-auto max-w-7xl px-4 py-6">
-        <!-- UPDATED HEADER: Copied from progress.html -->
-        <header class="flex items-center justify-between mb-8 pb-4 border-b border-border-color">
-            <a href="index.html" class="flex items-center gap-3">
-                <!-- Inline SVG Logo -->
-                <svg width="100" height="24" viewBox="0 0 100 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="height: 24px; width: auto;">
-                    <style>
-                        .logo-text { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
-                        .halo-text { font-family: 'Manrope', sans-serif; font-size: 4px; font-weight: 500; }
-                    </style>
-                    <text x="6" y="19" class="logo-text">K</text>
-                    <!-- Smiley face -->
-                    <circle cx="28" cy="12" r="7" />
-                    <circle cx="25" cy="10" r="1.5" fill="var(--background)"/>
-                    <circle cx="31" cy="10" r="1.5" fill="var(--background)"/>
-                    <!-- Halo -->
-                    <ellipse cx="28" cy="2" rx="6" ry="1" stroke="currentColor" stroke-width="0.8" fill="none"/>
-                    <text x="25.5" y="8" class="halo-text"></text>
-                    <text x="37" y="19" class="logo-text">WBI</text>
-                </svg>
-            </a>
-            <!-- Settings Icon Button -->
-            <a href="settings.html" class="p-2 rounded-full hover:bg-input-bg transition-colors" title="Settings">
-                <i data-lucide="settings" class="w-6 h-6 text-secondary-text"></i>
-            </a>
-        </header>
+        
+        <!-- FIX 3: Added Header Placeholder -->
+        <div id="header-placeholder"></div>
 
         <!-- Main Content -->
-        <!-- MODIFIED: Removed grid-cols-1 md:grid-cols-2 and added max-w-xl mx-auto for centering on all screens -->
         <main id="main-centered-content" class="space-y-4 max-w-xl mx-auto">
              <!-- Combined Container for all cards. order-1 and order-2 classes are now removed from parent divs as they are unnecessary -->
 
@@ -726,7 +291,6 @@
                 <div id="saved-items-list" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2"><p class="text-gray-500 text-center">No saved items yet.</p></div>
             </div>
 
-            <!-- REMOVED #left-column-container and #right-column-container. Logic moved to main and individual cards -->
         </main>
     </div>
 
@@ -734,58 +298,43 @@
       TEMPLATE FOR A NEW INGREDIENT ROW
     -->
     <template id="ingredient-row-template">
-      <!-- RE-ADDED 'scroll-item' class -->
       <div class="scroll-item ingredient-row bg-input-bg rounded-lg space-y-2 p-3">
-        <!-- MODIFICATION: Swapped Qty and Ingredient Name -->
         <div class="flex items-end gap-2">
-            <!-- Ingredient Name Input -->
             <div class="flex-grow">
-                <!-- Labels and Inputs will get unique IDs from JS -->
                 <label class="form-label text-xs">Ingredient Name</label>
                 <input type="text" list="favorite-foods-datalist" placeholder="e.g., Chicken" class="form-input ingredient-name text-sm !py-1.5" value="">
             </div>
-            <!-- Quantity Input -->
             <div class="flex-shrink-0 w-16">
                 <label class="form-label text-xs">Qty</label>
                 <input type="number" min="0" placeholder="Qty" class="form-input ingredient-quantity text-sm !py-1.5" value="1">
             </div>
         </div>
         <div class="grid grid-cols-4 gap-2">
-            <!-- MODIFICATION: Changed all macro inputs from !py-1 to !py-1.5 -->
             <div><label class="form-label text-xs">Calories</label><input type="number" step="0.01" min="0" placeholder="kcal" class="form-input ingredient-calories text-xs !py-1.5" value=""></div>
             <div><label class="form-label text-xs">Protein</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-protein text-xs !py-1.5" value=""></div>
             <div><label class="form-label text-xs">Carbs</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-carbs text-xs !py-1.5" value=""></div>
             <div><label class="form-label text-xs">Fat</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-fat text-xs !py-1.5" value=""></div>
         </div>
          <div class="grid grid-cols-4 gap-2">
-            <!-- MODIFICATION: Changed all macro inputs from !py-1 to !py-1.5 -->
             <div><label class="form-label text-xs">Sugar</label><input type="number" step="0.01" min="0" placeholder="g" class="form-input ingredient-sugar text-xs !py-1.5" value=""></div>
             <div><label class="form-label text-xs">Sodium</label><input type="number" step="0.01" min="0" placeholder="mg" class="form-input ingredient-sodium text-xs !py-1.5" value=""></div>
             <div><label class="form-label text-xs">Potassium</label><input type="number" step="0.01" min="0" placeholder="mg" class="form-input ingredient-potassium text-xs !py-1.5" value=""></div>
-            <!-- MODIFICATION: Replaced ingredient number with 'Grams' input, styled to match grid (text-xs !py-1.5) -->
             <div>
                 <label class="form-label text-xs">Grams</label>
                 <input type="number" placeholder="g" min="0" class="form-input ingredient-grams text-xs !py-1.5" value="">
             </div>
         </div>
-        <!-- MODIFICATION: Changed to justify-between, wrapped buttons, and added ingredient number at the end -->
         <div class="flex justify-between items-center gap-2">
-            <!-- MODIFICATION: Added spacer div to balance the ingredient number for centering -->
-            <div class="flex-shrink-0" style="width: 1.5rem; height: 1.5rem;"></div>
-
-            <!-- This div groups buttons and centers them in the available space -->
+            <div class="flex-shrink-0" style="width: 1.5rem; height: 1.5rem;"></div> <!-- Spacer -->
             <div class="flex-grow flex justify-center items-center gap-2">
-                <!-- UPDATED: recipe-scan-btn now uses scan-line icon -->
                 <button type="button" class="recipe-scan-btn btn btn-secondary !p-2 flex-shrink-0" title="Scan Ingredient"><i data-lucide="scan-line" class="w-4 h-4 pointer-events-none"></i></button>
                 <button type="button" class="remove-ingredient-btn btn btn-secondary !p-2 flex-shrink-0" title="Remove Ingredient"><i data-lucide="x" class="w-4 h-4 pointer-events-none"></i></button>
-                <!-- MODIFICATION: Reverted to btn-secondary, removed data-ai-enabled, updated title -->
                 <button type="button" class="find-macros-ai-btn btn btn-secondary !p-2 flex-shrink-0" title="Find Macros with AI">
                     <i data-lucide="sparkles" class="w-4 h-4 pointer-events-none lucide-icon"></i>
                     <div class="loader hidden !w-4 !h-4"></div>
                 </button>
             </div>
-            <!-- Ingredient number is now at the end of this flex row -->
-            <span class="ingredient-number">1</span>
+            <span class="ingredient-number">1</span> <!-- Ingredient number -->
         </div>
        </div>
     </template>
@@ -794,27 +343,15 @@
 
     <!-- Extracted Compound Food Modal (Kept for now, though button links away) -->
     <div id="compound-food-modal" class="modal-backdrop" style="display: none;">
-        <!-- modal-content is (flex flex-col overflow-hidden) -->
         <div class="modal-content">
-            <!-- UPDATED: Button moved out of header, made absolute and positioned in the top-right corner -->
             <button id="close-compound-food-modal-btn" class="absolute top-8 right-4 md:top-8 md:right-4 text-gray-400 hover:text-white text-5xl w-8 h-8 flex items-center justify-center z-10">&times;</button>
-
-            <!-- Modal Header (Non-scrolling) -->
             <div class="flex-shrink-0 flex justify-between items-center mb-2">
-                <!-- Added spacer div for centering, w-8 (2rem) -->
-                <div class="w-8 flex-shrink-0"></div>
-
-                <!-- Replaced h2 with the recipe-name-input, removed mr-4 -->
+                <div class="w-8 flex-shrink-0"></div> <!-- Spacer -->
                 <input type="text" id="recipe-name-input" form="compound-food-form" class="form-input !py-1.5 text-1xl font-bold flex-grow text-center" required placeholder="Build Your Creation">
-
-                <!-- Replaced button with a matching spacer to keep input centered -->
-                <div class="w-8 flex-shrink-0"></div>
+                <div class="w-8 flex-shrink-0"></div> <!-- Spacer -->
             </div>
-
-            <!-- Scrollable Content Area -->
             <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 mb-4">
                 <form id="compound-food-form" class="space-y-4">
-
                     <div class="border-gray-800">
                         <h3 class="font-semibold text-sm text-center mb-2">Ingredients</h3>
                         <div id="recipe-carousel-wrapper" class="carousel-wrapper">
@@ -822,15 +359,12 @@
                             <div id="ingredient-list-container" class="horizontal-scroll-container recipe-carousel items-start border border-gray-700 rounded-lg p-2 section-disabled">
                                 <!-- INGREDIENT ROWS Will be added here by JS -->
                             </div>
-                            <!-- Added overlay -->
                             <div class="disabled-overlay">
                                 <p class="flex items-center gap-2 text-sm"><i data-lucide="arrow-up" class="w-4 h-4 -mt-1"></i> Enter a name above to start</p>
                             </div>
                             <button id="recipe-next-ingredient" type="button" class="carousel-btn carousel-next"><i data-lucide="chevron-right"></i></button>
                         </div>
                     </div>
-
-                    <!-- Totals Container (now inside form, will scroll) -->
                     <div id="recipe-totals-container" class="flex-shrink-0 border-gray-800 px-2 ">
                         <h3 class="text-lg font-semibold text-center mb-2">Total Macros</h3>
                         <div id="recipe-totals" class="grid grid-cols-4 gap-x-2 gap-y-3 text-center">
@@ -846,11 +380,8 @@
                     </div>
                 </form> <!-- End of Form -->
             </div> <!-- End of Scrollable Area -->
-
-            <!-- Sticky Footer / Action Bar (Non-scrolling) -->
             <div class="flex-shrink-0 border-gray-800">
                 <div class="grid grid-cols-2 gap-2 mt-2">
-                    <!-- Added disabled attribute -->
                     <button type="button" id="add-ingredient-btn" class="btn btn-secondary w-full !py-1 !text-sm" disabled><i data-lucide="plus"></i>Add Ingredient</button>
                     <button type="submit" form="compound-food-form" id="save-recipe-btn" class="btn btn-primary w-full !py-1 !text-sm">Save & Log Recipe</button>
                 </div>
@@ -882,11 +413,8 @@
                     <button id="stop-ai-camera-btn" class="btn btn-danger w-full">Close Camera</button>
                 </div>
                 <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem]"></p>
-                <!-- FIX 1: Removed 'hidden' class here, visibility handled by JS -->
                 <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper">
-                    <!-- FIX 1: Added 'visible' class handling to JS for proper button visibility -->
                     <button id="ai-scanner-prev" type="button" class="carousel-btn carousel-prev"><i data-lucide="chevron-left"></i></button>
-                    <!-- FIX 1: Container enforces horizontal scrolling -->
                     <div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel mt-4 min-h-[220px] !flex !flex-row !flex-nowrap">
                         <!-- Results injected here -->
                     </div>
@@ -1057,40 +585,66 @@
     </div>
 
 
-    <!-- UPDATED FOOTER NAV: Copied from progress.html -->
-    <nav id="mobile-footer-nav" class="fixed bottom-0 left-0 right-0 h-16 z-50">
-        <!-- Inner container to match header/main width, now with top border -->
-        <div class="container mx-auto max-w-7xl px-4 h-full flex justify-around items-center border-t border-border-color">
-            <a href="index.html" class="nav-link">
-                <i data-lucide="home" class="nav-icon"></i>
-            </a>
-            <a href="nutrition.html" class="nav-link active"> <!-- Set Nutrition to active -->
-                <i data-lucide="utensils" class="nav-icon"></i>
-            </a>
-            <a href="workouts.html" class="nav-link">
-                <i data-lucide="dumbbell" class="nav-icon"></i>
-            </a>
-            <a href="sleep.html" class="nav-link">
-                <i data-lucide="moon" class="nav-icon"></i>
-            </a>
-            <a href="progress.html" class="nav-link"> <!-- Added Progress Link -->
-                <i data-lucide="trending-up" class="nav-icon"></i>
-            </a>
-            <a href="social.html" class="nav-link"> <!-- Added Social Link -->
-                <i data-lucide="users" class="nav-icon"></i>
-            </a>
-        </div>
-    </nav>
+    <!-- FIX 3: Added Footer Placeholder -->
+    <div id="footer-placeholder"></div>
 
 
     <!-- Hidden helper for html5-qrcode library -->
     <div id="barcode-reader-hidden-helper" class="hidden"></div>
 
 
+    <!-- 
+      FIX 4: Added the header/footer loading script from other pages.
+      The original script from nutrition.html is wrapped in 
+      an `initializeNutritionPage()` function and called from here.
+    -->
     <script>
-        // NOTE: The JavaScript code remains the same as provided in the original nutrition.html file.
-        // It has been omitted here for brevity but should be included in the actual file.
-        document.addEventListener('DOMContentLoaded', () => {
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                const text = await response.text();
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            // Load header and footer from the 'assets' directory
+            await Promise.all([
+                loadComponent('assets/header.html', 'header-placeholder'),
+                loadComponent('assets/footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); // Re-render icons after loading components
+
+            // --- Set Active Footer Link ---
+            const currentPage = 'nutrition'; // This page is 'nutrition'
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                if (link.dataset.page === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // --- Initialize Page Specific JS ---
+            initializeNutritionPage();
+        }
+        // --- End Load Header and Footer ---
+
+
+        // --- Original script from nutrition.html (wrapped in a function) ---
+        function initializeNutritionPage() {
             // --- STATE MANAGEMENT ---
             let allDailyLogs = {};
             let goals = { calories: 2000, protein: 150, carbs: 225, fat: 60, sugar: 50, sodium: 2300, potassium: 3500, water: 2500 };
@@ -1134,7 +688,7 @@
 
             // --- GEMINI API ---
             const getApiUrl = (model, action = 'generateContent') => {
-                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // Leave empty for Canvas environment
+                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // API Key is handled by the environment
                  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
 
@@ -1159,15 +713,21 @@
                                 return result; // Successful and valid response structure
                             } else {
                                 console.warn("API response structure unexpected, but status OK:", result);
+                                // Check for blockReason
+                                const blockReason = result.promptFeedback?.blockReason;
+                                if (blockReason) {
+                                    throw new Error(`API request blocked due to: ${blockReason}.`);
+                                }
                                 if (i === maxRetries - 1) throw new Error("Invalid API response format after retries.");
-                                // Continue retrying if format is wrong, unless last attempt
                             }
                         } else if (response.status === 429 || response.status >= 500) { // Retry on rate limit or server errors
                             if (i === maxRetries - 1) throw new Error(`API Error: ${response.status} after ${maxRetries} attempts.`);
                             const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff with jitter
                             await new Promise(resolve => setTimeout(resolve, delay));
                         } else { // Don't retry for other client errors (4xx)
-                            throw new Error(`API Error: ${response.status} - ${await response.text()}`);
+                            const errorText = await response.text();
+                            console.error(`API Error Response (${response.status}):`, errorText);
+                            throw new Error(`API Error: ${response.status} - ${errorText || 'See console for details.'}`);
                         }
                     } catch (error) {
                         console.error(`Fetch attempt ${i + 1} failed:`, error);
@@ -1489,7 +1049,11 @@
                 prompt += `. Respond with only a valid JSON object containing all fields for 100 grams: "calories", "protein", "carbs", "fat", "sugar", "sodium", "potassium". Also include a "servingGrams": 100 field. If it's a food that is hard to quantify, like "salad", provide a reasonable estimate for 100g.`;
 
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-                const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                const payload = { 
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }], // Add grounding
+                    generationConfig: { responseMimeType: "application/json" } 
+                };
                  try {
                     const result = await fetchWithBackoff(apiUrl, payload);
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
@@ -1507,7 +1071,11 @@
                 prompt += `, we know it has the following values: ${knownMacrosString}. Based on this, estimate the *missing* nutritional values. Respond with only a valid JSON object containing a *complete* set of fields for ONE standard serving: "servingGrams", "calories", "protein", "carbs", "fat", "sugar", "sodium", "potassium". Use the provided values as facts and fill in the rest with reasonable estimates.`;
 
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-                const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                const payload = { 
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }], // Add grounding
+                    generationConfig: { responseMimeType: "application/json" } 
+                };
 
                 try {
                     const result = await fetchWithBackoff(apiUrl, payload);
@@ -1569,7 +1137,7 @@
                 }
 
                 ui.undoToastText.textContent = text;
-                ui.undoToast.classList.remove('translate-y-24', 'opacity-0');
+                ui.undoToast.classList.add('show'); // Use 'show' class
 
                 undoTimeout = setTimeout(() => {
                     hideUndo();
@@ -1578,7 +1146,7 @@
 
             function hideUndo() {
                 lastAction = null;
-                ui.undoToast.classList.add('translate-y-24', 'opacity-0');
+                ui.undoToast.classList.remove('show');
             }
 
             function setupCarousel(containerId, prevBtnId, nextBtnId) {
@@ -1598,14 +1166,12 @@
                     const scrollWidth = container.scrollWidth;
                     const clientWidth = container.clientWidth;
 
-                    // FIX 1: Show/hide buttons based on scroll position
                     prevBtn.classList.toggle('visible', scrollLeft > 10);
                     nextBtn.classList.toggle('visible', scrollLeft < scrollWidth - clientWidth - 10);
                 };
 
                 const scrollAmount = () => {
                     const firstItem = container.querySelector('.scroll-item');
-                    // Use the computed width of the first item plus the gap (1rem = 16px)
                     return firstItem ? firstItem.offsetWidth + 16 : container.offsetWidth * 0.9;
                 };
 
@@ -1617,104 +1183,62 @@
                     container.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
                 };
 
-                // Add scroll event listener to show/hide buttons
                 container.addEventListener('scroll', updateCarouselButtons);
-
-                // Initial check for buttons
                 setTimeout(updateCarouselButtons, 100);
             }
 
             // --- NEW: Compound Food Modal Functions ---
 
-            /**
-             * Creates a new ingredient row from the template and adds it to the list.
-             */
             function addIngredientRow() {
-                // Clone the template
                 const newRowFragment = ui.ingredientTemplate.content.cloneNode(true);
-                const newRow = newRowFragment.firstElementChild; // Get the actual <div>
-
+                const newRow = newRowFragment.firstElementChild;
                 const ingredientNumber = ui.ingredientListContainer.querySelectorAll('.ingredient-row').length + 1;
-
-                // Update the number
                 newRow.querySelector('.ingredient-number').textContent = ingredientNumber;
-
-                // --- Add unique IDs for accessibility (robust version) ---
                 const uniqueIdSuffix = `_row_${ingredientNumber}`;
                 const inputs = newRow.querySelectorAll('input[type="text"], input[type="number"]');
-
                 inputs.forEach(input => {
-                    // Find the associated label
-                    const label = input.closest('div').querySelector('label'); // Find label within the div
+                    const label = input.closest('div').querySelector('label');
                     if (label) {
-                        // Get a clean ID from the input's class list
                         const idName = Array.from(input.classList).find(c => c.startsWith('ingredient-'));
                         if (idName) {
-                            const newId = `${idName}${uniqueIdSuffix}`; // e.g., "ingredient-name_row_2"
+                            const newId = `${idName}${uniqueIdSuffix}`;
                             input.id = newId;
                             label.setAttribute('for', newId);
                         }
                     }
                 });
-                // --- End accessibility linking ---
-
-                // Add the new row to the DOM
                 ui.ingredientListContainer.appendChild(newRow);
-
-                // Create icons *only* for the new row (much faster)
-                lucide.createIcons({
-                    nodes: [newRow]
-                });
-
-                // Renumber all items
+                lucide.createIcons({ nodes: [newRow] });
                 updateIngredientNumbers();
-
-                // Scroll to the new ingredient (useful if list is long)
                 newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                // Disable the "Add" button since this new row is empty
                 validateLastRow();
-                 // Re-setup carousel after adding row
                 setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient');
             }
 
-            /**
-             * Checks if the last ingredient row is valid (name filled).
-             * Enables or disables the "Add Ingredient" button based on the result.
-             */
             function validateLastRow() {
-                // NEW: Check for recipe name first
                 const hasRecipeName = ui.recipeNameInput.value.trim() !== '';
                 if (!hasRecipeName) {
                     ui.addIngredientBtn.disabled = true;
                     return false;
                 }
-
                 const allRows = ui.ingredientListContainer.querySelectorAll('.ingredient-row');
                 if (allRows.length === 0) {
-                    ui.addIngredientBtn.disabled = false; // No rows, allow adding one
+                    ui.addIngredientBtn.disabled = false;
                     ui.addIngredientBtn.removeAttribute('title');
                     return true;
                 }
-
                 const lastRow = allRows[allRows.length - 1];
                 const name = lastRow.querySelector('.ingredient-name').value.trim();
-
                 const isValid = name !== '';
-
                 ui.addIngredientBtn.disabled = !isValid;
                 if (isValid) {
                     ui.addIngredientBtn.removeAttribute('title');
                 } else {
                     ui.addIngredientBtn.setAttribute('title', 'Please fill out the ingredient name first.');
                 }
-
                 return isValid;
             }
 
-            /**
-             * Updates the number (#1, #2, etc.) on all ingredient rows.
-             */
             function updateIngredientNumbers() {
                 const rows = ui.ingredientListContainer.querySelectorAll('.ingredient-row');
                 rows.forEach((row, index) => {
@@ -1725,19 +1249,12 @@
                 });
             }
 
-            /**
-             * Calculates and displays the total macros from all ingredient rows.
-             */
             function updateRecipeTotals() {
                 const rows = ui.ingredientListContainer.querySelectorAll('.ingredient-row');
-                let total = {
-                    calories: 0, protein: 0, carbs: 0, fat: 0,
-                    grams: 0, sugar: 0, sodium: 0, potassium: 0
-                };
-
+                let total = { calories: 0, protein: 0, carbs: 0, fat: 0, grams: 0, sugar: 0, sodium: 0, potassium: 0 };
                 rows.forEach(row => {
                     const getVal = (selector) => parseFloat(row.querySelector(selector).value) || 0;
-                    const quantity = getVal('.ingredient-quantity') || 1; // Default to 1 serving if not specified
+                    const quantity = getVal('.ingredient-quantity') || 1;
                     total.grams += getVal('.ingredient-grams') * quantity;
                     total.calories += getVal('.ingredient-calories') * quantity;
                     total.protein += getVal('.ingredient-protein') * quantity;
@@ -1747,65 +1264,50 @@
                     total.sodium += getVal('.ingredient-sodium') * quantity;
                     total.potassium += getVal('.ingredient-potassium') * quantity;
                 });
-
-                // Helper to update text, formatting to 1 decimal place if not an integer
                 const setTotal = (id, value, maxDecimals = 1) => {
                     const el = document.getElementById(id);
                     if (el) {
                          el.textContent = parseFloat(value.toFixed(maxDecimals));
                     }
                 };
-
-                // Get the span elements for text content
                 const setTotalSpan = (id, value, maxDecimals = 1) => {
                     const el = document.getElementById(id);
                     if (el) {
                         el.textContent = parseFloat(value.toFixed(maxDecimals));
                     }
                 };
-
-                // Use the correct function for each element
-                setTotal('recipe-total-calories', total.calories, 0); // No decimals for calories
+                setTotal('recipe-total-calories', total.calories, 0);
                 setTotalSpan('recipe-total-protein', total.protein);
                 setTotalSpan('recipe-total-carbs', total.carbs);
                 setTotalSpan('recipe-total-fat', total.fat);
-                setTotal('recipe-total-grams', total.grams, 0); // No decimals for grams
+                setTotal('recipe-total-grams', total.grams, 0);
                 setTotalSpan('recipe-total-sugar', total.sugar);
-                setTotalSpan('recipe-total-sodium', total.sodium, 0); // No decimals for sodium/potassium
+                setTotalSpan('recipe-total-sodium', total.sodium, 0);
                 setTotalSpan('recipe-total-potassium', total.potassium, 0);
             }
 
-             let ingredientAbortController = null; // Controller for AI fetches
+             let ingredientAbortController = null;
 
             async function fetchIngredientMacros(recipeName, ingredientData, signal) {
-                const apiKey = ""; // Leave empty
-                // FIX 2: Use the new, faster model
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-
                 let userQuery = `Recipe context: "${recipeName}". Ingredient: "${ingredientData.quantity || 1} ${ingredientData.name}".`;
                 const providedInfo = [];
-                // Only include *known* macros
                 if (ingredientData.grams && ingredientData.grams > 0) providedInfo.push(`Amount: ${ingredientData.grams}g`);
                 if (ingredientData.calories && ingredientData.calories > 0) providedInfo.push(`Calories: ${ingredientData.calories}kcal`);
                 if (ingredientData.protein && ingredientData.protein > 0) providedInfo.push(`Protein: ${ingredientData.protein}g`);
                 if (ingredientData.carbs && ingredientData.carbs > 0) providedInfo.push(`Carbs: ${ingredientData.carbs}g`);
                 if (ingredientData.fat && ingredientData.fat > 0) providedInfo.push(`Fat: ${ingredientData.fat}g`);
-
                 if (providedInfo.length > 0) {
                     userQuery += ` Provided info: ${providedInfo.join(', ')}.`;
                 }
-
                  if (ingredientData.grams && ingredientData.grams > 0) {
                     userQuery += ` Please find all nutritional data for the specified ${ingredientData.grams}g amount.`;
                 } else {
                     userQuery += ` Amount not specified, so please estimate a typical single serving size in grams and find all nutritional data for that estimated amount.`;
                 }
-
                 const systemPrompt = "You are a nutritional database. Given a recipe context, an ingredient name, and (optionally) some existing nutritional data (like grams or protein), find all missing nutritional information and return the complete set. Respond only with the valid JSON object described in the schema. Do not include 'g' or 'mg' units, just the numbers. For sugar, sodium, and potassium, if data is unavailable, return 0.";
-
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
-                    // FIX 2: Added search grounding to improve food lookup reliability
                     tools: [{ "google_search": {} }],
                     systemInstruction: {
                         parts: [{ text: systemPrompt }]
@@ -1828,10 +1330,8 @@
                         }
                     }
                 };
-
-                // Use fetchWithBackoff for retries
                  try {
-                    const result = await fetchWithBackoff(apiUrl, payload); // Pass signal if needed by fetchWithBackoff
+                    const result = await fetchWithBackoff(apiUrl, payload);
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
                     const jsonText = result.candidates[0].content.parts[0].text;
                     const parsedJson = JSON.parse(jsonText);
@@ -1842,18 +1342,13 @@
                       } else {
                         console.error("Fetch Ingredient Error:", error);
                       }
-                      throw error; // Re-throw to be caught by the caller
+                      throw error;
                  }
             }
 
-            /**
-             * Saves the current recipe being edited and logs one serving to the daily log.
-             */
             function handleSaveRecipeAndLog() {
                 const recipeName = capitalizeWords(ui.recipeNameInput.value.trim());
                 const totalGrams = parseFloat(document.getElementById('recipe-total-grams').textContent) || 0;
-
-                // Basic validation
                 if (!recipeName) {
                     showCustomAlert('Missing Name', 'Please enter a name for your recipe.');
                     return;
@@ -1862,16 +1357,11 @@
                     showCustomAlert('Missing Ingredients', 'Please add at least one ingredient with calories to save the recipe.');
                     return;
                 }
-
-                // Check for duplicate name conflicts (checking against favorites and recipes)
                 const isDuplicate = favoriteFoods.some(f => f.name.toLowerCase() === recipeName.toLowerCase()) || savedRecipes.some(r => r.name.toLowerCase() === recipeName.toLowerCase());
-
                 if (isDuplicate) {
                     showCustomAlert('Duplicate Name', 'An item with this name already exists in your favorites or recipes. Please choose a unique name.');
                     return;
                 }
-
-                // 1. Gather Final Totals (Macros for the ENTIRE recipe batch)
                 const totalCalories = parseFloat(document.getElementById('recipe-total-calories').textContent) || 0;
                 const totalProtein = parseFloat(document.getElementById('recipe-total-protein').textContent) || 0;
                 const totalCarbs = parseFloat(document.getElementById('recipe-total-carbs').textContent) || 0;
@@ -1879,55 +1369,27 @@
                 const totalSugar = parseFloat(document.getElementById('recipe-total-sugar').textContent) || 0;
                 const totalSodium = parseFloat(document.getElementById('recipe-total-sodium').textContent) || 0;
                 const totalPotassium = parseFloat(document.getElementById('recipe-total-potassium').textContent) || 0;
-
-                // 2. Build the Recipe object (1 Serving = 1 Recipe Batch)
                 const recipeBatch = {
-                    name: recipeName,
-                    type: 'recipe', // Custom type to distinguish from standard food favorites
-                    servings: 1, // Treat the entire batch as 1 unit/serving by default
-                    grams: totalGrams,
-                    calories: totalCalories,
-                    protein: totalProtein,
-                    carbs: totalCarbs,
-                    fat: totalFat,
-                    sugar: totalSugar,
-                    sodium: totalSodium,
-                    potassium: totalPotassium
+                    name: recipeName, type: 'recipe', servings: 1, grams: totalGrams,
+                    calories: totalCalories, protein: totalProtein, carbs: totalCarbs, fat: totalFat,
+                    sugar: totalSugar, sodium: totalSodium, potassium: totalPotassium
                 };
-
-                // 3. Save to savedRecipes (for persistence)
                 savedRecipes.unshift(recipeBatch);
-
-                // 4. Log to Daily Log (as 1 serving)
                 const dayLog = getDayLog(viewDate);
-                // Log the entire batch (1 serving)
-                dayLog.entries.unshift({
-                    ...recipeBatch,
-                    servings: 1, // Log one serving of the recipe
-                    logId: Date.now() // Add a unique log ID
-                });
-
-                // 5. Save all data and refresh UI
+                dayLog.entries.unshift({ ...recipeBatch, servings: 1, logId: Date.now() });
                 saveData();
                 hideModal(ui.compoundFoodModal);
-                updateDayView(viewDate); // This also calls fullRender -> renderSavedItemsList
-
-                // Optional: Reset modal state for next use
+                updateDayView(viewDate);
                 ui.recipeNameInput.value = '';
                 ui.ingredientListContainer.innerHTML = '';
-                addIngredientRow(); // Add back one empty ingredient row
-                ui.ingredientListContainer.classList.add('section-disabled'); // Re-disable ingredients
-                document.getElementById('recipe-totals-container').querySelectorAll('p:not(.text-xs)').forEach(p => p.textContent = '0'); // Reset totals display
-
+                addIngredientRow();
+                ui.ingredientListContainer.classList.add('section-disabled');
+                document.getElementById('recipe-totals-container').querySelectorAll('p:not(.text-xs)').forEach(p => p.textContent = '0');
                 showCustomAlert('Recipe Saved & Logged', `${recipeName} saved and logged to today's entry.`);
             }
-
-
             // --- END NEW Compound Food Modal Functions ---
 
-
             // --- EVENT LISTENERS ---
-             // Existing addFoodBtn listener remains largely the same...
             ui.addFoodBtn.addEventListener('click', async () => {
                 ui.addFoodError.textContent = '';
                 const btn = ui.addFoodBtn;
@@ -1971,16 +1433,14 @@
                 if (hasError) return;
 
                 let servingGrams = parseFloat(ui.foodGramsInput.value) || 0;
-
-                 // Check if the entered food name matches a favorite or recipe
                  const savedItem = favoriteFoods.find(f => f.name.toLowerCase() === foodName.toLowerCase()) || savedRecipes.find(r => r.name.toLowerCase() === foodName.toLowerCase());
 
-                 if (!savedItem && manualMacroCount === 0) { // Only call AI if not a saved item AND no manual macros
+                 if (!savedItem && manualMacroCount === 0) {
                     btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden');
                     try {
                         const brand = ui.foodBrandInput.value.trim();
                         const data = await getMacrosFromAI(foodName, brand);
-                        servingGrams = 100; // AI provides per 100g
+                        servingGrams = 100;
                         singleServingMacros = {
                             calories: parseFloat(data.calories) || 0,
                             protein: parseFloat(data.protein) || 0,
@@ -1992,15 +1452,12 @@
                         };
                          const userGrams = parseFloat(ui.foodGramsInput.value);
                         if (!isNaN(userGrams) && userGrams > 0) {
-                            // User provided grams, scale the 100g AI data
                             const ratio = userGrams / 100.0;
                             servingGrams = userGrams;
                             for (const key in singleServingMacros) { singleServingMacros[key] *= ratio; }
                         } else {
-                             // No user grams, use 100g from AI as the default serving
                              ui.foodGramsInput.value = servingGrams.toFixed(0);
                         }
-                        // Update the form with fetched/scaled values
                         document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
                         document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
                         document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
@@ -2008,15 +1465,14 @@
                         document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
                         document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
                         document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
-
                     } catch (error) {
                         console.error("AI Get Macros Error:", error);
                          ui.addFoodError.textContent = `Could not fetch nutrition data. ${error.message}`;
                     } finally {
                         btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
                     }
-                } else if (savedItem && manualMacroCount === 0) { // If it's a saved item AND no manual macros, populate from saved
-                     servingGrams = savedItem.grams || (savedItem.type === 'food' ? 100 : 0); // Food favs are 100g, recipes have total grams
+                } else if (savedItem && manualMacroCount === 0) {
+                     servingGrams = savedItem.grams || (savedItem.type === 'food' ? 100 : 0);
                      singleServingMacros = {
                         calories: savedItem.calories || 0,
                         protein: savedItem.protein || 0,
@@ -2026,7 +1482,6 @@
                         sodium: savedItem.sodium || 0,
                         potassium: savedItem.potassium || 0,
                     };
-                    // Populate form
                     ui.foodGramsInput.value = servingGrams > 0 ? servingGrams.toFixed(0) : '';
                     document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
                     document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
@@ -2035,8 +1490,7 @@
                     document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
                     document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
                     document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
-                 } else if (manualMacroCount > 0 && manualMacroCount < macroKeys.length) { // Partial manual input
-                    // Existing logic for partial macros
+                 } else if (manualMacroCount > 0 && manualMacroCount < macroKeys.length) {
                      btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden');
                         try {
                             const brand = ui.foodBrandInput.value.trim();
@@ -2059,7 +1513,6 @@
                             document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
                             document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
                             if (servingGrams > 0) ui.foodGramsInput.value = servingGrams.toFixed(0);
-
                         } catch (error) {
                             console.error("AI Partial Macros Error:", error);
                             ui.addFoodError.textContent = `Could not estimate missing macros. ${error.message}`;
@@ -2067,26 +1520,17 @@
                             btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
                         }
                  }
-                // --- End AI / Saved Item Logic ---
+                if (ui.addFoodError.textContent) return;
 
-                if (ui.addFoodError.textContent) return; // Stop if there was an error during AI fetch
-
-                // Proceed to log the item using singleServingMacros
                 const dayLog = getDayLog(viewDate);
                 const totalMacros = {};
                 macroKeys.forEach(m => {
                     totalMacros[m] = (singleServingMacros[m] || 0) * servings;
                 });
-
                  const foodItem = {
-                    name: foodName,
-                    brand: ui.foodBrandInput.value.trim(),
-                    servings,
-                    grams: servingGrams * servings, // Total grams
-                    ...totalMacros,
-                    logId: Date.now() // Add unique ID for logging/unlogging
+                    name: foodName, brand: ui.foodBrandInput.value.trim(), servings,
+                    grams: servingGrams * servings, ...totalMacros, logId: Date.now()
                 };
-
                 if (editingFoodLogIndex !== null) {
                     const originalItem = { ...dayLog.entries[editingFoodLogIndex] };
                     dayLog.entries[editingFoodLogIndex] = foodItem;
@@ -2095,51 +1539,40 @@
                 } else {
                     dayLog.entries.unshift(foodItem);
                 }
-
                 ui.logMealForm.reset();
                 ui.foodServingsInput.value = 1;
                 saveData();
                 updateDayView(viewDate);
             });
 
-            // Other event listeners (swipe, water, modals, etc.) remain the same...
-            // --- REMOVED Water Log Modal Logic ---
-
-            // --- NEW: Water Update Function (Simplified) ---
             const updateWater = (amount, isSetTotal = false) => {
                 const dayLog = getDayLog(viewDate);
                 const originalWater = dayLog.water || 0;
                 let newWater;
-
                 if (isSetTotal) {
                     newWater = Math.max(0, amount);
                 } else {
                     newWater = Math.max(0, originalWater + amount);
-                    lastWaterLogAmount = amount; // Store the DELTA amount
+                    lastWaterLogAmount = amount;
                 }
-
                 if (newWater !== originalWater) {
                     dayLog.water = newWater;
                     saveData();
-                    updateDayView(viewDate); // This updates the main summary and fill
-
-                    // Show undo only for incremental changes (where lastWaterLogAmount was set)
+                    updateDayView(viewDate);
                     if (!isSetTotal && lastWaterLogAmount !== 0) {
                          showUndo('water', { originalWater: originalWater, newWater: newWater });
                     }
                 } else {
-                    // If no change, reset lastWaterLogAmount to avoid incorrect undo
                     if (!isSetTotal) {
                         lastWaterLogAmount = 0;
                     }
                 }
             };
 
-            // --- NEW: Water Button Gesture Handling ---
             let waterPointerStart = { x: 0, y: 0 };
             let waterPointerDelta = { x: 0, y: 0 };
             let isWaterSwiping = false;
-            let waterCurrentX = 0; // NEW: Track horizontal translation
+            let waterCurrentX = 0;
 
             function onWaterPointerDown(e) {
                 const coords = getPointerCoordinates(e);
@@ -2150,7 +1583,6 @@
                 waterCurrentX = 0;
                 ui.waterSwipeContent.classList.add('swiping');
                 ui.waterSwipeContent.style.transform = '';
-
                 document.addEventListener('mousemove', onWaterPointerMove);
                 document.addEventListener('mouseup', onWaterPointerUp);
                 document.addEventListener('touchmove', onWaterPointerMove, { passive: false });
@@ -2161,45 +1593,34 @@
                 const coords = getPointerCoordinates(e);
                 waterPointerDelta.x = coords.x - waterPointerStart.x;
                 waterPointerDelta.y = coords.y - waterPointerStart.y;
-
                 if (!isWaterSwiping && (Math.abs(waterPointerDelta.x) > 10 || Math.abs(waterPointerDelta.y) > 10)) {
                     isWaterSwiping = true;
                 }
-
                 if (isWaterSwiping) {
-                    // Prevent page scroll only if swiping vertically significantly
                     if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x) && Math.abs(waterPointerDelta.y) > 10) {
                         if (e.cancelable) e.preventDefault();
                     }
-
-                    const waterSwipeBgTop = document.getElementById('water-swipe-bg-top'); // Get new element
-
+                    const waterSwipeBgTop = document.getElementById('water-swipe-bg-top');
                     if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
-                        // --- VERTICAL SWIPE ---
                         waterCurrentX = 0;
                         ui.waterSwipeContent.style.transform = 'translateX(0px)';
                         ui.waterSwipeBgLeft.style.opacity = '0';
                         ui.waterSwipeBgRight.style.opacity = '0';
-
                         if (waterPointerDelta.y > 0) { // Swiping Down
                             waterSwipeBgTop.style.opacity = Math.min(1, waterPointerDelta.y / 80).toString();
                             waterSwipeBgTop.style.height = `${waterPointerDelta.y}px`;
-                            ui.waterSwipeContent.style.transform = `translateY(${waterPointerDelta.y}px)`; // Move content down
+                            ui.waterSwipeContent.style.transform = `translateY(${waterPointerDelta.y}px)`;
                         } else { // Swiping Up
                             waterSwipeBgTop.style.opacity = '0';
                             waterSwipeBgTop.style.height = '0';
-                            ui.waterSwipeContent.style.transform = `translateY(0px)`; // Reset
+                            ui.waterSwipeContent.style.transform = `translateY(0px)`;
                         }
-
                     } else {
-                        // --- HORIZONTAL SWIPE ---
-                        waterSwipeBgTop.style.opacity = '0'; // Hide vertical bg
+                        waterSwipeBgTop.style.opacity = '0';
                         waterSwipeBgTop.style.height = '0';
-                        ui.waterSwipeContent.style.transform = `translateY(0px)`; // Reset Y translate
-
+                        ui.waterSwipeContent.style.transform = `translateY(0px)`;
                         waterCurrentX = waterPointerDelta.x;
                         ui.waterSwipeContent.style.transform = `translateX(${waterCurrentX}px)`;
-
                         if (waterCurrentX < 0) { // Swiping Left
                             ui.waterSwipeBgLeft.style.opacity = Math.min(1, Math.abs(waterCurrentX) / 80).toString();
                             ui.waterSwipeBgRight.style.opacity = '0';
@@ -2216,52 +1637,40 @@
                 document.removeEventListener('mouseup', onWaterPointerUp);
                 document.removeEventListener('touchmove', onWaterPointerMove);
                 document.removeEventListener('touchend', onWaterPointerUp);
-
-                // NEW: Add returning class
                 ui.waterSwipeContent.classList.add('returning');
                 ui.waterSwipeContent.classList.remove('swiping');
-
-                const waterSwipeBgTop = document.getElementById('water-swipe-bg-top'); // Get new element
-                // Hide swipe backgrounds (they will fade out)
+                const waterSwipeBgTop = document.getElementById('water-swipe-bg-top');
                 ui.waterSwipeBgLeft.style.opacity = '0';
                 ui.waterSwipeBgRight.style.opacity = '0';
-                waterSwipeBgTop.style.opacity = '0'; // Hide new bg
-                waterSwipeBgTop.style.height = '0'; // Reset height
-
+                waterSwipeBgTop.style.opacity = '0';
+                waterSwipeBgTop.style.height = '0';
                 const totalDistance = Math.sqrt(waterPointerDelta.x**2 + waterPointerDelta.y**2);
-                const swipeThreshold = 30; // Min distance to count as swipe
-                const horizontalSwipeThreshold = ui.waterSwipeContent.offsetWidth * 0.35; // Match food log
-
+                const swipeThreshold = 30;
+                const horizontalSwipeThreshold = ui.waterSwipeContent.offsetWidth * 0.35;
                 if (!isWaterSwiping && totalDistance < 10) {
-                    // --- TAP ---
                     const defaultSize = userProfile.waterServingSize || 250;
                     updateWater(defaultSize);
-                    ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)'; // Ensure it's reset
+                    ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                 } else if (isWaterSwiping) {
                     if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
-                        // --- VERTICAL SWIPE ---
-                        ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)'; // Snap back X and Y
+                        ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                         if (waterPointerDelta.y < -swipeThreshold) {
                             // Swipe Up: Does nothing
-                            // (This block is intentionally left empty)
                         } else if (waterPointerDelta.y > swipeThreshold) {
-                             // Swipe Down: Edit daily water goal
                             showPromptModal("Set Water Goal", "Enter your new daily water goal (ml):", goals.water, (newGoalStr) => {
                                 if (newGoalStr === null) return;
                                 const newGoal = parseInt(newGoalStr);
                                 if (!isNaN(newGoal) && newGoal >= 0) {
                                     goals.water = newGoal;
                                     saveData();
-                                    updateDayView(viewDate); // This will re-render fill %
+                                    updateDayView(viewDate);
                                 } else {
                                     showCustomAlert("Invalid Goal", "Please enter a non-negative number for your goal.");
                                 }
                             });
                         }
                     } else {
-                        // --- HORIZONTAL SWIPE ---
                         if (waterCurrentX < -horizontalSwipeThreshold) {
-                            // Swipe Left: Edit glass volume
                             showPromptModal("Set Glass Size", "Enter your default water glass size (ml):", userProfile.waterServingSize || 250, (newSizeStr) => {
                                 if (newSizeStr === null) return;
                                 const newSize = parseInt(newSizeStr);
@@ -2273,70 +1682,49 @@
                                     showCustomAlert("Invalid Size", "Please enter a positive number for your glass size.");
                                 }
                             });
-                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)'; // Snap back
+                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                         } else if (waterCurrentX > horizontalSwipeThreshold) {
-                            // Swipe Right: Remove 1 glass
                             const defaultSize = userProfile.waterServingSize || 250;
                             updateWater(-defaultSize);
-                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)'; // Snap back
+                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                         } else {
-                            // --- NO THRESHOLD MET ---
-                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)'; // Snap back
+                            ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                         }
                     }
                 } else {
-                    // Not a swipe, not a tap. Just reset.
                     ui.waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                 }
-
-                // Failsafe cleanup
                 setTimeout(() => {
-                    if (ui.waterSwipeContent) { // Check if element still exists
+                    if (ui.waterSwipeContent) {
                         ui.waterSwipeContent.classList.remove('returning');
-                        ui.waterSwipeContent.style.transform = ''; // Remove style
+                        ui.waterSwipeContent.style.transform = '';
                     }
-                }, 300); // Match food log
-
+                }, 300);
                 isWaterSwiping = false;
                 waterPointerDelta = { x: 0, y: 0 };
-                waterCurrentX = 0; // Reset
+                waterCurrentX = 0;
             }
 
             ui.addWaterBtn.addEventListener('mousedown', onWaterPointerDown);
             ui.addWaterBtn.addEventListener('touchstart', onWaterPointerDown, { passive: true });
-            // --- END Water Button Gesture Handling ---
-
-            // --- LISTENERS FOR PAGE NAVIGATION (CHANGED TO <a> TAGS) ---
-            // Event listeners for scanCombinedBtn, openCompoundFoodModalBtn,
-            // aiMealSuggesterBtn, and openNutritionistChatBtn are REMOVED.
-            // The <a> tags will handle navigation.
-
-
-            // --- LISTENERS FOR MODALS (KEPT) ---
-
-            // AI Macro Swap (Remains a modal)
+            
             ui.aiMacroSwapBtn.addEventListener('click', async () => {
                 const btn = ui.aiMacroSwapBtn;
                 const btnText = btn.querySelector('.btn-text');
                 const loader = btn.querySelector('.loader');
-
                 const foodName = capitalizeWords(ui.foodNameInput.value.trim());
                 if (!foodName) {
                     showCustomAlert("No Food Entered", "Please enter a food name in the form first.");
                     return;
                 }
-
                 btn.disabled = true;
                 btnText.style.display = 'none';
                 loader.classList.remove('hidden');
-
                 ui.aiSwapFoodName.textContent = foodName;
                 showModal(ui.aiMacroSwapModal);
                 ui.aiMacroSwapOutput.innerHTML = '<div class="loader mx-auto"></div>';
-
                 try {
                     const swaps = await getAiMacroSwaps(foodName);
-
                     if (swaps && swaps.length > 0) {
                         ui.aiMacroSwapOutput.innerHTML = swaps.map(swap => `
                             <button type="button" class="btn btn-secondary w-full !justify-between !text-left swap-suggestion-btn" data-food-name="${swap.name}">
@@ -2351,7 +1739,6 @@
                     } else {
                         ui.aiMacroSwapOutput.innerHTML = `<p class="text-gray-400 text-center">No swap suggestions found for "${foodName}".</p>`;
                     }
-
                 } catch (error) {
                     console.error("AI Macro Swap Error:", error);
                     ui.aiMacroSwapOutput.innerHTML = `<p class="text-red-400">${error.message}</p>`;
@@ -2363,21 +1750,15 @@
             });
 
             async function getAiMacroSwaps(foodName) {
-                // Load user profile to get goal
                 userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { goal: 'maintain weight' };
-                
                 const systemPrompt = `User is considering eating '${foodName}'. Their goal is ${userProfile.goal}. Suggest 3-5 healthier alternatives that fit a similar craving (e.g., salty, sweet, crunchy). For each, provide 'name' and 'reason' (why it's better, e.g., "Lower in fat", "Higher in protein"). Respond ONLY with a valid JSON array of objects: [{name: "Food 1", reason: "Lower in fat"}, {name: "Food 2", reason: "Higher in protein"}]`;
-
                 const userQuery = `Suggest swaps for ${foodName}`;
-
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
-                // *** FIX: Removed the 'tools' property which conflicts with JSON response ***
                 const payload = {
                      contents: [{ parts: [{ text: userQuery }] }],
                      systemInstruction: { parts: [{ text: systemPrompt }] },
                      generationConfig: { responseMimeType: "application/json" }
                 };
-
                 try {
                     const result = await fetchWithBackoff(apiUrl, payload);
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
@@ -2401,11 +1782,9 @@
                         ui.foodGramsInput.value = '';
                         ui.foodBrandInput.value = '';
                         ui.foodServingsInput.value = 1;
-
                         hideModal(ui.aiMacroSwapModal);
-
                         ui.logMealForm.scrollIntoView({ behavior: 'smooth' });
-                        ui.addFoodBtn.click(); // Trigger AI lookup for the new food
+                        ui.addFoodBtn.click();
                     }
                 }
             });
@@ -2413,14 +1792,11 @@
             const handleEditLogItem = (index) => {
                  const item = getCurrentDayLogEntries()[index];
                  if(!item) return;
-
                 editingFoodLogIndex = index;
                 ui.foodNameInput.value = item.name;
                 ui.foodServingsInput.value = item.servings;
-
                 const singleServingGrams = (item.grams / item.servings) || 0;
                 ui.foodGramsInput.value = singleServingGrams > 0 ? singleServingGrams.toFixed(1) : '';
-
                 document.getElementById('food-calories-input').value = ((item.calories / item.servings) || 0).toFixed(2);
                 document.getElementById('food-protein-input').value = ((item.protein / item.servings) || 0).toFixed(2);
                 document.getElementById('food-carbs-input').value = ((item.carbs / item.servings) || 0).toFixed(2);
@@ -2428,10 +1804,8 @@
                 document.getElementById('food-sugar-input').value = ((item.sugar / item.servings) || 0).toFixed(2);
                 document.getElementById('food-sodium-input').value = ((item.sodium / item.servings) || 0).toFixed(2);
                 document.getElementById('food-potassium-input').value = ((item.potassium / item.servings) || 0).toFixed(2);
-
                 const detailsElement = ui.logMealForm.querySelector('details');
                 if (detailsElement) detailsElement.open = true;
-
                 ui.logMealForm.scrollIntoView({ behavior: 'smooth' });
              };
 
@@ -2443,35 +1817,23 @@
                         saveData();
                         fullRender();
                         showUndo('delete', { index, item: itemToDelete });
-
-                        // NEW: Clear form if deleting the item currently being edited
                         if (editingFoodLogIndex === index) {
                             ui.logMealForm.reset();
-                            ui.foodServingsInput.value = 1; // Reset servings to 1
+                            ui.foodServingsInput.value = 1;
                             const detailsElement = ui.logMealForm.querySelector('details');
-                            if (detailsElement) detailsElement.open = false; // Close details
+                            if (detailsElement) detailsElement.open = false;
                             editingFoodLogIndex = null;
                         }
                     }
                 });
             };
 
-            // AI Daily Report (Remains a modal)
             ui.aiDailyReportBtn.addEventListener('click', getDailyLogAIReport);
             ui.closeAiReportModalBtn.addEventListener('click', () => hideModal(ui.aiReportModal));
             ui.aiReportModalOkBtn.addEventListener('click', () => hideModal(ui.aiReportModal));
 
             ['food-name-input', 'food-brand-input'].forEach(id => document.getElementById(id).addEventListener('input', () => { aiBaseMacros = null; }));
-
-            // --- REMOVED Event Listeners for buttons that are now links ---
-            // ui.aiMealSuggesterBtn.addEventListener('click', ...);
-            // ui.openNutritionistChatBtn.addEventListener('click', ...);
-
-            // --- Event listeners for modals that are *still* modals ---
-            // (These are kept in case the user wants to use the page as-is,
-            // even though the buttons are now links. This is harmless.)
             
-            // AI Suggester Modal (if opened via other means)
             ui.closeAiSuggesterModalBtn.addEventListener('click', () => hideModal(ui.aiSuggesterModal));
             ui.aiSuggestionBtn.addEventListener('click', async () => {
                 const btn = ui.aiSuggestionBtn, btnText = btn.querySelector('.btn-text'), loader = btn.querySelector('.loader');
@@ -2497,7 +1859,6 @@
                 }
             });
 
-            // AI Chat Modal (if opened via other means)
             ui.closeAiNutritionistModalBtn.addEventListener('click', () => hideModal(ui.aiNutritionistModal));
             ui.aiChatSendBtn.addEventListener('click', handleAiChatSend);
             ui.aiChatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiChatSend(); } });
@@ -2505,13 +1866,11 @@
             async function handleAiChatSend() {
                 const userInput = ui.aiChatInput.value.trim();
                 if(!userInput) return;
-
                 chatHistory.push({ role: "user", parts: [{ text: userInput }] });
                 addMessageToChat(userInput, 'user');
                 ui.aiChatInput.value = '';
                 ui.aiChatSendBtn.disabled = true;
                 addMessageToChat('<div class="loader"></div>', 'model', true);
-
                 try {
                     const sevenDaysAgo = new Date();
                     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -2522,25 +1881,20 @@
                         Last 7 Days Food Log: ${JSON.stringify(recentLogs)}
                     `;
                     const systemPrompt = `You are FitTrack AI, a helpful and knowledgeable nutritionist. Analyze the user's provided data to give specific, actionable advice based on their question. Be encouraging and provide clear, concise answers. Here is the user's data context: ${context}`;
-
-                    // FIX 2: Use the new, faster model
                     const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
                     const payload = {
                         contents: chatHistory,
                         systemInstruction: { parts: [{ text: systemPrompt }] }
                     };
-
                     const result = await fetchWithBackoff(apiUrl, payload);
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
                     const aiResponse = result.candidates[0].content.parts[0].text;
-
                     chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
                     updateLastMessage(aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'));
-
                 } catch(error) {
                     console.error("AI Chat Error:", error);
                     updateLastMessage(`Sorry, I am having trouble connecting right now. ${error.message}`);
-                    chatHistory.pop(); // Remove the user message if AI fails
+                    chatHistory.pop();
                 } finally {
                     ui.aiChatSendBtn.disabled = false;
                     saveData();
@@ -2582,7 +1936,6 @@
                 const type = element.dataset.type;
                 const index = parseInt(element.dataset.index);
                 const name = element.dataset.name;
-
                 if (type === 'log') {
                     handleDeleteLogItem(index);
                 } else if (type === 'food' || type === 'recipe') {
@@ -2590,7 +1943,6 @@
                         if (type === 'food') {
                             favoriteFoods.splice(index, 1);
                         } else if (type === 'recipe') {
-                             // Correctly delete recipe
                              savedRecipes.splice(index, 1);
                         }
                         saveData();
@@ -2602,7 +1954,6 @@
             function handleItemEdit(element) {
                 const type = element.dataset.type;
                 const index = parseInt(element.dataset.index);
-
                 if (type === 'log') {
                     handleEditLogItem(index);
                 } else if (type === 'food') {
@@ -2637,7 +1988,6 @@
             function handlePointerDown(e) {
                 const target = e.target.closest('.swipe-item');
                 if (!target || e.target.closest('button, a, input, select, textarea')) return;
-
                 const coords = getPointerCoordinates(e);
                 pointerStart.x = coords.x;
                 pointerStart.y = coords.y;
@@ -2645,7 +1995,6 @@
                 currentX = 0;
                 swipedElement = target;
                 swipedElement.querySelector('.swipe-content').classList.add('swiping');
-
                 document.addEventListener('mousemove', handlePointerMove);
                 document.addEventListener('mouseup', handlePointerUp);
                 document.addEventListener('touchmove', handlePointerMove, { passive: false });
@@ -2654,25 +2003,20 @@
 
             function handlePointerMove(e) {
                 if (!swipedElement) return;
-
                 const coords = getPointerCoordinates(e);
                 const deltaX = coords.x - pointerStart.x;
                 const deltaY = coords.y - pointerStart.y;
                 pointerDelta = { x: deltaX, y: deltaY };
-
                 if (!isSwiping && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
                     isSwiping = true;
                 }
-
                 if (isSwiping) {
                     if (e.cancelable) e.preventDefault();
                     currentX = deltaX;
                     const content = swipedElement.querySelector('.swipe-content');
                     content.style.transform = `translateX(${currentX}px)`;
-
                     const rightAction = swipedElement.querySelector('.swipe-action-container.right');
                     const leftAction = swipedElement.querySelector('.swipe-action-container.left');
-
                     if (currentX < 0) {
                         if(rightAction) rightAction.style.opacity = Math.min(1, Math.abs(currentX) / 80).toString();
                         if(leftAction) leftAction.style.opacity = '0';
@@ -2688,18 +2032,13 @@
                 document.removeEventListener('mouseup', handlePointerUp);
                 document.removeEventListener('touchmove', handlePointerMove);
                 document.removeEventListener('touchend', handlePointerUp);
-
                 if (!swipedElement) return;
-
                 const elementToClean = swipedElement;
                 const content = elementToClean.querySelector('.swipe-content');
-
                 const currentTime = new Date().getTime();
                 const isDoubleTap = (currentTime - lastTap) < 300 && !isSwiping;
                 lastTap = currentTime;
-
                 const totalDistance = Math.sqrt(pointerDelta.x**2 + pointerDelta.y**2);
-
                 if (isSwiping) {
                     const swipeThreshold = elementToClean.offsetWidth * 0.35;
                     content.classList.add('returning');
@@ -2708,31 +2047,26 @@
                         content.style.transform = 'translateX(0)';
                     } else if (currentX > swipeThreshold) {
                         handleItemDelete(elementToClean);
-                         // No immediate transform reset for delete, let it get removed
                     } else {
                         content.style.transform = 'translateX(0)';
                     }
-                } else if (totalDistance < 10) { // Only process tap if minimal movement
+                } else if (totalDistance < 10) {
                     if (isDoubleTap) {
                         const itemName = elementToClean.dataset.name;
                         if (itemName) {
                             toggleFavorite(itemName);
                         }
                     } else if (elementToClean.closest('#saved-items-list')) {
-                        // NEW: Handle tap on saved items
                         handleLogSavedItem(elementToClean);
                     }
                 }
-
                 isSwiping = false;
                 swipedElement = null;
                 currentX = 0;
                 pointerDelta = { x: 0, y: 0 };
-
-                // Cleanup visual styles, ensuring element still exists
                 if (elementToClean && document.body.contains(elementToClean)) {
                     setTimeout(() => {
-                        if (content && content.style.transform !== '') { // Only cleanup if not deleted
+                        if (content && content.style.transform !== '') {
                             content.classList.remove('swiping', 'returning');
                             content.style.transform = '';
                         }
@@ -2747,15 +2081,12 @@
                 const name = element.dataset.name;
                 const type = element.dataset.type;
                 if (!name || !type) return;
-
                 let itemData;
                 let singleServingGrams = 0;
                 let singleServingMacros = {};
-
                 if (type === 'food') {
                     itemData = favoriteFoods.find(f => f.name === name);
                     if (!itemData) return;
-                    // Favorites are per 100g
                     singleServingGrams = 100;
                     singleServingMacros = {
                         calories: itemData.calories || 0,
@@ -2769,7 +2100,6 @@
                 } else if (type === 'recipe') {
                     itemData = savedRecipes.find(r => r.name === name);
                     if (!itemData) return;
-                    // Recipes are for 1 serving (the whole batch)
                     singleServingGrams = itemData.grams || 0;
                      singleServingMacros = {
                         calories: itemData.calories || 0,
@@ -2781,9 +2111,7 @@
                         potassium: itemData.potassium || 0,
                     };
                 }
-
                 if (!itemData) return;
-
                 showPromptModal(`Log ${name}`, "How many servings?", "1", (servingsStr) => {
                     if (servingsStr === null) return;
                     const servings = parseFloat(servingsStr);
@@ -2791,21 +2119,14 @@
                         showCustomAlert("Invalid Amount", "Please enter a valid number of servings.");
                         return;
                     }
-
                     const totalMacros = {};
                     for (const key in singleServingMacros) {
                         totalMacros[key] = singleServingMacros[key] * servings;
                     }
-
                      const foodItem = {
-                        name: itemData.name,
-                        brand: itemData.brand || '',
-                        servings: servings,
-                        grams: singleServingGrams * servings,
-                        ...totalMacros,
-                        logId: Date.now() // Add log ID
+                        name: itemData.name, brand: itemData.brand || '', servings: servings,
+                        grams: singleServingGrams * servings, ...totalMacros, logId: Date.now()
                     };
-
                     const dayLog = getDayLog(viewDate);
                     dayLog.entries.unshift(foodItem);
                     saveData();
@@ -2825,15 +2146,12 @@
 
             function handleDaySwipePointerDown(e) {
                  const target = e.target.closest('#daily-summary-card');
-                 // Ignore if clicking on title/date or swiping on list/form
                  if (!target || e.target.closest('span') || e.target.closest('#daily-log-content, #saved-items-list, #log-meal-form')) return;
-
                 const coords = getPointerCoordinates(e);
                 daySwipeStart.x = coords.x;
                 daySwipeStart.y = coords.y;
                 daySwipeCurrentX = 0;
                 daySwipeElement = target;
-
                 document.addEventListener('mousemove', handleDaySwipePointerMove);
                 document.addEventListener('mouseup', handleDaySwipePointerUp);
                 document.addEventListener('touchmove', handleDaySwipePointerMove, { passive: false });
@@ -2842,15 +2160,12 @@
 
             function handleDaySwipePointerMove(e) {
                 if (!daySwipeElement) return;
-
                 const coords = getPointerCoordinates(e);
                 const deltaX = coords.x - daySwipeStart.x;
                 const deltaY = coords.y - daySwipeStart.y;
-
                 if (!isDaySwiping && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
                     isDaySwiping = true;
                 }
-
                 if (isDaySwiping) {
                     if (e.cancelable) e.preventDefault();
                     daySwipeCurrentX = deltaX;
@@ -2864,15 +2179,11 @@
                 document.removeEventListener('mouseup', handleDaySwipePointerUp);
                 document.removeEventListener('touchmove', handleDaySwipePointerMove);
                 document.removeEventListener('touchend', handleDaySwipePointerUp);
-
                 if (!daySwipeElement) return;
-
                 if (isDaySwiping) {
                     const swipeThreshold = daySwipeElement.offsetWidth * 0.25;
-
                     daySwipeElement.style.transition = 'transform 0.3s ease';
                     daySwipeElement.style.transform = 'translateX(0)';
-
                     if (daySwipeCurrentX < -swipeThreshold) {
                         const today = new Date(); today.setHours(0, 0, 0, 0);
                         const nextDay = new Date(viewDate); nextDay.setDate(nextDay.getDate() + 1);
@@ -2885,9 +2196,7 @@
                         updateDayView(viewDate);
                     }
                 }
-
                 isDaySwiping = false;
-
                 setTimeout(() => {
                     if(daySwipeElement) {
                        daySwipeElement.style.transition = '';
@@ -2911,33 +2220,25 @@
             ui.undoToastBtn.addEventListener('click', () => {
                 if(!lastAction) return;
                 const dayLog = getDayLog(viewDate);
-
                 if(lastAction.type === 'delete') {
                     dayLog.entries.splice(lastAction.data.index, 0, lastAction.data.item);
                 } else if (lastAction.type === 'edit') {
                     dayLog.entries[lastAction.data.index] = lastAction.data.originalItem;
                 } else if (lastAction.type === 'water') {
-                    // When undoing water, revert to the state *before* the last action
                     dayLog.water = lastAction.data.originalWater;
-                     lastWaterLogAmount = 0; // Prevent re-undoing
+                     lastWaterLogAmount = 0;
                 }
-
                 saveData();
                 fullRender();
                 hideUndo();
             });
 
-            // --- NEW: Compound Food Modal Initialization ---
             lucide.createIcons({ nodes: [ui.compoundFoodModal.querySelector('.disabled-overlay')] });
-
-            // Close modal button (This modal is no longer opened by a button, but listener is harmless)
             if (ui.closeCompoundFoodModalBtn && ui.compoundFoodModal) {
                 ui.closeCompoundFoodModalBtn.addEventListener('click', () => {
                     hideModal(ui.compoundFoodModal);
                 });
             }
-
-            // Event listener to unlock ingredients section
             if (ui.recipeNameInput && ui.ingredientListContainer && ui.addIngredientBtn) {
                 ui.recipeNameInput.addEventListener('input', () => {
                     const hasName = ui.recipeNameInput.value.trim() !== '';
@@ -2950,31 +2251,23 @@
                     }
                 });
             }
-
-            // "Add Ingredient" button click
             if (ui.addIngredientBtn) {
                 ui.addIngredientBtn.addEventListener('click', () => {
                     addIngredientRow();
                 });
             }
-
-            // --- ADDED RECIPE SUBMISSION LISTENER ---
             if (ui.compoundFoodForm) {
                  ui.compoundFoodForm.addEventListener('submit', (e) => {
                      e.preventDefault();
                      handleSaveRecipeAndLog();
                  });
             }
-            // --- END ADDED RECIPE SUBMISSION LISTENER ---
-
-            // Event listener for "Remove" button, AI lookup, and scan within ingredient rows
             if (ui.ingredientListContainer) {
                 ui.ingredientListContainer.addEventListener('click', async (e) => {
                     const removeBtn = e.target.closest('.remove-ingredient-btn');
                     const aiBtn = e.target.closest('.find-macros-ai-btn');
-                    const scanBtn = e.target.closest('.recipe-scan-btn'); // Get scan button
+                    const scanBtn = e.target.closest('.recipe-scan-btn');
                     const row = e.target.closest('.ingredient-row');
-
                     if (removeBtn && row) {
                         if (ui.ingredientListContainer.querySelectorAll('.ingredient-row').length > 1) {
                             row.remove();
@@ -2990,9 +2283,8 @@
                         }
                         updateRecipeTotals();
                         validateLastRow();
-                         setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient'); // Re-setup after remove
+                         setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient');
                     }
-
                     if (aiBtn && row) {
                         e.preventDefault();
                         if (aiBtn.disabled) return;
@@ -3012,16 +2304,15 @@
                             potassium: row.querySelector('.ingredient-potassium').value.trim()
                         };
                         if (!ingredientData.name) { return; }
-                        // Abort previous fetch if running
                         if (ingredientAbortController) { ingredientAbortController.abort(); }
-                        ingredientAbortController = new AbortController(); // New controller
+                        ingredientAbortController = new AbortController();
                         row.dataset.loading = 'true';
                         aiBtn.disabled = true;
                         loader.classList.remove('hidden');
                         icon.classList.add('hidden');
                         try {
                             const data = await fetchIngredientMacros(recipeName, ingredientData, ingredientAbortController.signal);
-                            if (ingredientAbortController.signal.aborted) return; // Don't update if aborted
+                            if (ingredientAbortController.signal.aborted) return;
                             row.querySelector('.ingredient-grams').value = data.grams.toFixed(0);
                             row.querySelector('.ingredient-calories').value = data.calories.toFixed(0);
                             row.querySelector('.ingredient-protein').value = data.protein.toFixed(1);
@@ -3032,7 +2323,11 @@
                             row.querySelector('.ingredient-potassium').value = data.potassium.toFixed(0);
                             updateRecipeTotals();
                         } catch (error) {
-                            if (error.name !== 'AbortError') { console.error("AI Macro Search Failed:", error); }
+                            if (error.name !== 'AbortError') { 
+                                console.error("AI Macro Search Failed:", error);
+                                // Show API error to user
+                                showCustomAlert("AI Error", `Could not fetch macros. ${error.message}`);
+                            }
                         } finally {
                             if (!ingredientAbortController || !ingredientAbortController.signal.aborted) {
                                 aiBtn.disabled = false;
@@ -3040,33 +2335,20 @@
                                 icon.classList.remove('hidden');
                                 delete row.dataset.loading;
                             }
-                            ingredientAbortController = null; // Clear controller
+                            ingredientAbortController = null;
                         }
                     }
-
-                    // UPDATED: Handle recipe scan button click
                      if (scanBtn && row) {
-                        activeRecipeScanBtn = scanBtn; // Store the button that was clicked
-                        
-                        // Redirect to the scan page
+                        activeRecipeScanBtn = scanBtn;
                         window.location.href = 'assets/nutrition/scan-combined.html?context=recipe';
-                        
-                        // The scanner modal logic is no longer needed here
-                        // ui.scannerResultsContainer.innerHTML = ''; 
-                        // ...
-                        // showModal(ui.foodScannerModal); 
                      }
-
                 });
-
-                // Add live calculation and validation listener
                 ui.ingredientListContainer.addEventListener('input', (e) => {
                     if (e.target.type === 'number' && parseFloat(e.target.value) < 0) {
-                        e.target.value = ''; // Clear negative input
+                        e.target.value = '';
                     }
                     updateRecipeTotals();
                     validateLastRow();
-                     // Abort AI fetch if user starts typing macros manually
                     const row = e.target.closest('.ingredient-row');
                     if (row && ingredientAbortController && row.dataset.loading) {
                         ingredientAbortController.abort();
@@ -3074,15 +2356,11 @@
                 });
             }
 
-
-            // --- END: Compound Food Modal Initialization ---
-
             // --- INITIAL LOAD AND RENDER (FIX for persistence) ---
             loadData();
             updateDayView(viewDate);
-            setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next'); // Setup scanner carousel
+            setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next');
 
-            // --- NEW: Check for URL parameters from standalone pages ---
             function checkUrlParams() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const swapFood = urlParams.get('swapFood');
@@ -3090,41 +2368,36 @@
 
                 if (swapFood) {
                     ui.foodNameInput.value = swapFood;
-                    // Clear macros so AI lookup is triggered
                     const macroInputs = ui.logMealForm.querySelectorAll('.macro-input');
                     macroInputs.forEach(input => input.value = '');
                     ui.foodGramsInput.value = '';
                     ui.foodBrandInput.value = '';
                     ui.foodServingsInput.value = 1;
-
-                    // Scroll to form and optionally trigger lookup
                     ui.logMealForm.scrollIntoView({ behavior: 'smooth' });
                     showCustomAlert("Swap Applied", `Loaded "${swapFood}". Click the AI button to find macros.`);
-                    
-                    // Clear the URL param
                     history.replaceState(null, '', window.location.pathname);
                 }
                 
                 if (tempScannedItem) {
                     try {
                         const item = JSON.parse(tempScannedItem);
-                        // Add this item to the log
                         const dayLog = getDayLog(viewDate);
                         dayLog.entries.unshift(item);
                         saveData();
-                        fullRender(); // Re-render the UI
+                        fullRender();
                         showCustomAlert("Item Logged", `Successfully logged "${item.name}" from scanner.`);
                     } catch (e) {
                         console.error("Error parsing scanned item:", e);
                     }
-                    // Clear the item from localStorage
                     localStorage.removeItem('fitTrackAI_tempScannedItem');
                 }
             }
-            checkUrlParams(); // Run this on load
-            // --- END URL PARAM CHECK ---
+            checkUrlParams();
+        }
+        // --- END Original script ---
 
-        });
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
     </script>
 </body>
 </html>
