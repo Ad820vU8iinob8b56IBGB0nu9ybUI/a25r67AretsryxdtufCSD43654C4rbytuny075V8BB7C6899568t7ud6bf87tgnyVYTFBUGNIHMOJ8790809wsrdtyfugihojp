@@ -22,8 +22,8 @@
     <!-- Page-specific styles (if any are needed, they can go here) -->
     <style>
         /* This block is now much smaller and only contains styles
-          that might be *truly* unique to nutrition.html, 
-          though most are already in assets/styles.css
+           that might be *truly* unique to nutrition.html, 
+           though most are already in assets/styles.css
         */
         
         /* --- Compound Food Modal Styles (scoped) --- */
@@ -242,8 +242,11 @@
                             <!-- Swipe backgrounds -->
                             <div id="water-swipe-actions" class="swipe-actions">
                                 <!-- NEW: Purple swipe down background -->
-                                <div id="water-swipe-bg-top" class="swipe-action-container !items-start !justify-center" style="opacity: 0; background: linear-gradient(to bottom, hsl(262, 83%, 60%), hsl(262, 83%, 70%)); height: 0; transition: height 0.3s ease; top: 0; left: 0; right: 0; bottom: auto;">
-                                    <!-- Centered the icon using !justify-center -->
+                                <!-- 
+                                    CHANGE 1: Changed !items-start to !items-center to vertically center the icon
+                                    in the purple area as it's swiped down.
+                                -->
+                                <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center" style="opacity: 0; background: linear-gradient(to bottom, hsl(262, 83%, 60%), hsl(262, 83%, 70%)); height: 0; transition: height 0.3s ease; top: 0; left: 0; right: 0; bottom: auto;">
                                     <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                                 </div>
                                 <!-- MODIFIED: Green swipe left background -->
@@ -281,7 +284,7 @@
                          <!-- AI Nutritionist Chat (Changed to <a>) -->
                          <a id="open-nutritionist-chat-btn" href="assets/nutrition/open-nutritionist-chat.html" class="btn btn-secondary !p-2" title="Chat with AI Nutritionist"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
                      </div>
-                </div>
+                 </div>
                 <div id="daily-log-content" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2"><p class="text-gray-500">No food logged yet.</p></div>
             </div>
 
@@ -394,7 +397,7 @@
     <!-- Modals -->
 
     <!-- Renamed and Unified AI Scanner Modal (Kept for now, though button links away) -->
-    <div id="ai-scanner-modal" class="modal-backdrop" style="z-index: 60;">
+    <div id="ai-scanner-modal" class="modal-backdrop" style="z-index: 60; display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">AI Scanner</h2>
@@ -427,7 +430,7 @@
     <!-- START: RE-ADDED MODALS -->
 
     <!-- AI Nutritionist Chat Modal (Kept for now, though button links away) -->
-    <div id="ai-nutritionist-modal" class="modal-backdrop" style="z-index: 70;">
+    <div id="ai-nutritionist-modal" class="modal-backdrop" style="z-index: 70; display: none;">
         <div class="modal-content !h-[90vh] !max-h-[800px] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-border-color">
                 <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="bot" class="w-6 h-6 text-blue-400"></i>AI Nutritionist</h2>
@@ -444,7 +447,7 @@
     </div>
 
     <!-- Edit Favorite Modal -->
-    <div id="edit-favorite-modal" class="modal-backdrop">
+    <div id="edit-favorite-modal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Edit Favorite Food</h2>
@@ -499,7 +502,7 @@
     </div>
 
     <!-- Generic Alert Modal -->
-    <div id="alert-modal" class="modal-backdrop" style="z-index: 80;">
+    <div id="alert-modal" class="modal-backdrop" style="z-index: 80; display: none;">
         <div class="modal-content">
             <h2 id="alert-modal-title" class="text-2xl font-bold mb-4">Alert</h2>
             <p id="alert-modal-text" class="text-gray-300 mb-6"></p>
@@ -508,7 +511,7 @@
     </div>
 
     <!-- Generic Confirm Modal -->
-    <div id="confirm-modal" class="modal-backdrop" style="z-index: 80;">
+    <div id="confirm-modal" class="modal-backdrop" style="z-index: 80; display: none;">
         <div class="modal-content">
             <h2 id="confirm-modal-title" class="text-2xl font-bold mb-4">Confirm</h2>
             <p id="confirm-modal-text" class="text-gray-300 mb-6"></p>
@@ -520,11 +523,15 @@
     </div>
 
     <!-- Generic Prompt Modal -->
-    <div id="prompt-modal" class="modal-backdrop" style="z-index: 80;">
+    <div id="prompt-modal" class="modal-backdrop" style="z-index: 80; display: none;">
         <div class="modal-content">
             <h2 id="prompt-modal-title" class="text-2xl font-bold mb-4">Input</h2>
             <p id="prompt-modal-text" class="text-gray-300 mb-4"></p>
-            <input type="text" id="prompt-modal-input" class="form-input w-full">
+            <!-- 
+                CHANGE 2: Changed type="text" to type="number" to provide a number pad
+                on mobile devices for both water goal and glass size prompts.
+            -->
+            <input type="number" id="prompt-modal-input" class="form-input w-full" min="0" step="1">
             <div class="flex gap-4 mt-6">
                 <button id="prompt-modal-cancel-btn" class="btn btn-secondary w-full">Cancel</button>
                 <button id="prompt-modal-ok-btn" class="btn btn-primary w-full">OK</button>
@@ -533,7 +540,7 @@
     </div>
 
     <!-- AI Daily Report Modal (This one IS used) -->
-    <div id="ai-report-modal" class="modal-backdrop">
+    <div id="ai-report-modal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-blue-400"></i>Daily AI Report</h2>
@@ -545,7 +552,7 @@
     </div>
 
     <!-- AI Meal Suggester Modal (Kept for now, though button links away) -->
-    <div id="ai-suggester-modal" class="modal-backdrop">
+    <div id="ai-suggester-modal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">AI Meal Suggester</h2>
@@ -562,7 +569,7 @@
     </div>
 
     <!-- AI Macro Swap Modal (This one IS used) -->
-    <div id="ai-macro-swap-modal" class="modal-backdrop">
+    <div id="ai-macro-swap-modal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="replace" class="w-5 h-5 text-blue-400"></i>AI Macro Swap</h2>
@@ -688,8 +695,8 @@
 
             // --- GEMINI API ---
             const getApiUrl = (model, action = 'generateContent') => {
-                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // API Key is handled by the environment
-                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
+                const apiKey = ""; // API Key is handled by the environment
+                return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
 
             // Helper function to make API calls with exponential backoff
@@ -742,6 +749,7 @@
 
             // --- Modal show/hide functions ---
             function showModal(modalElement) {
+                if (!modalElement) return; // Add safety check
                 modalElement.style.display = 'flex';
                 if (openModalCount === 0) {
                     document.body.style.overflow = 'hidden';
@@ -749,6 +757,7 @@
                 openModalCount++;
             }
             function hideModal(modalElement) {
+                if (!modalElement) return; // Add safety check
                 modalElement.style.display = 'none';
                 openModalCount--;
                 if (openModalCount <= 0) {
@@ -876,6 +885,71 @@
                 recipeCarouselPrev: document.getElementById('recipe-prev-ingredient'),
                 recipeCarouselNext: document.getElementById('recipe-next-ingredient')
             };
+
+            // --- START: MODAL EVENT LISTENERS (FIX) ---
+            // Attaching listeners to close buttons that were missing
+            
+            // Alert Modal
+            if (ui.alertModalOkBtn) {
+                ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+            }
+
+            // Confirm Modal
+            if (ui.confirmModalCancelBtn) {
+                ui.confirmModalCancelBtn.addEventListener('click', () => {
+                    hideModal(ui.confirmModal);
+                    confirmCallback = null; // Just clear the callback
+                });
+            }
+            if (ui.confirmModalConfirmBtn) {
+                ui.confirmModalConfirmBtn.addEventListener('click', () => {
+                    hideModal(ui.confirmModal);
+                    if (typeof confirmCallback === 'function') {
+                        confirmCallback(); // Just call the saved callback
+                    }
+                    confirmCallback = null;
+                });
+            }
+
+            // Prompt Modal
+            if (ui.promptModalCancelBtn) {
+                ui.promptModalCancelBtn.addEventListener('click', () => {
+                    hideModal(ui.promptModal);
+                    if (typeof promptCallback === 'function') {
+                        promptCallback(null); // Pass null for cancel
+                    }
+                    promptCallback = null;
+                });
+            }
+            if (ui.promptModalOkBtn) {
+                ui.promptModalOkBtn.addEventListener('click', () => {
+                    hideModal(ui.promptModal);
+                    if (typeof promptCallback === 'function') {
+                        promptCallback(ui.promptModalInput.value); // Pass the input value
+                    }
+                    promptCallback = null;
+                });
+            }
+
+            // Edit Favorite Modal
+            if (ui.closeEditFavoriteModalBtn) {
+                ui.closeEditFavoriteModalBtn.addEventListener('click', () => {
+                    hideModal(ui.editFavoriteModal);
+                    editingFavoriteFoodName = null; // Clear editing state
+                });
+            }
+            
+            // AI Scanner Modal
+            if (ui.closeFoodScannerModalBtn) {
+                ui.closeFoodScannerModalBtn.addEventListener('click', () => {
+                    hideModal(ui.foodScannerModal);
+                    // Note: The stopFoodCameraStream function doesn't seem to be defined.
+                    // If camera logic is added, it should be called here.
+                });
+            }
+
+            // --- END: MODAL EVENT LISTENERS (FIX) ---
+
 
             // --- CHART.JS SETUP ---
             const macroCtx = document.getElementById('macro-chart').getContext('2d');
@@ -1055,12 +1129,12 @@
                     generationConfig: { responseMimeType: "application/json" } 
                 };
                  try {
-                    const result = await fetchWithBackoff(apiUrl, payload);
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
-                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                     const result = await fetchWithBackoff(apiUrl, payload);
+                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
+                     return JSON.parse(result.candidates[0].content.parts[0].text);
                  } catch (error) {
-                     console.error("getMacrosFromAI Error:", error);
-                     throw error;
+                      console.error("getMacrosFromAI Error:", error);
+                      throw error;
                  }
             }
 
@@ -1103,8 +1177,8 @@
                     const totalGrams = logItem.grams || 0;
                     const servings = logItem.servings || 1;
                     if (totalGrams <= 0 || servings <= 0) {
-                         showCustomAlert("Cannot Favorite", "Cannot favorite an item with 0 grams to calculate base macros.");
-                         return;
+                        showCustomAlert("Cannot Favorite", "Cannot favorite an item with 0 grams to calculate base macros.");
+                        return;
                     }
                     const perServingGrams = totalGrams / servings;
                     const ratio = 100 / perServingGrams;
@@ -1118,7 +1192,7 @@
                         sugar: ((logItem.sugar || 0) / servings) * ratio,
                         sodium: ((logItem.sodium || 0) / servings) * ratio,
                         potassium: ((logItem.potassium || 0) / servings) * ratio,
-                     });
+                    });
                 }
                 saveData();
                 fullRender();
@@ -1301,10 +1375,10 @@
                     userQuery += ` Provided info: ${providedInfo.join(', ')}.`;
                 }
                  if (ingredientData.grams && ingredientData.grams > 0) {
-                    userQuery += ` Please find all nutritional data for the specified ${ingredientData.grams}g amount.`;
-                } else {
-                    userQuery += ` Amount not specified, so please estimate a typical single serving size in grams and find all nutritional data for that estimated amount.`;
-                }
+                      userQuery += ` Please find all nutritional data for the specified ${ingredientData.grams}g amount.`;
+                 } else {
+                      userQuery += ` Amount not specified, so please estimate a typical single serving size in grams and find all nutritional data for that estimated amount.`;
+                 }
                 const systemPrompt = "You are a nutritional database. Given a recipe context, an ingredient name, and (optionally) some existing nutritional data (like grams or protein), find all missing nutritional information and return the complete set. Respond only with the valid JSON object described in the schema. Do not include 'g' or 'mg' units, just the numbers. For sugar, sodium, and potassium, if data is unavailable, return 0.";
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
@@ -1331,16 +1405,16 @@
                     }
                 };
                  try {
-                    const result = await fetchWithBackoff(apiUrl, payload);
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(jsonText);
-                    return parsedJson;
+                     const result = await fetchWithBackoff(apiUrl, payload);
+                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
+                     const jsonText = result.candidates[0].content.parts[0].text;
+                     const parsedJson = JSON.parse(jsonText);
+                     return parsedJson;
                  } catch (error) {
                       if (error.name === 'AbortError') {
-                        console.log("Ingredient fetch aborted.");
+                         console.log("Ingredient fetch aborted.");
                       } else {
-                        console.error("Fetch Ingredient Error:", error);
+                         console.error("Fetch Ingredient Error:", error);
                       }
                       throw error;
                  }
@@ -1354,9 +1428,9 @@
                     return;
                 }
                  if (ui.ingredientListContainer.querySelectorAll('.ingredient-row').length === 0 || totalGrams <= 0 || parseFloat(document.getElementById('recipe-total-calories').textContent) <= 0) {
-                    showCustomAlert('Missing Ingredients', 'Please add at least one ingredient with calories to save the recipe.');
-                    return;
-                }
+                     showCustomAlert('Missing Ingredients', 'Please add at least one ingredient with calories to save the recipe.');
+                     return;
+                 }
                 const isDuplicate = favoriteFoods.some(f => f.name.toLowerCase() === recipeName.toLowerCase()) || savedRecipes.some(r => r.name.toLowerCase() === recipeName.toLowerCase());
                 if (isDuplicate) {
                     showCustomAlert('Duplicate Name', 'An item with this name already exists in your favorites or recipes. Please choose a unique name.');
@@ -1436,89 +1510,89 @@
                  const savedItem = favoriteFoods.find(f => f.name.toLowerCase() === foodName.toLowerCase()) || savedRecipes.find(r => r.name.toLowerCase() === foodName.toLowerCase());
 
                  if (!savedItem && manualMacroCount === 0) {
-                    btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden');
-                    try {
-                        const brand = ui.foodBrandInput.value.trim();
-                        const data = await getMacrosFromAI(foodName, brand);
-                        servingGrams = 100;
-                        singleServingMacros = {
-                            calories: parseFloat(data.calories) || 0,
-                            protein: parseFloat(data.protein) || 0,
-                            carbs: parseFloat(data.carbs) || 0,
-                            fat: parseFloat(data.fat) || 0,
-                            sugar: parseFloat(data.sugar) || 0,
-                            sodium: parseFloat(data.sodium) || 0,
-                            potassium: parseFloat(data.potassium) || 0
-                        };
-                         const userGrams = parseFloat(ui.foodGramsInput.value);
-                        if (!isNaN(userGrams) && userGrams > 0) {
-                            const ratio = userGrams / 100.0;
-                            servingGrams = userGrams;
-                            for (const key in singleServingMacros) { singleServingMacros[key] *= ratio; }
-                        } else {
-                             ui.foodGramsInput.value = servingGrams.toFixed(0);
-                        }
-                        document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
-                        document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
-                        document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
-                        document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
-                        document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
-                        document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
-                        document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
-                    } catch (error) {
-                        console.error("AI Get Macros Error:", error);
-                         ui.addFoodError.textContent = `Could not fetch nutrition data. ${error.message}`;
-                    } finally {
-                        btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
-                    }
-                } else if (savedItem && manualMacroCount === 0) {
-                     servingGrams = savedItem.grams || (savedItem.type === 'food' ? 100 : 0);
-                     singleServingMacros = {
-                        calories: savedItem.calories || 0,
-                        protein: savedItem.protein || 0,
-                        carbs: savedItem.carbs || 0,
-                        fat: savedItem.fat || 0,
-                        sugar: savedItem.sugar || 0,
-                        sodium: savedItem.sodium || 0,
-                        potassium: savedItem.potassium || 0,
-                    };
-                    ui.foodGramsInput.value = servingGrams > 0 ? servingGrams.toFixed(0) : '';
-                    document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
-                    document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
-                    document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
-                    document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
-                    document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
-                    document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
-                    document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
-                 } else if (manualMacroCount > 0 && manualMacroCount < macroKeys.length) {
                      btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden');
-                        try {
-                            const brand = ui.foodBrandInput.value.trim();
-                            const data = await getPartialMacrosFromAI(foodName, brand, manualMacros);
-                            servingGrams = data.servingGrams || servingGrams || 0;
-                            singleServingMacros = {
-                                calories: manualMacros.calories ?? (parseFloat(data.calories) || 0),
-                                protein: manualMacros.protein ?? (parseFloat(data.protein) || 0),
-                                carbs: manualMacros.carbs ?? (parseFloat(data.carbs) || 0),
-                                fat: manualMacros.fat ?? (parseFloat(data.fat) || 0),
-                                sugar: manualMacros.sugar ?? (parseFloat(data.sugar) || 0),
-                                sodium: manualMacros.sodium ?? (parseFloat(data.sodium) || 0),
-                                potassium: manualMacros.potassium ?? (parseFloat(data.potassium) || 0),
-                            };
-                            document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
-                            document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
-                            document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
-                            document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
-                            document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
-                            document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
-                            document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
-                            if (servingGrams > 0) ui.foodGramsInput.value = servingGrams.toFixed(0);
-                        } catch (error) {
-                            console.error("AI Partial Macros Error:", error);
-                            ui.addFoodError.textContent = `Could not estimate missing macros. ${error.message}`;
-                        } finally {
-                            btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
-                        }
+                     try {
+                         const brand = ui.foodBrandInput.value.trim();
+                         const data = await getMacrosFromAI(foodName, brand);
+                         servingGrams = 100;
+                         singleServingMacros = {
+                             calories: parseFloat(data.calories) || 0,
+                             protein: parseFloat(data.protein) || 0,
+                             carbs: parseFloat(data.carbs) || 0,
+                             fat: parseFloat(data.fat) || 0,
+                             sugar: parseFloat(data.sugar) || 0,
+                             sodium: parseFloat(data.sodium) || 0,
+                             potassium: parseFloat(data.potassium) || 0
+                         };
+                          const userGrams = parseFloat(ui.foodGramsInput.value);
+                         if (!isNaN(userGrams) && userGrams > 0) {
+                             const ratio = userGrams / 100.0;
+                             servingGrams = userGrams;
+                             for (const key in singleServingMacros) { singleServingMacros[key] *= ratio; }
+                         } else {
+                              ui.foodGramsInput.value = servingGrams.toFixed(0);
+                         }
+                         document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
+                         document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
+                         document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
+                         document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
+                         document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
+                         document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
+                         document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
+                     } catch (error) {
+                         console.error("AI Get Macros Error:", error);
+                          ui.addFoodError.textContent = `Could not fetch nutrition data. ${error.message}`;
+                     } finally {
+                         btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
+                     }
+                 } else if (savedItem && manualMacroCount === 0) {
+                      servingGrams = savedItem.grams || (savedItem.type === 'food' ? 100 : 0);
+                      singleServingMacros = {
+                          calories: savedItem.calories || 0,
+                          protein: savedItem.protein || 0,
+                          carbs: savedItem.carbs || 0,
+                          fat: savedItem.fat || 0,
+                          sugar: savedItem.sugar || 0,
+                          sodium: savedItem.sodium || 0,
+                          potassium: savedItem.potassium || 0,
+                      };
+                      ui.foodGramsInput.value = servingGrams > 0 ? servingGrams.toFixed(0) : '';
+                      document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
+                      document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
+                      document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
+                      document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
+                      document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
+                      document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
+                      document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
+                 } else if (manualMacroCount > 0 && manualMacroCount < macroKeys.length) {
+                      btn.disabled = true; btnText.style.display = 'none'; loader.classList.remove('hidden');
+                          try {
+                              const brand = ui.foodBrandInput.value.trim();
+                              const data = await getPartialMacrosFromAI(foodName, brand, manualMacros);
+                              servingGrams = data.servingGrams || servingGrams || 0;
+                              singleServingMacros = {
+                                  calories: manualMacros.calories ?? (parseFloat(data.calories) || 0),
+                                  protein: manualMacros.protein ?? (parseFloat(data.protein) || 0),
+                                  carbs: manualMacros.carbs ?? (parseFloat(data.carbs) || 0),
+                                  fat: manualMacros.fat ?? (parseFloat(data.fat) || 0),
+                                  sugar: manualMacros.sugar ?? (parseFloat(data.sugar) || 0),
+                                  sodium: manualMacros.sodium ?? (parseFloat(data.sodium) || 0),
+                                  potassium: manualMacros.potassium ?? (parseFloat(data.potassium) || 0),
+                              };
+                              document.getElementById('food-calories-input').value = singleServingMacros.calories.toFixed(0);
+                              document.getElementById('food-protein-input').value = singleServingMacros.protein.toFixed(1);
+                              document.getElementById('food-carbs-input').value = singleServingMacros.carbs.toFixed(1);
+                              document.getElementById('food-fat-input').value = singleServingMacros.fat.toFixed(1);
+                              document.getElementById('food-sugar-input').value = singleServingMacros.sugar.toFixed(1);
+                              document.getElementById('food-sodium-input').value = singleServingMacros.sodium.toFixed(0);
+                              document.getElementById('food-potassium-input').value = singleServingMacros.potassium.toFixed(0);
+                              if (servingGrams > 0) ui.foodGramsInput.value = servingGrams.toFixed(0);
+                          } catch (error) {
+                              console.error("AI Partial Macros Error:", error);
+                              ui.addFoodError.textContent = `Could not estimate missing macros. ${error.message}`;
+                          } finally {
+                              btn.disabled = false; btnText.style.display = 'inline-block'; loader.classList.add('hidden');
+                          }
                  }
                 if (ui.addFoodError.textContent) return;
 
@@ -1528,9 +1602,9 @@
                     totalMacros[m] = (singleServingMacros[m] || 0) * servings;
                 });
                  const foodItem = {
-                    name: foodName, brand: ui.foodBrandInput.value.trim(), servings,
-                    grams: servingGrams * servings, ...totalMacros, logId: Date.now()
-                };
+                      name: foodName, brand: ui.foodBrandInput.value.trim(), servings,
+                      grams: servingGrams * servings, ...totalMacros, logId: Date.now()
+                 };
                 if (editingFoodLogIndex !== null) {
                     const originalItem = { ...dayLog.entries[editingFoodLogIndex] };
                     dayLog.entries[editingFoodLogIndex] = foodItem;
@@ -1564,7 +1638,7 @@
                     }
                 } else {
                     if (!isSetTotal) {
-                        lastWaterLogAmount = 0;
+                         lastWaterLogAmount = 0;
                     }
                 }
             };
@@ -1657,15 +1731,18 @@
                         if (waterPointerDelta.y < -swipeThreshold) {
                             // Swipe Up: Does nothing
                         } else if (waterPointerDelta.y > swipeThreshold) {
+                            // CHANGE 3: Updated prompt callback with new min/max logic
+                            const MIN_WATER_GOAL = 1500;
+                            const MAX_WATER_GOAL = 4500;
                             showPromptModal("Set Water Goal", "Enter your new daily water goal (ml):", goals.water, (newGoalStr) => {
                                 if (newGoalStr === null) return;
                                 const newGoal = parseInt(newGoalStr);
-                                if (!isNaN(newGoal) && newGoal >= 0) {
+                                if (!isNaN(newGoal) && newGoal >= MIN_WATER_GOAL && newGoal <= MAX_WATER_GOAL) {
                                     goals.water = newGoal;
                                     saveData();
                                     updateDayView(viewDate);
                                 } else {
-                                    showCustomAlert("Invalid Goal", "Please enter a non-negative number for your goal.");
+                                    showCustomAlert("Invalid Goal", `Please enter a number between ${MIN_WATER_GOAL}ml and ${MAX_WATER_GOAL}ml.`);
                                 }
                             });
                         }
@@ -1755,9 +1832,9 @@
                 const userQuery = `Suggest swaps for ${foodName}`;
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
                 const payload = {
-                     contents: [{ parts: [{ text: userQuery }] }],
-                     systemInstruction: { parts: [{ text: systemPrompt }] },
-                     generationConfig: { responseMimeType: "application/json" }
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
                 };
                 try {
                     const result = await fetchWithBackoff(apiUrl, payload);
@@ -1965,10 +2042,10 @@
                     document.getElementById('edit-fav-food-protein').value = (food.protein || 0).toFixed(2);
                     document.getElementById('edit-fav-food-carbs').value = (food.carbs || 0).toFixed(2);
                     document.getElementById('edit-fav-food-fat').value = (food.fat || 0).toFixed(2);
-                document.getElementById('edit-fav-food-sugar').value = (food.sugar || 0).toFixed(2);
-                document.getElementById('edit-fav-food-sodium').value = (food.sodium || 0).toFixed(0);
-                document.getElementById('edit-fav-food-potassium').value = (food.potassium || 0).toFixed(0);
-                showModal(ui.editFavoriteModal);
+                    document.getElementById('edit-fav-food-sugar').value = (food.sugar || 0).toFixed(2);
+                    document.getElementById('edit-fav-food-sodium').value = (food.sodium || 0).toFixed(0);
+                    document.getElementById('edit-fav-food-potassium').value = (food.potassium || 0).toFixed(0);
+                    showModal(ui.editFavoriteModal);
                 } else if (type === 'recipe') {
                      showCustomAlert("Coming Soon", "Recipe editing is currently under development.");
                 }
@@ -2102,14 +2179,14 @@
                     if (!itemData) return;
                     singleServingGrams = itemData.grams || 0;
                      singleServingMacros = {
-                        calories: itemData.calories || 0,
-                        protein: itemData.protein || 0,
-                        carbs: itemData.carbs || 0,
-                        fat: itemData.fat || 0,
-                        sugar: itemData.sugar || 0,
-                        sodium: itemData.sodium || 0,
-                        potassium: itemData.potassium || 0,
-                    };
+                         calories: itemData.calories || 0,
+                         protein: itemData.protein || 0,
+                         carbs: itemData.carbs || 0,
+                         fat: itemData.fat || 0,
+                         sugar: itemData.sugar || 0,
+                         sodium: itemData.sodium || 0,
+                         potassium: itemData.potassium || 0,
+                     };
                 }
                 if (!itemData) return;
                 showPromptModal(`Log ${name}`, "How many servings?", "1", (servingsStr) => {
@@ -2124,9 +2201,9 @@
                         totalMacros[key] = singleServingMacros[key] * servings;
                     }
                      const foodItem = {
-                        name: itemData.name, brand: itemData.brand || '', servings: servings,
-                        grams: singleServingGrams * servings, ...totalMacros, logId: Date.now()
-                    };
+                         name: itemData.name, brand: itemData.brand || '', servings: servings,
+                         grams: singleServingGrams * servings, ...totalMacros, logId: Date.now()
+                     };
                     const dayLog = getDayLog(viewDate);
                     dayLog.entries.unshift(foodItem);
                     saveData();
@@ -2339,8 +2416,8 @@
                         }
                     }
                      if (scanBtn && row) {
-                        activeRecipeScanBtn = scanBtn;
-                        window.location.href = 'assets/nutrition/scan-combined.html?context=recipe';
+                          activeRecipeScanBtn = scanBtn;
+                          window.location.href = 'assets/nutrition/scan-combined.html?context=recipe';
                      }
                 });
                 ui.ingredientListContainer.addEventListener('input', (e) => {
