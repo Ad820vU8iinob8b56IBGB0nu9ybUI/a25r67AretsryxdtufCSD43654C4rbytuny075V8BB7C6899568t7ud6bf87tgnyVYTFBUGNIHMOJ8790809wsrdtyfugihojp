@@ -16,6 +16,105 @@
     <!-- Page Specific Styles (if any) -->
     <style>
         /* Add page-specific styles here if needed */
+        
+        /* Styles for new image pickers */
+        .image-picker-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem; /* 12px */
+        }
+        
+        .image-picker-label {
+            display: block;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem; /* 8px */
+            padding: 0.5rem; /* 8px */
+            transition: all 0.2s ease-in-out;
+            background-color: var(--input-bg);
+        }
+        
+        .image-picker-label:hover {
+            border-color: var(--secondary-text);
+        }
+        
+        .image-picker-label img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 0.25rem; /* 4px */
+        }
+        
+        .image-picker-label p {
+            text-align: center;
+            font-size: 0.75rem; /* 12px */
+            font-weight: 500;
+            color: var(--secondary-text);
+            margin-top: 0.5rem; /* 8px */
+        }
+        
+        /* Style for the hidden radio button */
+        .image-picker-input {
+            display: none;
+        }
+        
+        /* Style for the selected item */
+        .image-picker-input:checked + .image-picker-label {
+            border-color: var(--accent);
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        
+        .image-picker-input:checked + .image-picker-label p {
+            color: var(--primary-text);
+            font-weight: 600;
+        }
+
+        /* Checkbox grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--input-bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .form-checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--background);
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            position: relative;
+        }
+        .form-checkbox:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .form-checkbox:checked::after {
+            content: '✔';
+            position: absolute;
+            color: var(--background);
+            font-size: 0.75rem;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -119,6 +218,192 @@
                         <h2 class="text-2xl font-semibold mb-4">AI Adaptive Calorie & Macro Plan</h2>
                         <div id="calorie-plan-output"><p class="text-secondary-text">Please fill out your profile stats to generate a plan.</p></div>
                     </div>
+
+                    <!-- START: New Card for Additional Goals -->
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-6">Additional Goals & History</h2>
+                        <form id="detailed-goals-form" class="space-y-6">
+                            
+                            <!-- 1. Ideal Weight -->
+                            <div>
+                                <label for="ideal-weight" class="form-label">Ideal Weight (kg)</label>
+                                <input type="number" id="ideal-weight" class="form-input mt-1" placeholder="e.g., 68.5" step="0.1">
+                            </div>
+
+                            <!-- 2. Body Type -->
+                            <div>
+                                <label class="form-label mb-2">What best matches your current body type?</label>
+                                <div class="image-picker-container">
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-ecto" value="ectomorph" class="image-picker-input">
+                                        <label for="body-type-ecto" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Ectomorph" alt="Ectomorph body type">
+                                            <p>Ectomorph</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-meso" value="mesomorph" class="image-picker-input">
+                                        <label for="body-type-meso" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Mesomorph" alt="Mesomorph body type">
+                                            <p>Mesomorph</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-endo" value="endomorph" class="image-picker-input">
+                                        <label for="body-type-endo" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Endomorph" alt="Endomorph body type">
+                                            <p>Endomorph</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Body Fat Level -->
+                            <div>
+                                <label class="form-label mb-2">Which image best reflects your current body fat level?</label>
+                                <div class="image-picker-container">
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-10" value="10-12%" class="image-picker-input">
+                                        <label for="body-fat-10" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=10-12%25" alt="10-12% body fat">
+                                            <p>10-12%</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-15" value="15%" class="image-picker-input">
+                                        <label for="body-fat-15" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=15%25" alt="15% body fat">
+                                            <p>15%</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-20" value="20%" class="image-picker-input">
+                                        <label for="body-fat-20" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=20%25" alt="20% body fat">
+                                            <p>20%</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-25" value="25%" class="image-picker-input">
+                                        <label for="body-fat-25" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=25%25" alt="25% body fat">
+                                            <p>25%</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-30" value="30%" class="image-picker-input">
+                                        <label for="body-fat-30" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=30%25" alt="30% body fat">
+                                            <p>30%</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-fat" id="body-fat-35" value="35%+" class="image-picker-input">
+                                        <label for="body-fat-35" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=35%25%2B" alt="35%+ body fat">
+                                            <p>35%+</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Difficult Fat Loss Areas (Conditional) -->
+                            <div id="fat-loss-details" class="hidden">
+                                <label class="form-label mb-2">What area(s) are the most difficult to lose fat from? (Optional)</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="abs" class="form-checkbox"><span>Stomach / Abs</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="love-handles" class="form-checkbox"><span>Love Handles / Hips</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="thighs" class="form-checkbox"><span>Thighs</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="arms" class="form-checkbox"><span>Arms</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="chest" class="form-checkbox"><span>Chest</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="fat-area" value="other" class="form-checkbox"><span>Other</span></label>
+                                </div>
+                            </div>
+
+                            <!-- 5. Training History -->
+                            <div>
+                                <label for="training-history" class="form-label">Training History</label>
+                                <select id="training-history" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="beginner">Beginner (0-1 years)</option>
+                                    <option value="intermediate">Intermediate (1-3 years)</option>
+                                    <option value="advanced">Advanced (3+ years)</option>
+                                </select>
+                            </div>
+
+                            <!-- 6. Familiarity -->
+                            <div>
+                                <label for="fitness-familiarity" class="form-label">How familiar are you with fitness/nutrition science?</label>
+                                <select id="fitness-familiarity" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="novice">Novice (Just starting to learn)</option>
+                                    <option value="familiar">Familiar (I know the basics)</option>
+                                    <option value="knowledgeable">Knowledgeable (I understand concepts like CICO, progressive overload, etc.)</option>
+                                </select>
+                            </div>
+
+                            <!-- 7. Past Attempts -->
+                            <div>
+                                <label class="form-label mb-2">Have you attempted any of the following in the past? (Optional)</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="keto" class="form-checkbox"><span>Keto / Atkins</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="low-carb" class="form-checkbox"><span>Low Carb</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="calorie-counting" class="form-checkbox"><span>Calorie Counting</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="intermittent-fasting" class="form-checkbox"><span>Intermittent Fasting</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="personal-trainer" class="form-checkbox"><span>Personal Trainer</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="other-program" class="form-checkbox"><span>Other Program</span></label>
+                                </div>
+                            </div>
+
+                            <!-- 8. Tracking App -->
+                            <div>
+                                <label for="tracking-app" class="form-label">Do you currently use a workout tracking app? (Optional)</label>
+                                <select id="tracking-app" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+
+                            <!-- 9. Compound Lift Comfort -->
+                            <div>
+                                <label class="form-label mb-2">Main Compound Lift Comfort</label>
+                                <div class="space-y-2">
+                                    <div class="grid grid-cols-2 gap-2 items-center">
+                                        <label for="lift-comfort-squat" class="form-label !text-sm !text-primary-text">Squat (Barbell)</label>
+                                        <select id="lift-comfort-squat" name="lift-comfort" class="form-select !py-1.5">
+                                            <option value="comfortable">Comfortable</option>
+                                            <option value="needs-work">Needs Work</option>
+                                            <option value="uncomfortable">Uncomfortable / Avoid</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 items-center">
+                                        <label for="lift-comfort-bench" class="form-label !text-sm !text-primary-text">Bench Press (Barbell)</label>
+                                        <select id="lift-comfort-bench" name="lift-comfort" class="form-select !py-1.5">
+                                            <option value="comfortable">Comfortable</option>
+                                            <option value="needs-work">Needs Work</option>
+                                            <option value="uncomfortable">Uncomfortable / Avoid</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 items-center">
+                                        <label for="lift-comfort-deadlift" class="form-label !text-sm !text-primary-text">Deadlift (Barbell)</label>
+                                        <select id="lift-comfort-deadlift" name="lift-comfort" class="form-select !py-1.5">
+                                            <option value="comfortable">Comfortable</option>
+                                            <option value="needs-work">Needs Work</option>
+                                            <option value="uncomfortable">Uncomfortable / Avoid</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="save-detailed-goals-btn" class="w-full btn btn-primary !mt-6">
+                                <span class="btn-text">Save Details</span>
+                                <div class="loader hidden"></div>
+                            </button>
+                        </form>
+                    </div>
+                    <!-- END: New Card -->
+
                 </section>
 
                 <!-- Section 3: Nutrition Progress Panel -->
@@ -212,7 +497,17 @@
             // --- STATE MANAGEMENT ---
             let userProfile = {
                 age: 30, gender: 'male', height: 175, weight: 70, smm: 30, bfm: 15, activityLevel: 1.55, goal: 'recomposition', recompDeficit: 500, tdee: 2500,
-                weightHistory: [], inbodyHistory: [], nutritionHistory: [], workoutHistory: [], sleepHistory: []
+                weightHistory: [], inbodyHistory: [], nutritionHistory: [], workoutHistory: [], sleepHistory: [],
+                // Add new fields for the new form
+                idealWeight: null,
+                bodyType: '',
+                bodyFat: '',
+                fatLossAreas: [],
+                trainingHistory: '',
+                fitnessFamiliarity: '',
+                pastAttempts: [],
+                trackingApp: '',
+                liftComfort: { squat: 'comfortable', bench: 'comfortable', deadlift: 'comfortable' }
             };
             let goals = { calories: 2000, protein: 150, carbs: 225, fat: 60, water: 2500 };
             let isDataLoaded = false;
@@ -240,7 +535,11 @@
                 chartRange1y: document.getElementById('chart-range-1y'),
                 chartRangeAll: document.getElementById('chart-range-all'),
                 tabs: document.querySelectorAll('.tab-btn'),
-                panels: document.querySelectorAll('.tab-panel')
+                panels: document.querySelectorAll('.tab-panel'),
+                // New form elements
+                detailedGoalsForm: document.getElementById('detailed-goals-form'),
+                fatLossDetails: document.getElementById('fat-loss-details'),
+                saveDetailedGoalsBtn: document.getElementById('save-detailed-goals-btn')
             };
 
             // --- CHART.JS SETUP ---
@@ -307,14 +606,18 @@
                     const loadedProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile') || '{}');
                     // Merge loaded profile with defaults, ensuring arrays exist
                     userProfile = {
-                         ...{ age: 30, gender: 'male', height: 175, weight: 70, smm: 30, bfm: 15, activityLevel: 1.55, goal: 'recomposition', recompDeficit: 500 }, // Defaults
+                         ...userProfile, // Keep defaults from state
                          ...loadedProfile, // Loaded data overrides defaults
                          weightHistory: loadedProfile.weightHistory || [],
                          inbodyHistory: loadedProfile.inbodyHistory || [],
                          // Load histories from potentially other pages
                          nutritionHistory: JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs') || '{}'), // Assuming logs are nutrition history
                          workoutHistory: JSON.parse(localStorage.getItem('fitTrackAI_workoutHistory') || '[]'),
-                         sleepHistory: loadedProfile.sleepHistory || []
+                         sleepHistory: loadedProfile.sleepHistory || [],
+                         // Load new fields
+                         liftComfort: loadedProfile.liftComfort || { squat: 'comfortable', bench: 'comfortable', deadlift: 'comfortable' },
+                         fatLossAreas: loadedProfile.fatLossAreas || [],
+                         pastAttempts: loadedProfile.pastAttempts || []
                     };
 
                     goals = { ...{ calories: 2000, protein: 150, carbs: 225, fat: 60, water: 2500 }, ...JSON.parse(localStorage.getItem('fitTrackAI_goals') || '{}') };
@@ -352,7 +655,7 @@
                     if (userProfile.age && userProfile.height && userProfile.weight) {
                         calculateAndSaveGoals(false, true); // Recalculate locally
                     }
-                    fullRender();
+                    fullRender(); // This will call populateProfileForm
                 } catch (error) {
                     console.error("Error loading data from localStorage:", error);
                     showCustomAlert("Load Error", "Could not load data. It might be corrupted.");
@@ -370,21 +673,143 @@
             function renderNutritionProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.nutritionHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const calorieGoals = Array(labels.length).fill(goals.calories); const proteinGoals = Array(labels.length).fill(goals.protein); nutritionProgressChart.data = { labels, datasets: [ { label: 'Calories Consumed', data: sortedHistory.map(d => d.calories || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 2 }, { label: 'Protein Consumed (g)', data: sortedHistory.map(d => d.protein || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 3 }, { label: 'Calorie Goal', data: calorieGoals, borderColor: 'rgba(251, 191, 36, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 1 }, { label: 'Protein Goal', data: proteinGoals, borderColor: 'rgba(52, 211, 153, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 4 } ] }; updateChartAppearance(); nutritionProgressChart.update(); }
             function renderWorkoutProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.workoutHistory, timeRange); const volumeByDay = {}; history.forEach(log => { const dateKey = log.date; const sets = typeof log.sets === 'string' ? JSON.parse(log.sets) : log.sets; const logVolume = sets.flat().reduce((total, s) => total + (s.weight * s.reps), 0); if (!volumeByDay[dateKey]) { volumeByDay[dateKey] = 0; } volumeByDay[dateKey] += logVolume; }); const workoutsByWeek = {}; const volumeByWeek = {}; Object.keys(volumeByDay).forEach(dateStr => { const date = new Date(dateStr.replace(/-/g, '/')); const dayOfWeek = date.getDay(); const firstDayOfWeek = new Date(date); firstDayOfWeek.setDate(date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); const weekKey = firstDayOfWeek.toISOString().split('T')[0]; if (!workoutsByWeek[weekKey]) workoutsByWeek[weekKey] = 0; if (!volumeByWeek[weekKey]) volumeByWeek[weekKey] = 0; workoutsByWeek[weekKey]++; volumeByWeek[weekKey] += volumeByDay[dateStr]; }); const sortedWeeks = Object.keys(workoutsByWeek).sort(); const labels = sortedWeeks.map(weekKey => new Date(weekKey.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const workoutCountData = sortedWeeks.map(weekKey => workoutsByWeek[weekKey]); const totalVolumeData = sortedWeeks.map(weekKey => volumeByWeek[weekKey] / 1000); workoutProgressChart.data = { labels, datasets: [ { label: 'Workouts Logged', data: workoutCountData, backgroundColor: 'rgba(239, 68, 68, 0.7)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 4, yAxisID: 'y', type: 'bar', order: 2 }, { label: 'Total Volume (MT/1000kg)', data: totalVolumeData, borderColor: '#fbbf24', backgroundColor: 'transparent', yAxisID: 'y', tension: 0.4, type: 'line', borderWidth: 2, pointRadius: 3, order: 1 } ] }; updateChartAppearance(); workoutProgressChart.update(); }
 
-            // --- UI UPDATE FUNCTIONS (unchanged logic) ---
-            function populateProfileForm() { /* ...unchanged... */ if (!isDataLoaded) return; if (userProfile.age) { ui.profileForm.age.value = userProfile.age; ui.profileForm.gender.value = userProfile.gender; ui.profileForm.height.value = userProfile.height; ui.profileForm.weight.value = userProfile.weight.toFixed(1); ui.profileForm.smm.value = userProfile.smm || ''; ui.profileForm.bfm.value = userProfile.bfm || ''; ui.profileForm['activity-level'].value = userProfile.activityLevel || 1.55; ui.profileForm['user-goal'].value = userProfile.goal || 'recomposition'; if(userProfile.bmr) ui.bmrInput.value = Math.round(userProfile.bmr); else ui.bmrInput.placeholder = 'Auto'; if(userProfile.bmi) ui.bmiInput.value = userProfile.bmi.toFixed(1); document.getElementById('recomp-deficit-input').value = userProfile.recompDeficit || 500; } updateGoalSpecificUI(); }
+            // --- UI UPDATE FUNCTIONS (UPDATED) ---
+            function populateProfileForm() { 
+                if (!isDataLoaded) return; 
+                
+                // --- Original Form ---
+                if (userProfile.age) { 
+                    ui.profileForm.age.value = userProfile.age; 
+                    ui.profileForm.gender.value = userProfile.gender; 
+                    ui.profileForm.height.value = userProfile.height; 
+                    ui.profileForm.weight.value = userProfile.weight.toFixed(1); 
+                    ui.profileForm.smm.value = userProfile.smm || ''; 
+                    ui.profileForm.bfm.value = userProfile.bfm || ''; 
+                    ui.profileForm['activity-level'].value = userProfile.activityLevel || 1.55; 
+                    ui.profileForm['user-goal'].value = userProfile.goal || 'recomposition'; 
+                    if(userProfile.bmr) ui.bmrInput.value = Math.round(userProfile.bmr); 
+                    else ui.bmrInput.placeholder = 'Auto'; 
+                    if(userProfile.bmi) ui.bmiInput.value = userProfile.bmi.toFixed(1); 
+                    document.getElementById('recomp-deficit-input').value = userProfile.recompDeficit || 500; 
+                } 
+                
+                // --- New Detailed Goals Form ---
+                if (ui.detailedGoalsForm) {
+                    ui.detailedGoalsForm['ideal-weight'].value = userProfile.idealWeight || '';
+                    
+                    if (userProfile.bodyType) {
+                        const radioBodyType = ui.detailedGoalsForm.querySelector(`input[name="body-type"][value="${userProfile.bodyType}"]`);
+                        if (radioBodyType) radioBodyType.checked = true;
+                    }
+                    if (userProfile.bodyFat) {
+                        const radioBodyFat = ui.detailedGoalsForm.querySelector(`input[name="body-fat"][value="${userProfile.bodyFat}"]`);
+                        if (radioBodyFat) radioBodyFat.checked = true;
+                    }
+
+                    ui.detailedGoalsForm.querySelectorAll('input[name="fat-area"]').forEach(cb => {
+                        cb.checked = (userProfile.fatLossAreas || []).includes(cb.value);
+                    });
+                    
+                    ui.detailedGoalsForm['training-history'].value = userProfile.trainingHistory || '';
+                    ui.detailedGoalsForm['fitness-familiarity'].value = userProfile.fitnessFamiliarity || '';
+
+                    ui.detailedGoalsForm.querySelectorAll('input[name="past-attempt"]').forEach(cb => {
+                        cb.checked = (userProfile.pastAttempts || []).includes(cb.value);
+                    });
+
+                    ui.detailedGoalsForm['tracking-app'].value = userProfile.trackingApp || '';
+
+                    if (userProfile.liftComfort) {
+                        ui.detailedGoalsForm['lift-comfort-squat'].value = userProfile.liftComfort.squat || 'comfortable';
+                        ui.detailedGoalsForm['lift-comfort-bench'].value = userProfile.liftComfort.bench || 'comfortable';
+                        ui.detailedGoalsForm['lift-comfort-deadlift'].value = userProfile.liftComfort.deadlift || 'comfortable';
+                    }
+                }
+                
+                updateGoalSpecificUI(); 
+            }
             function generateCaloriePlan() { /* ...unchanged... */ if (!isDataLoaded) return; if(!goals.calories || goals.calories === 0 || !userProfile.tdee) { ui.caloriePlanOutput.innerHTML = '<p class="text-secondary-text">Please fill out your profile stats to generate a plan.</p>'; return; } const { tdee } = userProfile; let planHtml = `<p class="mb-4">Your estimated maintenance calories are <strong class="text-xl text-blue-400">${Math.round(tdee)} kcal</strong>. Based on your goal, here is your **AI Adaptive Plan**:</p>`; planHtml += `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Target Calories</p><p class="font-bold text-2xl text-white">${Math.round(goals.calories)}</p></div><div><p class="text-sm text-secondary-text">Protein</p><p class="font-bold text-2xl text-white">${Math.round(goals.protein)}g</p></div><div><p class="text-sm text-secondary-text">Carbs</p><p class="font-bold text-2xl text-white">${Math.round(goals.carbs)}g</p></div><div><p class="text-sm text-secondary-text">Fat</p><p class="font-bold text-2xl text-white">${Math.round(goals.fat)}g</p></div></div>`; planHtml += `<p class="text-xs text-secondary-text mt-4 text-center">This plan will adapt based on your daily check-ins to ensure consistent progress.</p>`; ui.caloriePlanOutput.innerHTML = planHtml; }
             function calculateAndRenderAnalytics() { /* ...unchanged logic... */ if (!isDataLoaded) return; const { weightHistory, inbodyHistory, weight, bfm } = userProfile; let statsHtml = '<p class="text-secondary-text text-center">Not enough data to calculate stats. Keep logging!</p>'; let insightsHtml = '<li>Log your **weight and height** to fully utilize the goal calculator.</li>'; if (weightHistory && weightHistory.length >= 2) { const firstWeightEntry = weightHistory[0]; const lastWeightEntry = weightHistory[weightHistory.length - 1]; const totalWeightChange = lastWeightEntry.weight - firstWeightEntry.weight; const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28); const recentWeightData = weightHistory.filter(d => new Date(d.date.replace(/-/g, '/')) >= fourWeeksAgo); let weeklyWeightChange = 0; if (recentWeightData.length >= 2) { const firstRecent = recentWeightData[0]; const lastRecent = recentWeightData[recentWeightData.length - 1]; const daysBetween = (new Date(lastRecent.date.replace(/-/g, '/')) - new Date(firstRecent.date.replace(/-/g, '/'))) / (1000 * 60 * 60 * 24); if (daysBetween > 0) { const totalRecentChange = lastRecent.weight - firstRecent.weight; weeklyWeightChange = (totalRecentChange / daysBetween) * 7; } } let currentBfPercent = 0; if (weight && bfm) { currentBfPercent = (bfm / weight) * 100; } statsHtml = `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Total Weight Change</p><p class="font-bold text-2xl ${totalWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalWeightChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Avg. Weekly Change</p><p class="font-bold text-2xl ${weeklyWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${weeklyWeightChange.toFixed(2)} kg</p></div>${currentBfPercent > 0 ? `<div><p class="text-sm text-secondary-text">Current Body Fat %</p><p class="font-bold text-2xl text-blue-400">${currentBfPercent.toFixed(1)}%</p></div>` : ''}<div><p class="text-sm text-secondary-text">Total Check-ins</p><p class="font-bold text-2xl">${weightHistory.length}</p></div>`; insightsHtml = `<li>Your **average weekly weight change** over the last 4 weeks is **${weeklyWeightChange.toFixed(2)} kg**. ${weeklyWeightChange > 0 ? 'Consider reducing calorie intake slightly to accelerate fat loss.' : 'Great work maintaining or losing weight.'}</li><li>You've logged your weight **${recentWeightData.length} times** in the last 28 days. Keep this **consistency**!</li>`; } if (inbodyHistory && inbodyHistory.length >= 2) { const firstInBody = inbodyHistory[0]; const lastInBody = inbodyHistory[inbodyHistory.length - 1]; const totalSmmChange = lastInBody.smm - firstInBody.smm; const totalBfmChange = lastInBody.bfm - firstInBody.bfm; statsHtml = statsHtml.replace('</div>', ''); statsHtml += `<div><p class="text-sm text-secondary-text">Total SMM Change</p><p class="font-bold text-2xl ${totalSmmChange >= 0 ? 'text-green-400' : 'text-red-400'}">${totalSmmChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Total BFM Change</p><p class="font-bold text-2xl ${totalBfmChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalBfmChange.toFixed(1)} kg</p></div></div>`; insightsHtml += `<li>Your Skeletal Muscle Mass (SMM) has changed by **${totalSmmChange.toFixed(1)} kg**. ${totalSmmChange > 0 ? 'This indicates successful muscle preservation or growth! 💪' : 'Focus on protein intake to prevent muscle loss.'}</li><li>Your Body Fat Mass (BFM) has changed by **${totalBfmChange.toFixed(1)} kg**. ${totalBfmChange < 0 ? 'Excellent fat loss progress!' : 'If gaining, ensure your activity level is accurate.'}</li>`; } else if (statsHtml.includes('grid')) { statsHtml += `</div>`; } ui.keyStatsOutput.innerHTML = statsHtml; ui.progressInsightsOutput.innerHTML = insightsHtml; }
             async function calculateAndSaveGoals(showFeedback = true, localOnly = false) { /* ...unchanged calculation logic, calls saveData() at the end unless localOnly... */ const btn = ui.profileForm.querySelector('button[type="submit"]'); if (btn && showFeedback) { btn.disabled = true; btn.querySelector('.btn-text').style.display = 'none'; btn.querySelector('.loader').classList.remove('hidden'); btn.querySelector('.btn-text').textContent = "Calculating..."; } if (!localOnly) { userProfile.age = parseInt(ui.profileForm.age.value); userProfile.gender = ui.profileForm.gender.value; userProfile.height = parseInt(ui.profileForm.height.value); userProfile.smm = parseFloat(ui.profileForm.smm.value) || null; userProfile.bfm = parseFloat(ui.profileForm.bfm.value) || null; userProfile.activityLevel = parseFloat(ui.profileForm['activity-level'].value); userProfile.goal = ui.profileForm['user-goal'].value; userProfile.recompDeficit = parseInt(document.getElementById('recomp-deficit-input').value) || 500; } userProfile.weight = parseFloat(ui.profileForm.weight.value); let bmr; const manualBMR = parseFloat(ui.bmrInput.value); if (manualBMR > 0) { bmr = manualBMR; } else { if (userProfile.gender === 'male') { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5; } else { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161; } ui.bmrInput.placeholder = Math.round(bmr); if (!localOnly) ui.bmrInput.value = ''; } userProfile.bmr = bmr; const bmi = userProfile.weight / ((userProfile.height / 100) ** 2); userProfile.bmi = bmi; ui.bmiInput.value = bmi.toFixed(1); const tdee = bmr * userProfile.activityLevel; userProfile.tdee = tdee; let calorieTarget = tdee; if(userProfile.goal === 'lose') calorieTarget -= 500; if(userProfile.goal === 'gain') calorieTarget += 300; if(userProfile.goal === 'recomposition') calorieTarget = tdee - userProfile.recompDeficit; goals.calories = Math.round(calorieTarget); goals.protein = Math.round(userProfile.weight * 2.2); goals.fat = Math.round(userProfile.weight * 0.8); goals.carbs = Math.round((goals.calories - (goals.protein * 4 + goals.fat * 9)) / 4); if (goals.carbs < 0) { goals.carbs = 0; goals.fat = Math.round((goals.calories - (goals.protein * 4)) / 9); } if (!localOnly) { saveData(); } if (btn) { btn.disabled = false; if (showFeedback) { btn.querySelector('.btn-text').textContent = "Saved!"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; setTimeout(() => { if (btn) btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; }, 2000); } else { btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; } } if (localOnly) fullRender(); }
-            function updateGoalSpecificUI() { /* ...unchanged... */ const recompContainer = document.getElementById('recomp-deficit-container'); if (recompContainer) { recompContainer.classList.toggle('hidden', ui.userGoalSelect.value !== 'recomposition'); } }
+            
+            function updateGoalSpecificUI() { 
+                const goal = ui.userGoalSelect.value;
+                
+                // Recomp deficit field
+                const recompContainer = document.getElementById('recomp-deficit-container'); 
+                if (recompContainer) { 
+                    recompContainer.classList.toggle('hidden', goal !== 'recomposition'); 
+                } 
+                
+                // New conditional field
+                if (ui.fatLossDetails) {
+                    ui.fatLossDetails.classList.toggle('hidden', goal !== 'lose');
+                }
+            }
+            
             function updateChartRangeButtons() { /* ...unchanged... */ document.querySelectorAll('.chart-range-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.range === activeChartRange); }); }
             function fullRenderAllCharts() { /* ...unchanged... */ if (!isDataLoaded) return; renderProgressChart(activeChartRange); renderSleepProgressChart(activeChartRange); renderNutritionProgressChart(activeChartRange); renderWorkoutProgressChart(activeChartRange); }
             function fullRender() { /* ...unchanged... */ if (!isDataLoaded) return; populateProfileForm(); generateCaloriePlan(); calculateAndRenderAnalytics(); fullRenderAllCharts(); }
 
-            // --- EVENT LISTENERS (unchanged logic, just calls saveData()) ---
+            // --- EVENT LISTENERS (UPDATED) ---
             function setupEventListeners() {
                 ui.profileForm.addEventListener('submit', async (e) => { e.preventDefault(); if(!ui.profileForm.age.value || !ui.profileForm.height.value || !ui.profileForm.weight.value){ showCustomAlert('Missing Information', 'Please fill in Age, Height, and Weight to calculate your goals.'); return; } ui.profileForm.weight.value = ui.checkInWeightInput.value; await calculateAndSaveGoals(); });
+                
+                // Listener for the new detailed goals form
+                ui.detailedGoalsForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const btn = ui.saveDetailedGoalsBtn;
+                    const btnText = btn.querySelector('.btn-text');
+                    const loader = btn.querySelector('.loader');
+
+                    btn.disabled = true;
+                    btnText.style.display = 'none';
+                    loader.classList.remove('hidden');
+
+                    try {
+                        userProfile.idealWeight = parseFloat(ui.detailedGoalsForm['ideal-weight'].value) || null;
+                        
+                        const checkedBodyType = ui.detailedGoalsForm.querySelector('input[name="body-type"]:checked');
+                        userProfile.bodyType = checkedBodyType ? checkedBodyType.value : '';
+
+                        const checkedBodyFat = ui.detailedGoalsForm.querySelector('input[name="body-fat"]:checked');
+                        userProfile.bodyFat = checkedBodyFat ? checkedBodyFat.value : '';
+
+                        userProfile.fatLossAreas = Array.from(ui.detailedGoalsForm.querySelectorAll('input[name="fat-area"]:checked')).map(cb => cb.value);
+                        userProfile.trainingHistory = ui.detailedGoalsForm['training-history'].value;
+                        userProfile.fitnessFamiliarity = ui.detailedGoalsForm['fitness-familiarity'].value;
+                        userProfile.pastAttempts = Array.from(ui.detailedGoalsForm.querySelectorAll('input[name="past-attempt"]:checked')).map(cb => cb.value);
+                        userProfile.trackingApp = ui.detailedGoalsForm['tracking-app'].value;
+                        
+                        userProfile.liftComfort = {
+                            squat: ui.detailedGoalsForm['lift-comfort-squat'].value,
+                            bench: ui.detailedGoalsForm['lift-comfort-bench'].value,
+                            deadlift: ui.detailedGoalsForm['lift-comfort-deadlift'].value,
+                        };
+
+                        saveData();
+
+                        btnText.textContent = "Saved!";
+                        setTimeout(() => {
+                            btnText.textContent = "Save Details";
+                        }, 2000);
+
+                    } catch (error) {
+                        console.error("Error saving detailed goals:", error);
+                        showCustomAlert("Error", "Could not save your details.");
+                        btnText.textContent = "Save Details";
+                    } finally {
+                        btn.disabled = false;
+                        btnText.style.display = 'inline';
+                        loader.classList.add('hidden');
+                    }
+                });
+
                 ui.checkInForm.addEventListener('submit', async (e) => { e.preventDefault(); const btn = ui.checkInBtn; const newWeight = parseFloat(ui.checkInWeightInput.value); const newSmm = parseFloat(ui.checkInSmmInput.value) || null; if (!newWeight || newWeight <= 0) { ui.checkInFeedback.textContent = "Please enter a valid weight."; ui.checkInFeedback.classList.add('text-red-400'); return; } if (!userProfile.age) { ui.checkInFeedback.textContent = "Please fill out your profile first (Goals tab)."; ui.checkInFeedback.classList.add('text-red-400'); return; } btn.disabled = true; btn.querySelector('.btn-text').style.display = 'none'; btn.querySelector('.loader').classList.remove('hidden'); const today = new Date().toISOString().split('T')[0]; const todayWeightIndex = userProfile.weightHistory.findIndex(entry => entry.date === today); if (todayWeightIndex > -1) { userProfile.weightHistory[todayWeightIndex].weight = newWeight; } else { userProfile.weightHistory.push({ date: today, weight: newWeight }); } if (newSmm) { const todayInBodyIndex = userProfile.inbodyHistory.findIndex(entry => entry.date === today); const estimatedBfm = (newSmm > 0 && userProfile.bfm && userProfile.weight > 0) ? newWeight * (userProfile.bfm / userProfile.weight) : null; const inBodyEntry = { date: today, smm: newSmm, bfm: estimatedBfm !== null ? estimatedBfm : (userProfile.bfm || 0) }; if (todayInBodyIndex > -1) { userProfile.inbodyHistory[todayInBodyIndex] = inBodyEntry; } else { userProfile.inbodyHistory.push(inBodyEntry); } userProfile.smm = newSmm; if(estimatedBfm !== null) userProfile.bfm = estimatedBfm; } userProfile.weight = newWeight; saveData(); await new Promise(resolve => setTimeout(resolve, 500)); ui.checkInFeedback.textContent = `Weight logged as ${newWeight} kg. Goals updated.`; ui.checkInFeedback.classList.remove('text-red-400'); ui.checkInFeedback.classList.add('text-green-400'); ui.checkInWeightInput.value = ''; ui.checkInSmmInput.value = ''; btn.disabled = false; btn.querySelector('.btn-text').style.display = 'inline'; btn.querySelector('.loader').classList.add('hidden'); document.getElementById('key-stats-output').scrollIntoView({ behavior: 'smooth' }); });
-                ui.userGoalSelect.addEventListener('change', updateGoalSpecificUI); ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
+                
+                ui.userGoalSelect.addEventListener('change', updateGoalSpecificUI); 
+                
+                ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
                 const rangeButtons = [ui.chartRange30d, ui.chartRange90d, ui.chartRange1y, ui.chartRangeAll]; rangeButtons.forEach(btn => { btn.addEventListener('click', () => { const range = btn.dataset.range; activeChartRange = range; fullRenderAllCharts(); }); });
                 ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
                 if(ui.checkInWeightInput) { ui.checkInWeightInput.addEventListener('focus', () => { if (userProfile.weightHistory.length > 0) { const latestWeight = userProfile.weightHistory[userProfile.weightHistory.length - 1].weight; ui.checkInWeightInput.value = latestWeight.toFixed(1); } }); }
