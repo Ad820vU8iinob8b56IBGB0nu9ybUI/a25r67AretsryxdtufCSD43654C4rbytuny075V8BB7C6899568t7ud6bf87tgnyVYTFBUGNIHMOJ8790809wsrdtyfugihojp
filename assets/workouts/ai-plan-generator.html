@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kowbi | AI Plan Generator</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide icons via CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Font: Manrope -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Link to shared styles -->
     <link rel="stylesheet" href="../styles.css">
     <style>
         /* Page-specific styles */
@@ -122,7 +118,6 @@
 </head>
 <body class="antialiased">
     
-    <!-- Theme script (should be early) -->
     <script>
         (function() {
             const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
@@ -131,299 +126,166 @@
     </script>
 
     <div class="container mx-auto max-w-7xl px-4 py-6">
-        <!-- Header Placeholder -->
         <div id="header-placeholder"></div>
 
-        <!-- Main Content -->
-        <main class="max-w-3xl mx-auto"> <!-- Centered content area -->
-            <div class="content-card">
+        <main class="max-w-3xl mx-auto"> <div class="content-card">
 
-                <!-- Main Form Panel -->
                 <div id="ai-plan-panel">
-                    <!-- Form wraps everything to capture all inputs for localStorage saving -->
                     <form id="ai-plan-generator-form" class="space-y-4">
 
-                        <!-- ====== START: WIZARD HEADER (PROGRESS) ====== -->
                         <div id="wizard-header" class="mb-6 space-y-2">
                              <div class="flex justify-between items-center">
-                                <h2 id="wizard-title" class="text-2xl font-bold">AI Workout Plan Generator</h2>
-                                <span id="wizard-progress-text" class="progress-text">Step 1 of 6</span>
+                                 <h2 id="wizard-title" class="text-2xl font-bold">AI Workout Plan Generator</h2>
+                                 <span id="wizard-progress-text" class="progress-text">Step 1 of 4</span>
                              </div>
                              <div class="progress-bar-container">
-                                <div id="wizard-progress-fill" class="progress-bar-fill"></div>
+                                 <div id="wizard-progress-fill" class="progress-bar-fill"></div>
                              </div>
                         </div>
-                        <!-- ====== END: WIZARD HEADER ====== -->
-
-
-                        <!-- ====== START: PAGE 1 (Core Stats) ====== -->
                         <div id="page-1" class="wizard-page active">
                             <div class="text-center mb-6">
-                                <h3 class="text-xl font-semibold">Welcome! Let's get your details.</h3>
-                                <p class="text-sm text-secondary-text mt-1">Fill in your core stats to get started.</p>
+                                <h3 class="text-xl font-semibold">Welcome! Let's get started.</h3>
+                                <p class="text-sm text-secondary-text mt-1">Fill in your details, goals, and schedule.</p>
                             </div>
 
                             <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="ai-plan-current-weight" class="form-label required">Current Weight</label>
-                                        <input type="number" id="ai-plan-current-weight" min="1" step="any" class="form-input" placeholder="e.g., 80" required>
-                                        <p class="error-message" id="error-current-weight">Please enter your current weight.</p>
-                                    </div>
-                                    <div>
-                                        <label for="ai-plan-ideal-weight" class="form-label required">Ideal Weight</label>
-                                        <input type="number" id="ai-plan-ideal-weight" min="1" step="any" class="form-input" placeholder="e.g., 75" required>
-                                         <p class="error-message" id="error-ideal-weight">Please enter your ideal weight.</p>
-                                    </div>
-                                </div>
-
+                                
                                 <div>
-                                    <label class="form-label required">What best matches your current body type?</label>
-                                    <div class="img-radio-group radio-group-error mt-2" id="body-type-group">
-                                        <!-- Image radio buttons -->
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Slender"><div><img src="https://placehold.co/100x60/333/555?text=Slender" alt="Slender body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Slender</span></div></label>
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Slender and soft"><div><img src="https://placehold.co/100x60/333/555?text=Slender+Soft" alt="Slender and soft body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Slender & Soft</span></div></label>
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Defined"><div><img src="https://placehold.co/100x60/333/555?text=Defined" alt="Defined body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Defined</span></div></label>
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Athletic"><div><img src="https://placehold.co/100x60/333/555?text=Athletic" alt="Athletic body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Athletic</span></div></label>
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Bulky"><div><img src="https://placehold.co/100x60/333/555?text=Bulky" alt="Bulky body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Bulky</span></div></label>
-                                        <label class="img-radio-label"><input type="radio" name="body-type" value="Soft and heavy"><div><img src="https://placehold.co/100x60/333/555?text=Soft+Heavy" alt="Soft and heavy body type" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>Soft & Heavy</span></div></label>
-                                    </div>
-                                    <p class="error-message" id="error-body-type">Please select your body type.</p>
-                                </div>
-
-                                <div>
-                                    <label class="form-label required">
-                                        <span>Which image best reflects your current body fat level?</span>
-                                        <span title="These are visual estimates. Choose the image that most closely resembles your current physique." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
-                                    </label>
-                                    <div class="grid grid-cols-2 gap-4 mt-2">
-                                        <p class="text-sm text-secondary-text col-span-2 md:col-span-1">Appearance examples (Male):</p>
-                                        <p class="text-sm text-secondary-text col-span-2 md:col-span-1">Appearance examples (Female):</p>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="body-fat-container">
-                                        <div id="body-fat-group-1" class="img-radio-group radio-group-error mt-1">
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="10-12%"><div><img src="https://placehold.co/100x60/333/555?text=~10-12%25" alt="10-12% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>10-12%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="15%"><div><img src="https://placehold.co/100x60/333/555?text=~15%25" alt="15% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>15%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="20%"><div><img src="https" alt="20% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>20%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="25%"><div><img src="https" alt="25% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>25%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="30%"><div><img src="https' alt="30% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>30%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="35-40%"><div><img src="https' alt="35-40% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>35-40%</span></div></label>
-                                        </div>
-                                        <div id="body-fat-group-2" class="img-radio-group radio-group-error mt-1">
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="15-17%"><div><img src="https" alt="15-17% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>15-17%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="20-22%"><div><img src="https" alt="20-22% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>20-22%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="25%"><div><img src="https" alt="25% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>25%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="30%"><div><img src="https" alt="30% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>30%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="35%"><div><img src="https" alt="35% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>35%</span></div></label>
-                                            <label class="img-radio-label"><input type="radio" name="body-fat" value="40-45%"><div><img src="https" alt="40-45% body fat example" onerror="this.onerror=null; this.src='https://placehold.co/100x60/333/555?text=Img';"><span>40-45%</span></div></label>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div>
+                                            <label for="ai-plan-current-weight" class="form-label required">Current Weight</label>
+                                            <input type="number" id="ai-plan-current-weight" min="1" step="any" class="form-input" placeholder="e.g., 80" required>
+                                            <p class="error-message" id="error-current-weight">Please enter your current weight.</p>
                                         </div>
                                     </div>
-                                    <p class="error-message" id="error-body-fat">Please select your estimated body fat level.</p>
                                 </div>
-
-                                <!-- MOVED ITEM HERE -->
-                                <div class="pt-4 border-t border-border-color">
-                                    <label for="ai-plan-trouble-spots" class="form-label">What area(s) are the most difficult to lose fat from? (Optional)</label>
-                                    <input type="text" id="ai-plan-trouble-spots" class="form-input" placeholder="e.g., Lower belly, thighs">
+                                <div class="border-border-color space-y-">     
+                                    <div class="space-y-4">
+                                        <div class="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <label for="ai-plan-goal" class="form-label required">Primary Goal</label>
+                                                <select id="ai-plan-goal" class="form-select" required>
+                                                    <option value="">-- Select Goal --</option>
+                                                    <option value="muscle hypertrophy">Muscle Hypertrophy</option>
+                                                    <option value="fat loss">Fat Loss</option>
+                                                    <option value="body recomposition">Body Recomposition</option>
+                                                    <option value="general fitness">General Fitness</option>
+                                                    <option value="strength gain">Strength Gain</option>
+                                                    <option value="custom">Custom</option>
+                                                </select>
+                                                <p class="error-message" id="error-goal">Please select your primary goal.</p>
+                                            </div>
+                                            <div id="ai-plan-goal-text-container" class="hidden">
+                                                <label for="ai-plan-goal-text" class="form-label required">Describe Your Custom Goal</label>
+                                                <textarea id="ai-plan-goal-text" rows="2" class="form-textarea" placeholder="e.g., 'I want to build bigger arms and get a six-pack.'"></textarea>
+                                                <p class="error-message" id="error-goal-text">Please describe your custom goal.</p>
+                                            </div>
+                                            
+                                            <div id="ai-plan-trouble-spots-container" class="hidden border-border-color">
+                                                <label for="ai-plan-trouble-spots" class="form-label">What area(s) are the most difficult to lose fat from? (Optional)</label>
+                                                <input type="text" id="ai-plan-trouble-spots" class="form-input" placeholder="e.g., Lower belly, thighs">
+                                            </div>
+                                        </div>
+            
+                                        <div class="border-border-color">
+                                            <label class="form-label">
+                                                <span>Goal Timeline</span>
+                                                <span title="Check this if you have a specific deadline (e.g., an event in 8 weeks). The AI will adjust intensity. Leave unchecked for a more general, sustainable plan." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+                                            </label>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm text-secondary-text">Optimize for a specific timeline?</span>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="ai-plan-optimize-timeline-toggle">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div id="ai-plan-optimize-timeline-input" class="hidden mt-2">
+                                                <label for="ai-plan-timeline-weeks" class="form-label required">Desired Timeline (in weeks)</label>
+                                                <input type="number" id="ai-plan-timeline-weeks" min="4" step="1" class="form-input" placeholder="e.g., 8">
+                                                <p class="error-message" id="error-timeline-weeks">Timeline must be at least 4 weeks.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="pt-6 border-t border-border-color space-y-4">
+                                    <div class="text-center mb-6">
+                                        <h3 class="text-xl font-semibold">Your Schedule & Split</h3>
+                                        <p class="text-sm text-secondary-text mt-1">When can you work out?</p>
+                                    </div>
+            
+                                    <div class="space-y-4">
+                                        <div class="pt-4 border-t border-border-color">
+                                            <label for="ai-plan-split-select" class="form-label required">Split Template</label>
+                                            <select id="ai-plan-split-select" class="form-select" required>
+                                                <option value="">-- Select Split --</option>
+                                                <option value="Push, Pull, Legs">Push, Pull, Legs</option>
+                                                <option value="Upper, Lower">Upper, Lower</option>
+                                                <option value="Full Body">Full Body</option>
+                                                <option value="Custom">Custom...</option>
+                                            </select>
+                                            <p class="error-message" id="error-split-select">Please select a split template.</p>
+                                        </div>
+                                        <div id="ai-plan-custom-split-container" class="hidden space-y-3 p-4 border border-dashed border-gray-700 rounded-lg">
+                                            <label class="form-label required">Custom Split Days</label>
+                                            <div id="custom-split-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1"></div>
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" id="new-custom-split-name" class="form-input" placeholder="e.g., Chest & Back">
+                                                <button type="button" id="add-custom-split-btn" class="btn-icon-sm flex-shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                            </div>
+                                            <p class="error-message" id="error-custom-split">Please add at least one custom split day.</p>
+                                        </div>
+                                        <div>
+                                            <label class="flex items-center gap-2 mt-2">
+                                                <input type="checkbox" id="ai-plan-ab-toggle" class="form-checkbox">
+                                                <span class="text-sm">Create A/B day variations?</span>
+                                                <span title="Creates two different workouts for each split type (e.g., Push A, Push B) to add variety if you train a muscle group multiple times per week." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+                                            </label>
+                                        </div>
+                                        <div class="pt-4 border-t border-border-color">
+                                            <label for="ai-plan-schedule-type" class="form-label required">
+                                                <span>Define Your Weekly Schedule</span>
+                                                <span title="Weekly: Assigns specific workout types (e.g., Push A) to fixed days (e.g., Monday). Cyclic: Assigns workout types to weekdays, and the sequence rotates each week (e.g., Mon=Push, Tue=Pull, Wed=Legs, Thu=Rest, Fri=Push... next Mon=Pull)." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
+                                            </label>
+                                            <select id="ai-plan-schedule-type" class="form-select">
+                                                <option value="weekly">Weekly (Fixed Days)</option>
+                                                <option value="cyclic">Cyclic (Rolling Split)</option>
+                                            </select>
+                                        </div>
+                                        <div id="ai-plan-weekly-schedule-container">
+                                            <p class="text-xs text-secondary-text">Click each day below to assign a workout type (or Rest/Cardio). This defines your weekly availability.</p>
+                                            <div id="ai-plan-schedule-builder" class="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-2 checkbox-group-error"></div> </div>
+                                        <div id="ai-plan-cyclic-schedule-container" class="hidden space-y-3">
+                                            <p class="text-xs text-secondary-text">Click weekdays below to assign workout types. The split sequence will automatically cycle week to week based on these assignments.</p>
+                                            <div id="ai-plan-cycle-builder" class="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-2 checkbox-group-error"></div> </div>
+                                        <p class="error-message" id="error-schedule">Please assign at least one workout day in the schedule.</p>
+            
+                                        <div class="pt-4 border-t border-border-color">
+                                            <label for="ai-plan-schedule-constraints" class="form-label required">How busy are you typically?</label>
+                                            <select id="ai-plan-schedule-constraints" class="form-select" required>
+                                                <option value="">-- Select --</option>
+                                                <option value="Very busy">Very busy (need short, efficient workouts)</option>
+                                                <option value="Balanced">Balanced (can make time)</option>
+                                                <option value="Lots of free time">Lots of free time (open to longer workouts)</option>
+                                            </select>
+                                            <p class="error-message" id="error-schedule-constraints">Please select how busy you are.</p>
+                                        </div>
+            
+                                        <div class="pt-4 border-t border-border-color">
+                                            <label for="ai-plan-activity-level" class="form-label required">Daily Activity Level (non-exercise)</label>
+                                            <select id="ai-plan-activity-level" class="form-select" required>
+                                                <option value="">-- Select --</option>
+                                                <option value="Sedentary">Sedentary (desk job)</option>
+                                                <option value="Lightly Active">Lightly Active (some walking)</option>
+                                                <option value="Active">Active (on your feet most of the day)</option>
+                                                <option value="Very Active">Very Active (physical labor, etc.)</option>
+                                            </select>
+                                            <p class="error-message" id="error-activity-level">Please select your activity level.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
                         </div>
-                        <!-- ====== END: PAGE 1 ====== -->
-
-
-                        <!-- ====== START: PAGE 2 (Goals & Experience) ====== -->
                         <div id="page-2" class="wizard-page">
-                            <div class="text-center mb-6">
-                                <h3 class="text-xl font-semibold">Your Goals & Experience</h3>
-                                <p class="text-sm text-secondary-text mt-1">What do you want to achieve?</p>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="ai-plan-goal" class="form-label required">Primary Goal</label>
-                                        <select id="ai-plan-goal" class="form-select" required>
-                                            <option value="">-- Select Goal --</option>
-                                            <option value="muscle hypertrophy">Muscle Hypertrophy</option>
-                                            <option value="fat loss">Fat Loss</option>
-                                            <option value="body recomposition">Body Recomposition</option>
-                                            <option value="general fitness">General Fitness</option>
-                                            <option value="strength gain">Strength Gain</option>
-                                            <option value="custom">Custom</option>
-                                        </select>
-                                        <p class="error-message" id="error-goal">Please select your primary goal.</p>
-                                    </div>
-                                    <div id="ai-plan-goal-text-container" class="hidden">
-                                        <label for="ai-plan-goal-text" class="form-label required">Describe Your Custom Goal</label>
-                                        <textarea id="ai-plan-goal-text" rows="2" class="form-textarea" placeholder="e.g., 'I want to build bigger arms and get a six-pack.'"></textarea>
-                                        <p class="error-message" id="error-goal-text">Please describe your custom goal.</p>
-                                    </div>
-                                    <div>
-                                        <label for="ai-plan-training-history" class="form-label required">Training History</label>
-                                        <select id="ai-plan-training-history" class="form-select" required>
-                                            <option value="">-- Select Experience --</option>
-                                            <option value="Just starting">Just starting (new to fitness)</option>
-                                            <option value="< 6 months">&lt; 6 months</option>
-                                            <option value="6-12 months">6-12 months</option>
-                                            <option value="1+ years">1+ years</option>
-                                            <option value="3+ years">3+ years (Advanced)</option>
-                                        </select>
-                                        <p class="error-message" id="error-training-history">Please select your training experience.</p>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-border-color">
-                                    <label class="form-label">
-                                        <span>Goal Timeline</span>
-                                        <span title="Check this if you have a specific deadline (e.g., an event in 8 weeks). The AI will adjust intensity. Leave unchecked for a more general, sustainable plan." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm text-secondary-text">Optimize for a specific timeline?</span>
-                                        <label class="toggle-switch">
-                                            <input type="checkbox" id="ai-plan-optimize-timeline-toggle">
-                                            <span class="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                    <div id="ai-plan-optimize-timeline-input" class="hidden mt-2">
-                                        <label for="ai-plan-timeline-weeks" class="form-label required">Desired Timeline (in weeks)</label>
-                                        <input type="number" id="ai-plan-timeline-weeks" min="4" step="1" class="form-input" placeholder="e.g., 8">
-                                        <p class="error-message" id="error-timeline-weeks">Timeline must be at least 4 weeks.</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label for="ai-plan-knowledge-level" class="form-label required">How familiar are you with fitness/nutrition science?</label>
-                                    <select id="ai-plan-knowledge-level" class="form-select" required>
-                                        <option value="">-- Select Level --</option>
-                                        <option value="Beginner">Beginner (Explain it simply)</option>
-                                        <option value="Intermediate">Intermediate (I know the basics)</option>
-                                        <option value="Advanced">Advanced (Use technical terms)</option>
-                                    </select>
-                                    <p class="error-message" id="error-knowledge-level">Please select your knowledge level.</p>
-                                </div>
-
-                                <div>
-                                    <label class="form-label">Have you attempted any of the following in the past? (Optional)</label>
-                                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                                        <label class="flex items-center gap-2"><input type="checkbox" name="past-attempts" value="Weight loss" class="form-checkbox"><span class="text-sm">Weight loss</span></label>
-                                        <label class="flex items-center gap-2"><input type="checkbox" name="past-attempts" value="Muscle gain" class="form-checkbox"><span class="text-sm">Muscle gain</span></label>
-                                        <label class="flex items-center gap-2"><input type="checkbox" name="past-attempts" value="Personal trainer" class="form-checkbox"><span class="text-sm">Personal trainer</span></label>
-                                        <label class="flex items-center gap-2"><input type="checkbox" name="past-attempts" value="Specific diet (keto, etc)" class="form-checkbox"><span class="text-sm">Specific diet (keto, etc)</span></label>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="form-label">Do you currently use a workout tracking app? (Optional)</label>
-                                    <div class="flex gap-4 mt-2">
-                                        <label class="flex items-center gap-2"><input type="radio" name="tracking-app" value="yes" class="form-radio"><span class="text-sm">Yes</span></label>
-                                        <label class="flex items-center gap-2"><input type="radio" name="tracking-app" value="no" class="form-radio" checked><span class="text-sm">No</span></label>
-                                    </div>
-                                    <div id="ai-plan-tracking-app-details" class="hidden space-y-3 mt-3">
-                                        <label for="ai-plan-tracking-app-name" class="form-label required">Which app?</label>
-                                        <input type="text" id="ai-plan-tracking-app-name" class="form-input" placeholder="e.g., FitNotes">
-                                        <p class="error-message" id="error-tracking-app-name">Please enter the app name.</p>
-                                        <label for="ai-plan-tracking-follow-up" class="form-label">Would you like to continue with a similar program or try this new personalized one?</label>
-                                        <select id="ai-plan-tracking-follow-up" class="form-select">
-                                            <option value="Try new">Try this new personalized one</option>
-                                            <option value="Similar">Continue with a similar program</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ====== END: PAGE 2 ====== -->
-
-
-                        <!-- ====== START: PAGE 3 (Schedule & Split) ====== -->
-                        <div id="page-3" class="wizard-page">
-                            <div class="text-center mb-6">
-                                <h3 class="text-xl font-semibold">Your Schedule & Split</h3>
-                                <p class="text-sm text-secondary-text mt-1">When can you work out?</p>
-                            </div>
-
-                            <div class="space-y-4">
-                                <!-- MOVED SPLIT TEMPLATE HERE -->
-                                <div class="pt-4 border-t border-border-color">
-                                    <label for="ai-plan-split-select" class="form-label required">Split Template</label>
-                                    <select id="ai-plan-split-select" class="form-select" required>
-                                        <option value="">-- Select Split --</option>
-                                        <option value="Push, Pull, Legs">Push, Pull, Legs</option>
-                                        <option value="Upper, Lower">Upper, Lower</option>
-                                        <option value="Full Body">Full Body</option>
-                                        <option value="Custom">Custom...</option>
-                                    </select>
-                                    <p class="error-message" id="error-split-select">Please select a split template.</p>
-                                </div>
-                                <div id="ai-plan-custom-split-container" class="hidden space-y-3 p-4 border border-dashed border-gray-700 rounded-lg">
-                                    <label class="form-label required">Custom Split Days</label>
-                                    <div id="custom-split-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1"></div>
-                                    <div class="flex items-center gap-2">
-                                        <input type="text" id="new-custom-split-name" class="form-input" placeholder="e.g., Chest & Back">
-                                        <button type="button" id="add-custom-split-btn" class="btn-icon-sm flex-shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                                    </div>
-                                    <p class="error-message" id="error-custom-split">Please add at least one custom split day.</p>
-                                </div>
-                                <div>
-                                    <label class="flex items-center gap-2 mt-2">
-                                        <input type="checkbox" id="ai-plan-ab-toggle" class="form-checkbox">
-                                        <span class="text-sm">Create A/B day variations?</span>
-                                        <span title="Creates two different workouts for each split type (e.g., Push A, Push B) to add variety if you train a muscle group multiple times per week." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
-                                    </label>
-                                </div>
-                                <!-- END MOVED SPLIT TEMPLATE -->
-
-                                <!-- MOVED SCHEDULE TYPE TO TOP AND REMOVED CHECKBOXES -->
-                                <div class="pt-4 border-t border-border-color">
-                                    <label for="ai-plan-schedule-type" class="form-label required">
-                                        <span>Define Your Weekly Schedule</span>
-                                        <span title="Weekly: Assigns specific workout types (e.g., Push A) to fixed days (e.g., Monday). Cyclic: Assigns workout types to weekdays, and the sequence rotates each week (e.g., Mon=Push, Tue=Pull, Wed=Legs, Thu=Rest, Fri=Push... next Mon=Pull)." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
-                                    </label>
-                                    <select id="ai-plan-schedule-type" class="form-select">
-                                        <option value="weekly">Weekly (Fixed Days)</option>
-                                        <option value="cyclic">Cyclic (Rolling Split)</option>
-                                    </select>
-                                </div>
-                                <div id="ai-plan-weekly-schedule-container">
-                                    <p class="text-xs text-secondary-text">Click each day below to assign a workout type (or Rest/Cardio). This defines your weekly availability.</p>
-                                    <div id="ai-plan-schedule-builder" class="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-2 checkbox-group-error"></div> <!-- Added error class target -->
-                                </div>
-                                <div id="ai-plan-cyclic-schedule-container" class="hidden space-y-3">
-                                    <p class="text-xs text-secondary-text">Click weekdays below to assign workout types. The split sequence will automatically cycle week to week based on these assignments.</p>
-                                    <div id="ai-plan-cycle-builder" class="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-2 checkbox-group-error"></div> <!-- Added error class target -->
-                                </div>
-                                <p class="error-message" id="error-schedule">Please assign at least one workout day in the schedule.</p>
-
-                                <!-- REMOVED AVAILABILITY CHECKBOXES -->
-
-                                <div class="pt-4 border-t border-border-color">
-                                    <label for="ai-plan-schedule-constraints" class="form-label required">How busy are you typically?</label>
-                                    <select id="ai-plan-schedule-constraints" class="form-select" required>
-                                        <option value="">-- Select --</option>
-                                        <option value="Very busy">Very busy (need short, efficient workouts)</option>
-                                        <option value="Balanced">Balanced (can make time)</option>
-                                        <option value="Lots of free time">Lots of free time (open to longer workouts)</option>
-                                    </select>
-                                    <p class="error-message" id="error-schedule-constraints">Please select how busy you are.</p>
-                                </div>
-
-                                <div class="pt-4 border-t border-border-color">
-                                    <label for="ai-plan-activity-level" class="form-label required">Daily Activity Level (non-exercise)</label>
-                                    <select id="ai-plan-activity-level" class="form-select" required>
-                                        <option value="">-- Select --</option>
-                                        <option value="Sedentary">Sedentary (desk job)</option>
-                                        <option value="Lightly Active">Lightly Active (some walking)</option>
-                                        <option value="Active">Active (on your feet most of the day)</option>
-                                        <option value="Very Active">Very Active (physical labor, etc.)</option>
-                                    </select>
-                                    <p class="error-message" id="error-activity-level">Please select your activity level.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ====== END: PAGE 3 ====== -->
-
-
-                        <!-- ====== START: PAGE 4 (Equipment & Preferences) ====== -->
-                        <div id="page-4" class="wizard-page">
                             <div class="text-center mb-6">
                                 <h3 class="text-xl font-semibold">Your Equipment & Preferences</h3>
                                 <p class="text-sm text-secondary-text mt-1">What do you have available, and what do you prefer?</p>
@@ -455,43 +317,6 @@
                                 </div>
 
                                 <div class="pt-4 border-t border-border-color">
-                                    <label class="form-label">
-                                        <span>Main Compound Lift Comfort</span>
-                                        <span title="Select your comfort level with standard barbell Squats, Bench Press, and Deadlifts. Choose 'Avoid' for injuries, or 'Prefer...' if you'd rather use alternatives." class="help-icon"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i></span>
-                                    </label>
-                                    <p class="text-xs text-secondary-text mb-2">How comfortable are you with the "big 3"?</p>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                        <div>
-                                            <label for="ai-plan-comfort-squat" class="form-label text-sm">Squat (Barbell)</label>
-                                            <select id="ai-plan-comfort-squat" class="form-select">
-                                                <option value="comfortable">Comfortable</option>
-                                                <option value="needs work">Needs form work</option>
-                                                <option value="avoid">Avoid (e.g., injury)</option>
-                                                <option value="prefer dumbbell">Prefer Dumbbell/Machine</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="ai-plan-comfort-bench" class="form-label text-sm">Bench Press (Barbell)</label>
-                                            <select id="ai-plan-comfort-bench" class="form-select">
-                                                <option value="comfortable">Comfortable</option>
-                                                <option value="needs work">Needs form work</option>
-                                                <option value="avoid">Avoid (e.g., injury)</option>
-                                                <option value="prefer dumbbell">Prefer Dumbbell/Machine</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="ai-plan-comfort-deadlift" class="form-label text-sm">Deadlift (Barbell)</label>
-                                            <select id="ai-plan-comfort-deadlift" class="form-select">
-                                                <option value="comfortable">Comfortable</option>
-                                                <option value="needs work">Needs form work</option>
-                                                <option value="avoid">Avoid (e.g., injury)</option>
-                                                <option value="prefer dumbbell">Prefer Dumbbell/Trap Bar</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-border-color">
                                     <label class="form-label">Disliked Exercises (Optional)</label>
                                     <button type="button" id="manage-disliked-exercises-btn" class="btn btn-secondary w-full">
                                         <i data-lucide="thumbs-down" class="w-4 h-4"></i>
@@ -512,11 +337,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ====== END: PAGE 4 ====== -->
-
-
-                        <!-- ====== START: PAGE 5 (Fine-Tuning) ====== -->
-                        <div id="page-5" class="wizard-page">
+                        <div id="page-3" class="wizard-page">
                             <div class="text-center mb-6">
                                 <h3 class="text-xl font-semibold">Fine-Tuning</h3>
                                 <p class="text-sm text-secondary-text mt-1">Adjust the details of your plan.</p>
@@ -532,7 +353,6 @@
                                         <div id="ai-plan-durations-container" class="space-y-2 mt-2 hidden"></div>
                                     </div>
                                     <div>
-                                        <!-- MODIFIED: Label, input, and validation -->
                                         <label for="ai-plan-rest" class="form-label required">Default Rest Between Sets (seconds)</label>
                                         <input type="number" id="ai-plan-rest" value="90" step="15" min="30" class="form-input" required>
                                         <p class="error-message" id="error-rest">Rest must be at least 30 seconds.</p>
@@ -583,7 +403,7 @@
                                 </div>
 
                                 <div class="pt-4 border-t border-border-color">
-                                     <label class="form-label">Advanced: Target Sets (Optional)</label>
+                                        <label class="form-label">Advanced: Target Sets (Optional)</label>
                                     <p class="text-xs text-secondary-text mb-2">Override AI's set volume recommendations. Leave blank to let AI decide based on goal and experience.</p>
                                     <div class="mb-4">
                                         <label for="ai-plan-default-sets" class="form-label">Default Sets Per Muscle Group Per Week</label>
@@ -595,11 +415,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ====== END: PAGE 5 ====== -->
-
-
-                        <!-- ====== START: PAGE 6 (Review & Generate) ====== -->
-                        <div id="page-6" class="wizard-page">
+                        <div id="page-4" class="wizard-page">
                             <div class="text-center mb-6">
                                 <h3 class="text-xl font-semibold">Ready to Go!</h3>
                                 <p class="text-sm text-secondary-text mt-1">Review your details below and click Generate.</p>
@@ -609,45 +425,34 @@
                                 <div class="p-4 border border-border-color rounded-lg bg-input-bg/50">
                                     <h4 class="font-semibold text-lg mb-2">Your Summary</h4>
                                     <ul id="review-summary-list">
-                                        <!-- Summary items will be populated by JS -->
-                                    </ul>
+                                        </ul>
                                 </div>
 
                                 <div class="pt-4 border-t border-border-color">
                                     <label for="ai-plan-nutrition-consistency" class="form-label">Any final notes for the AI? (Optional)</label>
                                     <textarea id="ai-plan-nutrition-consistency" rows="2" class="form-textarea" placeholder="e.g., 'I'm great with workouts but struggle with late-night snacking.' or 'I really want to focus on my arms.'"></textarea>
-                                    <!-- MOVED TROUBLE SPOTS TO PAGE 1 -->
                                 </div>
                             </div>
                         </div>
-                        <!-- ====== END: PAGE 6 ====== -->
-
-
-                        <!-- ====== START: WIZARD NAVIGATION ====== -->
                         <div class="wizard-nav">
                             <button type="button" id="wizard-prev-btn" class="btn btn-secondary">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                                 Previous
                             </button>
 
-                            <!-- This button type changes to "submit" on the last page -->
                             <button type="button" id="wizard-next-btn" class="btn btn-primary">
                                 <span>Next</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </button>
 
-                            <!-- The real submit button, hidden until the last page -->
                             <button type="submit" id="wizard-submit-btn" class="btn btn-primary hidden w-full">
                                 <span class="btn-text">Generate My Plan</span>
                                 <div class="loader hidden"></div>
                             </button>
                         </div>
-                        <!-- ====== END: WIZARD NAVIGATION ====== -->
+                        </form>
 
-                    </form>
-
-                    <!-- ====== START: OUTPUT PANEL (PAGE 7) ====== -->
-                    <div id="page-7" class="wizard-page mt-6">
+                    <div id="page-5" class="wizard-page mt-6">
                         <div class="text-center mb-6">
                             <h3 class="text-xl font-semibold">Your New Workout Plan!</h3>
                         </div>
@@ -657,22 +462,20 @@
 
                         <div class="wizard-nav">
                              <button type="button" id="start-over-btn" class="btn btn-secondary">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                Start Over
-                            </button>
-                            <button type="button" id="save-new-plan-btn" class="btn btn-primary">
-                                <i data-lucide="save" class="w-4 h-4"></i>
-                                Save & Apply Plan
-                            </button>
+                                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                 Start Over
+                             </button>
+                             <button type="button" id="save-new-plan-btn" class="btn btn-primary">
+                                 <i data-lucide="save" class="w-4 h-4"></i>
+                                 Save & Apply Plan
+                             </button>
                         </div>
                     </div>
-                    <!-- ====== END: OUTPUT PANEL ====== -->
-                </div>
+                    </div>
             </div>
         </main>
     </div>
 
-    <!-- ====== START: MODALS (Unchanged) ====== -->
     <div id="alert-modal" class="modal-backdrop">
         <div class="modal-content">
             <h2 id="alert-modal-title" class="text-xl font-bold mb-4">Alert</h2>
@@ -715,12 +518,12 @@
                 <div class="space-y-3 p-4 border border-dashed border-gray-700 rounded-lg">
                     <h3 class="font-semibold">AI Assist Creation</h3>
                      <div>
-                        <label for="ai-assist-prompt" class="form-label">Describe the exercise you want:</label>
-                        <textarea id="ai-assist-prompt" rows="2" class="form-textarea mt-1" placeholder="e.g., 'bodyweight abs easier than V-ups' or 'dumbbell bench press alternative'"></textarea>
-                    </div>
+                         <label for="ai-assist-prompt" class="form-label">Describe the exercise you want:</label>
+                         <textarea id="ai-assist-prompt" rows="2" class="form-textarea mt-1" placeholder="e.g., 'bodyweight abs easier than V-ups' or 'dumbbell bench press alternative'"></textarea>
+                     </div>
                      <button type="button" id="ai-assist-btn" class="btn btn-secondary w-full">
-                        <i data-lucide="sparkles" class="w-4 h-4 mr-1"></i> Get AI Suggestion
-                         <div class="loader hidden ml-2"></div>
+                         <i data-lucide="sparkles" class="w-4 h-4 mr-1"></i> Get AI Suggestion
+                          <div class="loader hidden ml-2"></div>
                      </button>
                 </div>
                 <form id="custom-exercise-form" class="space-y-3 p-4 border border-gray-700 rounded-lg">
@@ -757,12 +560,8 @@
             </div>
         </div>
     </div>
-    <!-- ====== END: MODALS ====== -->
-
-    <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
-    <!-- Undo Toast Notification -->
     <div id="undo-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg flex items-center gap-4 transform translate-y-24 opacity-0 transition-all duration-300 z-[100]">
         <span id="undo-toast-text"></span>
         <button id="undo-toast-btn" class="font-bold text-blue-400 hover:text-blue-300">Undo</button>
@@ -858,7 +657,8 @@
 
             // --- NEW WIZARD STATE ---
             let currentPage = 1;
-            const TOTAL_PAGES = 6; // Total number of form pages (before results)
+            // MODIFIED: Total pages changed from 6 to 4
+            const TOTAL_PAGES = 4; // Total number of form pages (before results)
 
             // --- CONSTANTS ---
              const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -869,7 +669,6 @@
                 // Main Form & Panels
                 aiPlanGeneratorForm: document.getElementById('ai-plan-generator-form'),
                 aiPlanPanel: document.getElementById('ai-plan-panel'),
-                // Note: aiPlanOutput is now page-7
                 aiPlanTimelineOutput: document.getElementById('ai-plan-timeline-output'),
                 aiPlanExplanation: document.getElementById('ai-plan-explanation'),
                 aiPlanJsonOutput: document.getElementById('ai-plan-json-output'),
@@ -886,27 +685,15 @@
                 wizardNextBtn: document.getElementById('wizard-next-btn'),
                 wizardSubmitBtn: document.getElementById('wizard-submit-btn'),
 
-                // Page 1
+                // Page 1 (Merged)
                 aiPlanCurrentWeight: document.getElementById('ai-plan-current-weight'),
-                aiPlanIdealWeight: document.getElementById('ai-plan-ideal-weight'),
-                bodyTypeGroup: document.getElementById('body-type-group'),
-                bodyFatContainer: document.getElementById('body-fat-container'),
-                aiPlanTroubleSpots: document.getElementById('ai-plan-trouble-spots'), // Added moved item
-
-                // Page 2
+                aiPlanTroubleSpots: document.getElementById('ai-plan-trouble-spots'), 
                 aiPlanGoalSelect: document.getElementById('ai-plan-goal'),
                 aiPlanGoalTextContainer: document.getElementById('ai-plan-goal-text-container'),
                 aiPlanGoalText: document.getElementById('ai-plan-goal-text'),
-                aiPlanTrainingHistory: document.getElementById('ai-plan-training-history'),
                 aiPlanOptimizeTimelineToggle: document.getElementById('ai-plan-optimize-timeline-toggle'),
                 aiPlanOptimizeTimelineInput: document.getElementById('ai-plan-optimize-timeline-input'),
                 aiPlanTimelineWeeksInput: document.getElementById('ai-plan-timeline-weeks'),
-                aiPlanTrackingAppRadios: document.querySelectorAll('input[name="tracking-app"]'),
-                aiPlanTrackingAppDetails: document.getElementById('ai-plan-tracking-app-details'),
-                aiPlanTrackingAppName: document.getElementById('ai-plan-tracking-app-name'),
-                aiPlanKnowledgeLevel: document.getElementById('ai-plan-knowledge-level'),
-
-                // Page 3
                 aiPlanActivityLevel: document.getElementById('ai-plan-activity-level'),
                 aiPlanScheduleConstraints: document.getElementById('ai-plan-schedule-constraints'),
                 aiPlanSplitSelect: document.getElementById('ai-plan-split-select'),
@@ -921,22 +708,19 @@
                 aiPlanCyclicScheduleContainer: document.getElementById('ai-plan-cyclic-schedule-container'),
                 aiPlanCycleBuilder: document.getElementById('ai-plan-cycle-builder'),
 
-                // Page 4
+                // Page 2 (was 4)
                 aiPlanEquipmentContainer: document.getElementById('ai-plan-equipment-container'),
                 aiPlanFocusMuscleContainer: document.getElementById('ai-plan-focus-muscle-container'),
                 manageDislikedExercisesBtn: document.getElementById('manage-disliked-exercises-btn'),
                 dislikedExercisesDisplay: document.getElementById('disliked-exercises-display'),
-                aiPlanComfortSquat: document.getElementById('ai-plan-comfort-squat'),
-                aiPlanComfortBench: document.getElementById('ai-plan-comfort-bench'),
-                aiPlanComfortDeadlift: document.getElementById('ai-plan-comfort-deadlift'),
                 aiPlanAvoidancesInput: document.getElementById('ai-plan-avoidances'),
                 aiPlanJointFriendlyCheckbox: document.getElementById('ai-plan-joint-friendly'),
 
-                // Page 5
+                // Page 3 (was 5)
                 aiPlanDurationInput: document.getElementById('ai-plan-duration'),
                 customizeDurationBtn: document.getElementById('customize-duration-btn'),
                 aiPlanDurationsContainer: document.getElementById('ai-plan-durations-container'),
-                aiPlanRestInput: document.getElementById('ai-plan-rest'), // MODIFIED: Target this for update
+                aiPlanRestInput: document.getElementById('ai-plan-rest'), 
                 aiPlanWarmupDurationInput: document.getElementById('ai-plan-warmup-duration'),
                 aiPlanCooldownDurationInput: document.getElementById('ai-plan-cooldown-duration'),
                 aiPlanCardioSelect: document.getElementById('ai-plan-cardio'),
@@ -947,7 +731,7 @@
                 customizeSetsBtn: document.getElementById('customize-sets-btn'),
                 aiPlanSetsContainer: document.getElementById('ai-plan-sets-container'),
 
-                // Page 6
+                // Page 4 (was 6)
                 reviewSummaryList: document.getElementById('review-summary-list'),
                 aiPlanNutritionConsistency: document.getElementById('ai-plan-nutrition-consistency'),
 
@@ -1114,21 +898,21 @@
                 ui.aiPlanGeneratorForm.querySelectorAll('input, select, textarea').forEach(el => {
                      const value = savedState[el.id] ?? savedState[el.name];
                      if (value !== undefined) {
-                        if (el.type === 'checkbox') {
-                            el.checked = Array.isArray(value) ? value.includes(el.value) : false;
-                        } else if (el.type === 'radio') {
-                            el.checked = (value === el.value);
-                        } else {
-                            el.value = value;
-                        }
-                        // Trigger change events for elements that depend on others
-                        if (['ai-plan-goal', 'ai-plan-optimize-timeline-toggle', 'tracking-app', 'ai-plan-split-select', 'ai-plan-ab-toggle', 'ai-plan-schedule-type'].includes(el.id) || el.name === 'tracking-app') {
-                            el.dispatchEvent(new Event('change'));
-                        }
-                        if (el.id === 'ai-plan-default-sets') {
-                            el.dispatchEvent(new Event('input'));
-                        }
-                    }
+                         if (el.type === 'checkbox') {
+                             el.checked = Array.isArray(value) ? value.includes(el.value) : false;
+                         } else if (el.type === 'radio') {
+                             el.checked = (value === el.value);
+                         } else {
+                             el.value = value;
+                         }
+                         // Trigger change events for elements that depend on others
+                         if (['ai-plan-goal', 'ai-plan-optimize-timeline-toggle', 'tracking-app', 'ai-plan-split-select', 'ai-plan-ab-toggle', 'ai-plan-schedule-type'].includes(el.id) || el.name === 'tracking-app') {
+                             el.dispatchEvent(new Event('change'));
+                         }
+                         if (el.id === 'ai-plan-default-sets') {
+                             el.dispatchEvent(new Event('input'));
+                         }
+                     }
                 });
                  // Restore Custom Split state
                 currentCustomSplits = JSON.parse(localStorage.getItem('demo_customSplits') || '[]');
@@ -1168,42 +952,46 @@
 
              // --- Validation Helper (Unchanged) ---
              function clearError(elementId) {
-                const element = document.getElementById(elementId);
-                const errorMsg = document.getElementById(`error-${elementId.split('-').slice(2).join('-')}`); // Derive error msg ID
+                 const element = document.getElementById(elementId);
+                 // MODIFIED: Handle potentially null element
+                 if (!element) return;
+                 
+                 const errorMsg = document.getElementById(`error-${elementId.split('-').slice(2).join('-')}`); // Derive error msg ID
 
-                if (element) {
-                    element.classList.remove('input-error');
-                    // Handle group containers differently
-                    if(element.classList.contains('checkbox-group-error') || element.classList.contains('radio-group-error') || element.classList.contains('img-radio-group')){
-                         element.classList.remove('input-error'); // Remove border from container
-                    }
-                }
-                if (errorMsg) errorMsg.style.display = 'none';
-            }
+                 element.classList.remove('input-error');
+                 // Handle group containers differently
+                 if(element.classList.contains('checkbox-group-error') || element.classList.contains('radio-group-error') || element.classList.contains('img-radio-group')){
+                     element.classList.remove('input-error'); // Remove border from container
+                 }
+                 
+                 if (errorMsg) errorMsg.style.display = 'none';
+             }
 
              function showError(elementId, message) {
-                const element = document.getElementById(elementId);
-                const errorMsg = document.getElementById(`error-${elementId.split('-').slice(2).join('-')}`);
+                 const element = document.getElementById(elementId);
+                 // MODIFIED: Handle potentially null element
+                 if (!element) return;
+                 
+                 const errorMsg = document.getElementById(`error-${elementId.split('-').slice(2).join('-')}`);
 
-                if (element) {
-                    element.classList.add('input-error');
-                     // Handle group containers differently
-                    if(element.classList.contains('checkbox-group-error') || element.classList.contains('radio-group-error') || element.classList.contains('img-radio-group')){
-                         element.classList.add('input-error'); // Add border to container
-                    }
-                }
-                if (errorMsg) {
-                    errorMsg.textContent = message;
-                    errorMsg.style.display = 'block';
-                }
-             }
+                 element.classList.add('input-error');
+                  // Handle group containers differently
+                 if(element.classList.contains('checkbox-group-error') || element.classList.contains('radio-group-error') || element.classList.contains('img-radio-group')){
+                     element.classList.add('input-error'); // Add border to container
+                 }
+                 
+                 if (errorMsg) {
+                     errorMsg.textContent = message;
+                     errorMsg.style.display = 'block';
+                 }
+              }
 
              // Scroll to first error on page
              function scrollToFirstError() {
-                const firstError = document.querySelector(`#page-${currentPage} .input-error, #page-${currentPage} .checkbox-group-error.input-error, #page-${currentPage} .radio-group-error.input-error`);
-                 if (firstError) {
-                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                 }
+                 const firstError = document.querySelector(`#page-${currentPage} .input-error, #page-${currentPage} .checkbox-group-error.input-error, #page-${currentPage} .radio-group-error.input-error`);
+                  if (firstError) {
+                      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
              }
 
              // Add event listeners to clear errors on input/change
@@ -1211,36 +999,36 @@
                 el.addEventListener('input', () => { if(el.id) clearError(el.id) });
                 el.addEventListener('change', () => { if(el.id) clearError(el.id) });
             });
-            // Specific listeners for radio/checkbox groups
-            ['body-type-group', 'body-fat-container', 'ai-plan-equipment-container'].forEach(id => {
+            
+            // MODIFIED: Specific listeners for radio/checkbox groups (Removed body-type and body-fat)
+            ['ai-plan-equipment-container'].forEach(id => {
                  const container = document.getElementById(id);
                  if (container) {
                      container.addEventListener('change', () => {
-                         let errorIdSuffix;
-                         if (id === 'body-type-group') errorIdSuffix = 'body-type';
-                         else if (id === 'body-fat-container') errorIdSuffix = 'body-fat';
-                         else if (id === 'ai-plan-equipment-container') errorIdSuffix = 'equipment';
+                          let errorIdSuffix;
+                          if (id === 'ai-plan-equipment-container') errorIdSuffix = 'equipment';
 
-                         if (errorIdSuffix) {
-                             const errorMsg = document.getElementById(`error-${errorIdSuffix}`);
-                             if(errorMsg) errorMsg.style.display = 'none';
-                             // Find the error target (might be the container itself or a child group)
-                             const errorTarget = container.querySelector('.input-error') || container;
-                             errorTarget.classList.remove('input-error');
-                         }
+                          if (errorIdSuffix) {
+                              const errorMsg = document.getElementById(`error-${errorIdSuffix}`);
+                              if(errorMsg) errorMsg.style.display = 'none';
+                              // Find the error target (might be the container itself or a child group)
+                              const errorTarget = container.querySelector('.input-error') || container;
+                              errorTarget.classList.remove('input-error');
+                          }
                      });
                  }
             });
              // Schedule builder error clearing
              [ui.aiPlanScheduleBuilder, ui.aiPlanCycleBuilder].forEach(builder => {
                  if (builder) { // Add null check
-                    builder.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('day-schedule-btn')) {
-                            document.getElementById('error-schedule').style.display = 'none';
-                            ui.aiPlanScheduleBuilder.classList.remove('input-error');
-                            ui.aiPlanCycleBuilder.classList.remove('input-error');
-                        }
-                    });
+                     builder.addEventListener('click', (e) => {
+                         if (e.target.classList.contains('day-schedule-btn')) {
+                             const errorEl = document.getElementById('error-schedule');
+                             if(errorEl) errorEl.style.display = 'none';
+                             if(ui.aiPlanScheduleBuilder) ui.aiPlanScheduleBuilder.classList.remove('input-error');
+                             if(ui.aiPlanCycleBuilder) ui.aiPlanCycleBuilder.classList.remove('input-error');
+                         }
+                     });
                  }
              });
 
@@ -1286,26 +1074,6 @@
             // in the original file. They are simply called by the new wizard flow.)
             // ... (Omitting 1000+ lines of identical helper logic for brevity) ...
 
-            // --- [Start of identical logic from original file] ---
-            // This section includes:
-            // - populateGeneratorFields()
-            // - renderCustomSplitList() and its listeners
-            // - updateSplit()
-            // - renderScheduleBuilders(), renderWeeklyScheduleBuilder(), renderCyclicScheduleBuilder(), onDayScheduleBtnClick()
-            // - renderDurations() and its listener
-            // - updateAdvancedSetPlaceholders() and its listeners
-            // - openExerciseLibrary()
-            // - renderExercisePreferences()
-            // - renderDislikedExercisesDisplay()
-            // - all modal listeners (prefs, custom exercise)
-            // - handlePrefsAction()
-            // - renderCustomExerciseDisplay() and its listeners
-            // - AI Assist listener
-            // - Select All/Deselect All listeners
-            // - Alert Modal listener
-            // - Undo Toast listener
-            // - All other specific input event listeners (timeline, tracking app, etc.)
-
             // --- (Original helper functions) ---
 
             function populateGeneratorFields() {
@@ -1313,7 +1081,7 @@
                 ui.aiPlanEquipmentContainer.innerHTML = ALL_EQUIPMENT_TYPES.map(e => `<div><label class="flex items-center gap-2"><input type="checkbox" name="equipment" value="${e}" checked class="form-checkbox"><span class="text-sm">${e}</span></label></div>`).join('');
                 ui.aiPlanFocusMuscleContainer.innerHTML = ALL_MUSCLE_GROUPS.map(g => `<div><label class="flex items-center gap-2"><input type="checkbox" name="focusMuscle" value="${g}" checked class="form-checkbox"><span class="text-sm">${g}</span></label></div>`).join('');
                  ui.aiPlanSetsContainer.innerHTML = ALL_MUSCLE_GROUPS.map(group =>
-                    `<div class="flex items-center gap-2">
+                     `<div class="flex items-center gap-2">
                          <label for="sets-${group}" class="form-label text-sm flex-1">${group}</label>
                          <input type="number" id="sets-${group}" data-group="${group}" min="0" step="1" class="form-input !w-20 !py-1 text-center advanced-set-input" placeholder="Auto">
                          <p class="error-message !mt-0" id="error-sets-${group}">Sets cannot be negative.</p>
@@ -1458,9 +1226,9 @@
                       if (workoutTypesOnly.length > 0) {
                            defaultCycleAssign[day] = workoutTypesOnly[(typeIndex - 1) % workoutTypesOnly.length];
                            typeIndex++;
-                      } else {
+                       } else {
                            defaultCycleAssign[day] = 'Rest';
-                      }
+                       }
                  });
                  cycleGrid.innerHTML = WEEK_DAYS.map(day => {
                       let currentType = currentAssignments[day] || defaultCycleAssign[day] || 'Rest';
@@ -1490,32 +1258,32 @@
             });
 
              function renderDurations() {
-                const container = ui.aiPlanDurationsContainer;
-                const scheduleType = ui.aiPlanScheduleTypeSelect.value;
-                const defaultDuration = ui.aiPlanDurationInput.value || 60;
-                let itemsToRender = [];
-                let currentDurations = {};
-                 container.querySelectorAll('.day-duration-input').forEach(input => {
-                     if (input.value) currentDurations[input.dataset.key] = input.value;
-                 });
-                if (scheduleType === 'weekly') {
+                 const container = ui.aiPlanDurationsContainer;
+                 const scheduleType = ui.aiPlanScheduleTypeSelect.value;
+                 const defaultDuration = ui.aiPlanDurationInput.value || 60;
+                 let itemsToRender = [];
+                 let currentDurations = {};
+                  container.querySelectorAll('.day-duration-input').forEach(input => {
+                      if (input.value) currentDurations[input.dataset.key] = input.value;
+                  });
+                 if (scheduleType === 'weekly') {
                      itemsToRender = [...ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn')].map(btn => ({ key: btn.dataset.day, type: btn.querySelector('.text-xs').textContent }));
-                } else {
+                 } else {
                      const uniqueTypes = [...new Set([...ui.aiPlanCycleBuilder.querySelectorAll('.day-schedule-btn')].map(btn => btn.querySelector('.text-xs').textContent))];
                      itemsToRender = uniqueTypes.map(type => ({ key: type, type: type }));
-                }
-                let hasWorkoutDay = false; let durationHTML = '';
-                itemsToRender.forEach(item => {
-                    if(item.type !== 'Rest') {
-                        hasWorkoutDay = true;
-                        const currentValue = currentDurations[item.key] || '';
-                        durationHTML += `<div class="flex items-center justify-between gap-2"><label class="text-sm">${item.key}</label><input type="number" data-key="${item.key}" value="${currentValue}" min="10" step="5" class="form-input !w-24 !py-1 day-duration-input" placeholder="${defaultDuration}"></div>`;
-                    }
-                });
-                if(hasWorkoutDay) { container.innerHTML = durationHTML; }
-                else { container.innerHTML = '<p class="text-xs text-secondary-text">Assign workout days in the schedule first.</p>'; }
+                 }
+                 let hasWorkoutDay = false; let durationHTML = '';
+                 itemsToRender.forEach(item => {
+                     if(item.type !== 'Rest') {
+                         hasWorkoutDay = true;
+                         const currentValue = currentDurations[item.key] || '';
+                         durationHTML += `<div class="flex items-center justify-between gap-2"><label class="text-sm">${item.key}</label><input type="number" data-key="${item.key}" value="${currentValue}" min="10" step="5" class="form-input !w-24 !py-1 day-duration-input" placeholder="${defaultDuration}"></div>`;
+                     }
+                 });
+                 if(hasWorkoutDay) { container.innerHTML = durationHTML; }
+                 else { container.innerHTML = '<p class="text-xs text-secondary-text">Assign workout days in the schedule first.</p>'; }
                  ui.customizeDurationBtn.textContent = container.classList.contains('hidden') ? 'Customize per day/type (Optional)' : 'Use default duration';
-            };
+             };
             ui.customizeDurationBtn.addEventListener('click', (e) => { ui.aiPlanDurationsContainer.classList.toggle('hidden'); renderDurations(); });
 
             function updateAdvancedSetPlaceholders() {
@@ -1530,41 +1298,41 @@
             });
 
              function openExerciseLibrary(group) {
-                const combinedDB = [...exerciseDB, ...customExerciseDB];
-                let currentSelection = [];
-                let isChecked;
-                if (libraryModalContext.purpose === 'dislike') {
-                    ui.prefsModalTitle.textContent = `Select Disliked Exercises`;
-                    ui.prefsModalLabel.textContent = `Select exercises to avoid:`;
-                    ui.prefsModalSaveBtn.textContent = 'Save Dislikes';
-                    currentSelection = dislikedExercises;
-                     ui.prefsModalList.innerHTML = combinedDB.sort((a,b) => a.name.localeCompare(b.name)).map(ex => {
-                        isChecked = currentSelection.includes(ex.name);
-                        return `<label class="flex items-center gap-2 p-2 rounded-md hover:bg-input-bg cursor-pointer ${group && ex.group !== group ? 'opacity-50' : ''}">
-                            <input type="checkbox" name="exercise-pref" value="${ex.name}" ${isChecked ? 'checked' : ''} class="form-checkbox">
-                            <span class="text-sm">${ex.name} <span class="text-xs text-secondary-text">(${ex.group})</span></span>
-                        </label>`;
-                    }).join('');
-                } else {
-                    libraryModalContext.group = group;
-                    const exercisesInGroup = combinedDB.filter(ex => ex.group === group);
-                    ui.prefsModalTitle.textContent = `Exercise Preferences for ${group}`;
-                    ui.prefsModalLabel.textContent = `Select preferred exercises:`;
-                    ui.prefsModalSaveBtn.textContent = 'Save Preferences';
-                    currentSelection = exercisePrefs[group] || [];
-                    const defaultSelectAll = currentSelection.length === 0;
-                    ui.prefsModalList.innerHTML = exercisesInGroup.sort((a,b) => a.name.localeCompare(b.name)).map(ex => {
-                        isChecked = defaultSelectAll || currentSelection.includes(ex.name);
-                        return `<label class="flex items-center gap-2 p-2 rounded-md hover:bg-input-bg cursor-pointer">
-                            <input type="checkbox" name="exercise-pref" value="${ex.name}" ${isChecked ? 'checked' : ''} class="form-checkbox">
-                            <span class="text-sm">${ex.name}</span>
-                        </label>`;
-                    }).join('');
-                }
-                ui.prefsSelectionInfo.classList.add('hidden');
-                showModal(ui.exercisePrefsModal);
-                lucide.createIcons({ nodes: ui.exercisePrefsModal.querySelectorAll('label') });
-            }
+                 const combinedDB = [...exerciseDB, ...customExerciseDB];
+                 let currentSelection = [];
+                 let isChecked;
+                 if (libraryModalContext.purpose === 'dislike') {
+                     ui.prefsModalTitle.textContent = `Select Disliked Exercises`;
+                     ui.prefsModalLabel.textContent = `Select exercises to avoid:`;
+                     ui.prefsModalSaveBtn.textContent = 'Save Dislikes';
+                     currentSelection = dislikedExercises;
+                      ui.prefsModalList.innerHTML = combinedDB.sort((a,b) => a.name.localeCompare(b.name)).map(ex => {
+                          isChecked = currentSelection.includes(ex.name);
+                          return `<label class="flex items-center gap-2 p-2 rounded-md hover:bg-input-bg cursor-pointer ${group && ex.group !== group ? 'opacity-50' : ''}">
+                              <input type="checkbox" name="exercise-pref" value="${ex.name}" ${isChecked ? 'checked' : ''} class="form-checkbox">
+                              <span class="text-sm">${ex.name} <span class="text-xs text-secondary-text">(${ex.group})</span></span>
+                          </label>`;
+                      }).join('');
+                 } else {
+                     libraryModalContext.group = group;
+                     const exercisesInGroup = combinedDB.filter(ex => ex.group === group);
+                     ui.prefsModalTitle.textContent = `Exercise Preferences for ${group}`;
+                     ui.prefsModalLabel.textContent = `Select preferred exercises:`;
+                     ui.prefsModalSaveBtn.textContent = 'Save Preferences';
+                     currentSelection = exercisePrefs[group] || [];
+                     const defaultSelectAll = currentSelection.length === 0;
+                     ui.prefsModalList.innerHTML = exercisesInGroup.sort((a,b) => a.name.localeCompare(b.name)).map(ex => {
+                         isChecked = defaultSelectAll || currentSelection.includes(ex.name);
+                         return `<label class="flex items-center gap-2 p-2 rounded-md hover:bg-input-bg cursor-pointer">
+                             <input type="checkbox" name="exercise-pref" value="${ex.name}" ${isChecked ? 'checked' : ''} class="form-checkbox">
+                             <span class="text-sm">${ex.name}</span>
+                         </label>`;
+                     }).join('');
+                 }
+                 ui.prefsSelectionInfo.classList.add('hidden');
+                 showModal(ui.exercisePrefsModal);
+                 lucide.createIcons({ nodes: ui.exercisePrefsModal.querySelectorAll('label') });
+             }
 
             function renderExercisePreferences() {
                 const container = ui.aiPlanExercisePrefsContainer;
@@ -1599,11 +1367,22 @@
             }
 
             ui.aiPlanFocusMuscleContainer.addEventListener('change', renderExercisePreferences);
+            
+            // MODIFIED: Event listener for AI Plan Goal
             ui.aiPlanGoalSelect.addEventListener('change', (e) => {
-                const isCustom = e.target.value === 'custom';
+                const goal = e.target.value;
+                const isCustom = goal === 'custom';
+                const isFatLoss = goal === 'fat loss';
+                
                 ui.aiPlanGoalTextContainer.classList.toggle('hidden', !isCustom);
                 ui.aiPlanGoalText.required = isCustom;
                 if (!isCustom) clearError('ai-plan-goal-text');
+
+                // NEW: Show/hide trouble spots
+                const troubleSpotsContainer = document.getElementById('ai-plan-trouble-spots-container');
+                if (troubleSpotsContainer) {
+                    troubleSpotsContainer.classList.toggle('hidden', !isFatLoss);
+                }
             });
 
             ui.prefsModalCancelBtn.addEventListener('click', () => hideModal(ui.exercisePrefsModal));
@@ -1747,27 +1526,27 @@ Respond ONLY with a comma-separated list of the 3 suggested exercise names.`;
                  } else {
                      ui.customExerciseDisplay.textContent = `${customExerciseDB.length} custom exercise(s) / variation(s) added.`;
                      listContainer.innerHTML = customExerciseDB.map(ex =>
-                         `<div class="text-sm p-2 bg-input-bg rounded-md flex justify-between items-center gap-2">
-                             <div>
-                                 <span class="font-medium">${ex.name}</span>
-                                 <span class="text-xs text-secondary-text block">(${ex.group} / ${ex.type} / ${ex.isCompound ? 'Compound' : 'Isolation'})</span>
-                             </div>
-                             <div class="flex gap-1 flex-shrink-0">
-                                <button type="button" class="btn-icon-sm edit-custom-ex-btn" data-id="${ex.id}" title="Edit"><i data-lucide="pencil" class="w-3 h-3 pointer-events-none"></i></button>
-                                <button type="button" class="btn-icon-sm remove-custom-ex-btn !text-red-400 !border-red-400/50 hover:!bg-red-500/10" data-id="${ex.id}" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
-                             </div>
-                          </div>`
+                          `<div class="text-sm p-2 bg-input-bg rounded-md flex justify-between items-center gap-2">
+                               <div>
+                                   <span class="font-medium">${ex.name}</span>
+                                   <span class="text-xs text-secondary-text block">(${ex.group} / ${ex.type} / ${ex.isCompound ? 'Compound' : 'Isolation'})</span>
+                               </div>
+                               <div class="flex gap-1 flex-shrink-0">
+                                   <button type="button" class="btn-icon-sm edit-custom-ex-btn" data-id="${ex.id}" title="Edit"><i data-lucide="pencil" class="w-3 h-3 pointer-events-none"></i></button>
+                                   <button type="button" class="btn-icon-sm remove-custom-ex-btn !text-red-400 !border-red-400/50 hover:!bg-red-500/10" data-id="${ex.id}" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
+                               </div>
+                           </div>`
                      ).join('');
                      listContainer.querySelectorAll('.remove-custom-ex-btn').forEach(btn => {
                          btn.addEventListener('click', () => {
                              const idToRemove = btn.dataset.id;
                              const exerciseName = customExerciseDB.find(ex => ex.id === idToRemove)?.name || 'this exercise';
                              if (confirm(`Are you sure you want to delete "${exerciseName}"? This cannot be undone.`)) {
-                                customExerciseDB = customExerciseDB.filter(ex => ex.id !== idToRemove);
-                                localStorage.setItem('demo_customExerciseDB', JSON.stringify(customExerciseDB));
-                                saveFormState();
-                                renderCustomExerciseDisplay();
-                                renderExercisePreferences();
+                                 customExerciseDB = customExerciseDB.filter(ex => ex.id !== idToRemove);
+                                 localStorage.setItem('demo_customExerciseDB', JSON.stringify(customExerciseDB));
+                                 saveFormState();
+                                 renderCustomExerciseDisplay();
+                                 renderExercisePreferences();
                              }
                          });
                      });
@@ -1850,29 +1629,18 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 ui.aiPlanTimelineWeeksInput.required = isChecked;
                  if (!isChecked) clearError('ai-plan-timeline-weeks');
             });
-            ui.aiPlanTrackingAppRadios.forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                     const isYes = e.target.value === 'yes';
-                     ui.aiPlanTrackingAppDetails.classList.toggle('hidden', !isYes);
-                     ui.aiPlanTrackingAppName.required = isYes;
-                     if (!isYes) clearError('ai-plan-tracking-app-name');
-                });
-            });
-
             // --- [End of identical logic] ---
 
 
             // --- NEW: WIZARD NAVIGATION LOGIC ---
 
-            // Page Titles
+            // MODIFIED: Page Titles
             const PAGE_TITLES = [
-                "AI Workout Plan Generator", // Page 1
-                "Your Goals & Experience",   // Page 2
-                "Your Schedule & Split",     // Page 3
-                "Equipment & Preferences",   // Page 4
-                "Fine-Tuning",               // Page 5
-                "Review & Generate",         // Page 6
-                "Your New Workout Plan"      // Page 7 (Results)
+                "Goals & Schedule", // Page 1 (Merged 1, 2, 3)
+                "Equipment & Preferences", // Page 2 (Was 4)
+                "Fine-Tuning",             // Page 3 (Was 5)
+                "Review & Generate",       // Page 4 (Was 6)
+                "Your New Workout Plan"    // Page 5 (Was 7 - Results)
             ];
 
             function showPage(pageNumber, isResuming = false) {
@@ -1886,6 +1654,7 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 }
 
                 // Update progress bar
+                // MODIFIED: Page number logic respects new TOTAL_PAGES
                 const progressPercent = (pageNumber > TOTAL_PAGES) ? 100 : ((pageNumber - 1) / TOTAL_PAGES) * 100;
                 ui.wizardProgressFill.style.width = `${progressPercent}%`;
 
@@ -1895,7 +1664,7 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                     ui.wizardProgressText.textContent = `Step ${pageNumber} of ${TOTAL_PAGES}`;
                     ui.wizardHeader.classList.remove('hidden');
                 } else {
-                    // On results page (Page 7), hide the main progress header
+                    // On results page (Page 5), hide the main progress header
                     ui.wizardHeader.classList.add('hidden');
                 }
 
@@ -1904,8 +1673,9 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 ui.wizardNextBtn.classList.toggle('hidden', pageNumber >= TOTAL_PAGES);
                 ui.wizardSubmitBtn.classList.toggle('hidden', pageNumber !== TOTAL_PAGES);
 
-                // Update "Next" button text for Page 5 (Fine-Tuning)
-                if (pageNumber === TOTAL_PAGES - 1) { // Page 5
+                // Update "Next" button text for Page 3 (Fine-Tuning)
+                // MODIFIED: Check is now for page 3 (TOTAL_PAGES - 1)
+                if (pageNumber === TOTAL_PAGES - 1) { // Page 3
                     ui.wizardNextBtn.querySelector('span').textContent = 'Review';
                 } else {
                     ui.wizardNextBtn.querySelector('span').textContent = 'Next';
@@ -1990,52 +1760,44 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                  return true;
              };
 
+            // MODIFIED: Merged validation for pages 1, 2, and 3
             function validatePage1() {
                 let isValid = true;
+                
+                // From old page 1
                 if (!checkRequiredNumber('ai-plan-current-weight', 'Current weight is required and must be a positive number.', 1)) isValid = false;
-                if (!checkRequiredNumber('ai-plan-ideal-weight', 'Ideal weight is required and must be a positive number.', 1)) isValid = false;
-                if (!document.querySelector('input[name="body-type"]:checked')) { showError('body-type-group', 'Please select your body type.'); isValid = false; } else { clearError('body-type-group'); }
-                if (!document.querySelector('input[name="body-fat"]:checked')) { showError('body-fat-container', 'Please select your body fat level.'); isValid = false; } else { clearError('body-fat-container'); }
-                // No validation needed for optional trouble-spots
-                return isValid;
-            }
-
-            function validatePage2() {
-                let isValid = true;
+                
+                // From old page 2
                 if (!checkRequired('ai-plan-goal', 'Please select your primary goal.')) isValid = false;
                 if (ui.aiPlanGoalSelect.value === 'custom' && !checkRequired('ai-plan-goal-text', 'Please describe your custom goal.')) isValid = false;
-                if (!checkRequired('ai-plan-training-history', 'Please select your training experience.')) isValid = false;
                 if (ui.aiPlanOptimizeTimelineToggle.checked && !checkRequiredNumber('ai-plan-timeline-weeks', 'Timeline must be at least 4 weeks.', 4)) isValid = false;
-                if (document.querySelector('input[name="tracking-app"]:checked')?.value === 'yes' && !checkRequired('ai-plan-tracking-app-name', 'Please enter the tracking app name.')) isValid = false;
-                if (!checkRequired('ai-plan-knowledge-level', 'Please select your knowledge level.')) isValid = false;
-                return isValid;
-            }
 
-            function validatePage3() {
-                let isValid = true;
-                 if (!checkRequired('ai-plan-split-select', 'Please select a split template.')) isValid = false;
-                 if (ui.aiPlanSplitSelect.value === 'Custom' && currentCustomSplits.length === 0) {
-                     showError('error-custom-split', 'Please add at least one custom split day.');
-                     isValid = false;
-                 } else {
-                     clearError('error-custom-split');
-                 }
+                // From old page 3
+                if (!checkRequired('ai-plan-split-select', 'Please select a split template.')) isValid = false;
+                if (ui.aiPlanSplitSelect.value === 'Custom' && currentCustomSplits.length === 0) {
+                    showError('error-custom-split', 'Please add at least one custom split day.');
+                    isValid = false;
+                } else {
+                    clearError('error-custom-split');
+                }
                 if (!checkRequired('ai-plan-schedule-constraints', 'Please select how busy you are.')) isValid = false;
                 if (!checkRequired('ai-plan-activity-level', 'Please select your activity level.')) isValid = false;
                 if (!validateSchedule()) isValid = false; // validateSchedule shows its own error
+
                 return isValid;
             }
 
-            function validatePage4() {
+            // MODIFIED: Renamed from validatePage4
+            function validatePage2() {
                  let isValid = true;
                  if (ui.aiPlanEquipmentContainer.querySelectorAll('input:checked').length === 0) { showError('ai-plan-equipment-container', 'Select at least one piece of equipment.'); isValid = false; } else { clearError('ai-plan-equipment-container'); }
                  return isValid; // The rest of this page is optional
             }
 
-            function validatePage5() {
+            // MODIFIED: Renamed from validatePage5
+            function validatePage3() {
                 let isValid = true;
                 if (!checkRequiredNumber('ai-plan-duration', 'Duration must be at least 10 minutes.', 10)) isValid = false;
-                // MODIFIED: Rest time validation (seconds)
                 if (!checkRequiredNumber('ai-plan-rest', 'Rest must be at least 30 seconds.', 30)) isValid = false;
                 if (!checkRequiredNumber('ai-plan-warmup-duration', 'Warmup duration cannot be negative.', 0)) isValid = false;
                 if (!checkRequiredNumber('ai-plan-cooldown-duration', 'Cooldown duration cannot be negative.', 0)) isValid = false;
@@ -2056,37 +1818,36 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                  return isValid;
             }
 
-            function validatePage6() {
+            // MODIFIED: Renamed from validatePage6
+            function validatePage4() {
                 // This page is just a review, no new inputs to validate
                 return true;
             }
 
             // Function to run validation for the current page
+            // MODIFIED: Updated switch
             function validateCurrentPage() {
                 switch(currentPage) {
                     case 1: return validatePage1();
                     case 2: return validatePage2();
                     case 3: return validatePage3();
                     case 4: return validatePage4();
-                    case 5: return validatePage5();
-                    case 6: return validatePage6();
                     default: return true;
                 }
             }
 
             // Function to run all validations
+            // MODIFIED: Updated function calls
             function validateAllPages() {
                 // We run all validations so errors appear on all invalid fields
                 const p1 = validatePage1();
                 const p2 = validatePage2();
                 const p3 = validatePage3();
                 const p4 = validatePage4();
-                const p5 = validatePage5();
-                const p6 = validatePage6(); // (currently always true)
-                return p1 && p2 && p3 && p4 && p5 && p6;
+                return p1 && p2 && p3 && p4;
             }
 
-             // Schedule Validation (used by Page 3)
+             // Schedule Validation (used by Page 1 now)
              function validateSchedule(silent = false) {
                  const scheduleType = ui.aiPlanScheduleTypeSelect.value;
                  let hasWorkoutDay = false;
@@ -2100,11 +1861,17 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                  });
 
                  if (!hasWorkoutDay && !silent) {
-                     showError(scheduleBuilder.id, "Assign at least one workout day (not 'Rest').");
+                     // Find the correct error message element, which might be 'error-schedule'
+                     const errorMsg = document.getElementById('error-schedule');
+                     if(errorMsg) {
+                        errorMsg.textContent = "Assign at least one workout day (not 'Rest').";
+                        errorMsg.style.display = 'block';
+                     }
                      // Also apply error style to the builder container
                      scheduleBuilder.classList.add('input-error');
                  } else {
-                     clearError(scheduleBuilder.id);
+                     const errorMsg = document.getElementById('error-schedule');
+                     if(errorMsg) errorMsg.style.display = 'none';
                      scheduleBuilder.classList.remove('input-error');
                  }
                  return hasWorkoutDay;
@@ -2112,54 +1879,52 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
 
              // --- NEW: REVIEW PAGE POPULATION ---
              function populateReviewSummary() {
-                const summaryContainer = ui.reviewSummaryList;
-                const getChecked = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || 'N/A';
-                const getSelectedText = (id) => document.getElementById(id).options[document.getElementById(id).selectedIndex]?.text || 'N/A';
-                const getEquipment = () => Array.from(ui.aiPlanEquipmentContainer.querySelectorAll('input:checked')).map(cb => cb.value);
-                const getSchedule = () => {
-                    const scheduleType = ui.aiPlanScheduleTypeSelect.value;
-                    if (scheduleType === 'weekly') {
-                        return Object.fromEntries(
-                            [...ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn')]
-                            .map(btn => [btn.dataset.day.substring(0,3), btn.querySelector('.text-xs').textContent])
-                            .filter(entry => entry[1] !== 'Rest')
-                        );
-                    } else {
-                        return "Cyclic Schedule";
-                    }
-                }
-                const getScheduleDays = () => {
-                    const scheduleType = ui.aiPlanScheduleTypeSelect.value;
-                    let count = 0;
+                 const summaryContainer = ui.reviewSummaryList;
+                 const getSelectedText = (id) => document.getElementById(id).options[document.getElementById(id).selectedIndex]?.text || 'N/A';
+                 const getEquipment = () => Array.from(ui.aiPlanEquipmentContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+                 const getSchedule = () => {
+                     const scheduleType = ui.aiPlanScheduleTypeSelect.value;
                      if (scheduleType === 'weekly') {
-                        count = [...ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn')]
-                            .filter(btn => btn.querySelector('.text-xs').textContent !== 'Rest').length;
-                    } else {
-                         count = [...ui.aiPlanCycleBuilder.querySelectorAll('.day-schedule-btn')]
-                            .filter(btn => btn.querySelector('.text-xs').textContent !== 'Rest').length;
-                    }
-                    return `${count} days/week`;
-                }
+                         return Object.fromEntries(
+                             [...ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn')]
+                             .map(btn => [btn.dataset.day.substring(0,3), btn.querySelector('.text-xs').textContent])
+                             .filter(entry => entry[1] !== 'Rest')
+                         );
+                     } else {
+                         return "Cyclic Schedule";
+                     }
+                 }
+                 const getScheduleDays = () => {
+                     const scheduleType = ui.aiPlanScheduleTypeSelect.value;
+                     let count = 0;
+                      if (scheduleType === 'weekly') {
+                          count = [...ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn')]
+                              .filter(btn => btn.querySelector('.text-xs').textContent !== 'Rest').length;
+                     } else {
+                          count = [...ui.aiPlanCycleBuilder.querySelectorAll('.day-schedule-btn')]
+                              .filter(btn => btn.querySelector('.text-xs').textContent !== 'Rest').length;
+                     }
+                     return `${count} days/week`;
+                 }
 
-                const summaryData = [
-                    { label: 'Primary Goal', value: getSelectedText('ai-plan-goal') },
-                    { label: 'Experience', value: getSelectedText('ai-plan-training-history') },
-                    { label: 'Body Type', value: getChecked('body-type') },
-                    { label: 'Weights', value: `Current: ${ui.aiPlanCurrentWeight.value || 'N/A'}, Ideal: ${ui.aiPlanIdealWeight.value || 'N/A'}` },
-                    { label: 'Workout Days', value: getScheduleDays() },
-                    { label: 'Split', value: getSelectedText('ai-plan-split-select') + (ui.aiPlanAbToggle.checked ? ' (A/B)' : '') },
-                    { label: 'Schedule', value: JSON.stringify(getSchedule()) },
-                    { label: 'Duration', value: `${ui.aiPlanDurationInput.value} mins` },
-                    { label: 'Rest', value: `${ui.aiPlanRestInput.value} secs` }, // MODIFIED: Show rest in seconds
-                    { label: 'Equipment', value: getEquipment().join(', ') },
-                ];
+                 // MODIFIED: Removed deleted items from summary
+                 const summaryData = [
+                     { label: 'Primary Goal', value: getSelectedText('ai-plan-goal') },
+                     { label: 'Current Weight', value: `${ui.aiPlanCurrentWeight.value || 'N/A'}` },
+                     { label: 'Workout Days', value: getScheduleDays() },
+                     { label: 'Split', value: getSelectedText('ai-plan-split-select') + (ui.aiPlanAbToggle.checked ? ' (A/B)' : '') },
+                     { label: 'Schedule', value: JSON.stringify(getSchedule()) },
+                     { label: 'Duration', value: `${ui.aiPlanDurationInput.value} mins` },
+                     { label: 'Rest', value: `${ui.aiPlanRestInput.value} secs` }, 
+                     { label: 'Equipment', value: getEquipment().join(', ') },
+                 ];
 
-                summaryContainer.innerHTML = summaryData.map(item => `
-                    <li>
-                        <span class="review-label">${item.label}</span>
-                        <span class="review-value">${item.value}</span>
-                    </li>
-                `).join('');
+                 summaryContainer.innerHTML = summaryData.map(item => `
+                     <li>
+                         <span class="review-label">${item.label}</span>
+                         <span class="review-value">${item.value}</span>
+                     </li>
+                 `).join('');
              }
 
 
@@ -2171,6 +1936,7 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 if (!validateAllPages()) {
                     showCustomAlert("Validation Errors", "Please go back and fix the errors on previous pages.");
                     // Find first page with an error and go to it
+                    // MODIFIED: Page loop respects new TOTAL_PAGES
                     for (let i = 1; i <= TOTAL_PAGES; i++) {
                         const pageHasError = document.querySelector(`#page-${i} .input-error, #page-${i} .checkbox-group-error.input-error, #page-${i} .radio-group-error.input-error`);
                         if (pageHasError) {
@@ -2190,7 +1956,8 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 const btn = ui.wizardSubmitBtn;
                 // Button state managed within makeApiCall now
 
-                // Show the results page (Page 7) with a loading state
+                // Show the results page (Page 5) with a loading state
+                // MODIFIED: Results page is now TOTAL_PAGES + 1 (i.e., 5)
                 currentPage = TOTAL_PAGES + 1;
                 showPage(currentPage);
                 ui.aiPlanTimelineOutput.classList.add('hidden');
@@ -2198,26 +1965,14 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                 ui.saveNewPlanBtn.classList.add('hidden'); // Hide save button while loading
 
                 try {
-                    // Gather all form data (identical logic to original, except rest time)
+                    // Gather all form data (REMOVED deleted fields)
                     const goal = ui.aiPlanGoalSelect.value;
                     const goalText = goal === 'custom' ? ui.aiPlanGoalText.value.trim() : goal;
                     const currentWeight = ui.aiPlanCurrentWeight.value;
-                    const idealWeight = ui.aiPlanIdealWeight.value;
-                    const bodyType = document.querySelector('input[name="body-type"]:checked')?.value;
-                    const bodyFat = document.querySelector('input[name="body-fat"]:checked')?.value;
                     const activityLevel = ui.aiPlanActivityLevel.value;
                     const scheduleConstraints = ui.aiPlanScheduleConstraints.value;
-                    const trainingHistory = ui.aiPlanTrainingHistory.value;
-                    const pastAttempts = Array.from(document.querySelectorAll('input[name="past-attempts"]:checked')).map(cb => cb.value);
-                    const isTracking = document.querySelector('input[name="tracking-app"]:checked')?.value;
-                    const trackingAppName = isTracking === 'yes' ? ui.aiPlanTrackingAppName.value : 'N/A';
-                    const trackingFollowUp = isTracking === 'yes' ? document.getElementById('ai-plan-tracking-follow-up').value : 'N/A';
-                    const knowledgeLevel = ui.aiPlanKnowledgeLevel.value;
                     const nutritionConsistency = ui.aiPlanNutritionConsistency.value.trim();
                     const troubleSpots = ui.aiPlanTroubleSpots.value.trim();
-                    const comfortSquat = ui.aiPlanComfortSquat.value;
-                    const comfortBench = ui.aiPlanComfortBench.value;
-                    const comfortDeadlift = ui.aiPlanComfortDeadlift.value;
                     const optimizeTimeline = ui.aiPlanOptimizeTimelineToggle.checked;
                     const timelineWeeks = optimizeTimeline ? ui.aiPlanTimelineWeeksInput.value : null;
                     const avoidances = ui.aiPlanAvoidancesInput.value.trim();
@@ -2230,21 +1985,21 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
 
                     let schedule = {}; let schedulePromptText = '';
                     if (scheduleType === 'weekly') {
-                        ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn').forEach(btn => { schedule[btn.dataset.day] = btn.querySelector('.text-xs').textContent; });
-                        schedulePromptText = `- Weekly Schedule: ${JSON.stringify(schedule)}`;
+                         ui.aiPlanScheduleBuilder.querySelectorAll('.day-schedule-btn').forEach(btn => { schedule[btn.dataset.day] = btn.querySelector('.text-xs').textContent; });
+                         schedulePromptText = `- Weekly Schedule: ${JSON.stringify(schedule)}`;
                     } else {
-                        const cycleAssignments = {};
-                         ui.aiPlanCycleBuilder.querySelectorAll('.day-schedule-btn').forEach(btn => { cycleAssignments[btn.dataset.day] = btn.querySelector('.text-xs').textContent; });
-                        schedule = { type: 'cyclic', assignments: cycleAssignments };
-                        schedulePromptText = `- Cyclic Schedule Assignments for Weekdays: ${JSON.stringify(cycleAssignments)} (Use these as the repeating pattern)`;
+                         const cycleAssignments = {};
+                          ui.aiPlanCycleBuilder.querySelectorAll('.day-schedule-btn').forEach(btn => { cycleAssignments[btn.dataset.day] = btn.querySelector('.text-xs').textContent; });
+                         schedule = { type: 'cyclic', assignments: cycleAssignments };
+                         schedulePromptText = `- Cyclic Schedule Assignments for Weekdays: ${JSON.stringify(cycleAssignments)} (Use these as the repeating pattern)`;
                     }
 
                     // Calculate daysPerWeek from the built schedule
                     let daysPerWeek = 0;
                     if (scheduleType === 'weekly') {
-                        daysPerWeek = Object.values(schedule).filter(type => type !== 'Rest').length;
+                         daysPerWeek = Object.values(schedule).filter(type => type !== 'Rest').length;
                     } else {
-                        daysPerWeek = Object.values(schedule.assignments).filter(type => type !== 'Rest').length;
+                         daysPerWeek = Object.values(schedule.assignments).filter(type => type !== 'Rest').length;
                     }
 
                     const equipment = Array.from(ui.aiPlanEquipmentContainer.querySelectorAll('input:checked')).map(cb => cb.value);
@@ -2255,7 +2010,7 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                     const defaultDuration = ui.aiPlanDurationInput.value;
                     const durations = {};
                     ui.aiPlanDurationsContainer.querySelectorAll('.day-duration-input').forEach(input => { if (input.value) durations[input.dataset.key] = input.value; });
-                    const restTimeSeconds = ui.aiPlanRestInput.value; // MODIFIED: Get seconds
+                    const restTimeSeconds = ui.aiPlanRestInput.value; 
                     let activeSplitTypes = [];
                     if (scheduleType === 'weekly') { activeSplitTypes = [...new Set(Object.values(schedule))]; }
                     else { activeSplitTypes = [...new Set(Object.values(schedule.assignments))]; }
@@ -2268,15 +2023,14 @@ Respond ONLY with valid JSON: {"name": string, "group": string (must be from lis
                     const allWarmupNames = [...new Set(allWarmupsList.map(w => w.name))].join(', ');
 
 
-                    // Construct the prompt (UPDATED rest time)
+                    // Construct the prompt (REMOVED deleted fields)
                     let prompt = `Create a detailed weekly workout plan based on the following user profile and constraints.
 
 User Profile:
 - Primary Goal: ${goalText}
-- Core Data: Current Weight: ${currentWeight}, Ideal Weight: ${idealWeight}, Body Type: ${bodyType}, Body Fat Estimate: ${bodyFat}, Daily Activity (Non-Exercise): ${activityLevel}
+- Core Data: Current Weight: ${currentWeight}, Daily Activity (Non-Exercise): ${activityLevel}
 - Availability: ${daysPerWeek} days/week (derived from schedule). Typical Schedule: ${scheduleConstraints}.
-- Experience: Training History: ${trainingHistory}, Past Attempts: ${pastAttempts.length > 0 ? pastAttempts.join(', ') : 'None specified'}, Tracking App Use: ${isTracking === 'yes' ? `Yes (${trackingAppName}, Follow-up: ${trackingFollowUp})` : 'No'}, Fitness Knowledge: ${knowledgeLevel}
-- Preferences: Consistency Note: ${nutritionConsistency || 'None'}, Trouble Spots: ${troubleSpots || 'None'}, Compound Lift Comfort: (Squat: ${comfortSquat}, Bench: ${comfortBench}, Deadlift: ${comfortDeadlift})
+- Preferences: Consistency Note: ${nutritionConsistency || 'None'}, Trouble Spots: ${troubleSpots || 'None'}
 - Injuries/Avoidances: ${avoidances || 'None'}
 - Prioritize Joint-Friendly Exercises: ${isJointFriendly}
 - Disliked Exercises: ${dislikeList || 'None'}
@@ -2320,7 +2074,7 @@ Respond ONLY with a valid JSON object matching this structure:
   ],
   "restTime": number (The default rest time in SECONDS provided),
   "estimatedTimeline": "string (e.g., '16-20 weeks' or 'Optimized for 8 weeks')",
-  "reasoning": "string (Brief explanation <100 words, tailored to user's knowledge level: ${knowledgeLevel})"
+  "reasoning": "string (Brief explanation <100 words)"
 }
 
 Ensure the JSON is valid and complete according to the structure. Select appropriate exercises based on goals, equipment, preferences, and volume guidelines. Distribute target sets across the week's workouts. Add warmups and cooldowns. Generate a realistic timeline estimate if none was provided.`;
@@ -2354,30 +2108,30 @@ Ensure the JSON is valid and complete according to the structure. Select appropr
             ui.saveNewPlanBtn.addEventListener('click', applyNewPlan);
              function applyNewPlan() {
                try {
-                    if (!workoutPlan || !workoutPlan.schedule || !workoutPlan.workouts) { throw new Error("Generated plan data is missing required fields."); }
-                    console.log("Applying new plan:", workoutPlan);
-                    currentPlanData = workoutPlan;
-                    localStorage.setItem('fitTrackAI_workoutPlan', JSON.stringify(currentPlanData));
+                   if (!workoutPlan || !workoutPlan.schedule || !workoutPlan.workouts) { throw new Error("Generated plan data is missing required fields."); }
+                   console.log("Applying new plan:", workoutPlan);
+                   currentPlanData = workoutPlan;
+                   localStorage.setItem('fitTrackAI_workoutPlan', JSON.stringify(currentPlanData));
 
-                    // Clear form state after successful application
-                    localStorage.removeItem('demo_aiPlanFormState');
-                    // We don't reset the form here, we just show the alert
-                    // and the user can click "Start Over"
+                   // Clear form state after successful application
+                   localStorage.removeItem('demo_aiPlanFormState');
+                   // We don't reset the form here, we just show the alert
+                   // and the user can click "Start Over"
 
-                    showCustomAlert("Success", "Your new workout plan has been generated and saved!");
-                    // Hide the save button to prevent double-saving
-                    ui.saveNewPlanBtn.classList.add('hidden');
-                    
-                    // MODIFIED: Redirect back to workouts.html after saving
-                    setTimeout(() => {
-                        window.location.href = '../../workouts.html';
-                    }, 1500);
+                   showCustomAlert("Success", "Your new workout plan has been generated and saved!");
+                   // Hide the save button to prevent double-saving
+                   ui.saveNewPlanBtn.classList.add('hidden');
+                   
+                   // MODIFIED: Redirect back to workouts.html after saving
+                   setTimeout(() => {
+                       window.location.href = '../../workouts.html';
+                   }, 1500);
 
                } catch (error) {
-                   console.error("Error applying plan:", error);
-                   showCustomAlert("Error Saving Plan", `Could not save the new plan. The generated data might be invalid. ${error.message}`);
+                  console.error("Error applying plan:", error);
+                  showCustomAlert("Error Saving Plan", `Could not save the new plan. The generated data might be invalid. ${error.message}`);
                }
-            }
+             }
 
 
             // --- INITIALIZATION ---
