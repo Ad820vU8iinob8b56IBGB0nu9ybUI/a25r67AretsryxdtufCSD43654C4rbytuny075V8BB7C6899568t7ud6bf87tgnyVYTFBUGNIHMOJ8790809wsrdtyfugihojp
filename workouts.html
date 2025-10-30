@@ -2388,6 +2388,266 @@
                 });
             });
 
+            // --- WORKOUT SHARING FUNCTIONS ---
+
+            // Generate unique 6-character share code
+            async function generateShareCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let attempts = 0;
+                const maxAttempts = 5;
+
+                while (attempts < maxAttempts) {
+                    let code = '';
+                    for (let i = 0; i < 6; i++) {
+                        code += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+
+                    // Check if code already exists in Firestore
+                    try {
+                        const doc = await db.collection('shared_workouts').doc(code).get();
+                        if (!doc.exists) {
+                            return code;
+                        }
+                    } catch (error) {
+                        console.error('Error checking code:', error);
+                    }
+                    attempts++;
+                }
+
+                throw new Error('Failed to generate unique code after ' + maxAttempts + ' attempts');
+            }
+
+            // Share workout plan
+            async function shareWorkoutPlan() {
+                const username = localStorage.getItem('fitTrackAI_userUsername');
+
+                if (!username || username.trim() === '') {
+                    showCustomAlert('Username Required', 'Please set your username in Settings before sharing workouts.');
+                    return;
+                }
+
+                if (!workoutPlan || !workoutPlan.name || !workoutPlan.workouts || workoutPlan.workouts.length === 0) {
+                    showCustomAlert('No Workout Plan', 'You need to create a workout plan before sharing.');
+                    return;
+                }
+
+                // Open modal and show loading state
+                const modal = document.getElementById('share-workout-modal');
+                const loading = document.getElementById('share-workout-loading');
+                const content = document.getElementById('share-workout-content');
+
+                loading.classList.remove('hidden');
+                content.classList.add('hidden');
+                showModal(modal);
+
+                try {
+                    // Generate unique share code
+                    const code = await generateShareCode();
+
+                    // Upload to Firestore
+                    await db.collection('shared_workouts').doc(code).set({
+                        code: code,
+                        workoutPlan: workoutPlan,
+                        sharedBy: username,
+                        sharedAt: firebase.firestore.Timestamp.now(),
+                        type: 'workout'
+                    });
+
+                    // Show success state
+                    document.getElementById('share-workout-name').textContent = workoutPlan.name;
+                    document.getElementById('share-workout-code').textContent = code;
+                    loading.classList.add('hidden');
+                    content.classList.remove('hidden');
+                    lucide.createIcons();
+                } catch (error) {
+                    console.error('Error sharing workout:', error);
+                    hideModal(modal);
+                    showCustomAlert('Sharing Failed', 'Unable to connect. Check your internet connection and try again.');
+                }
+            }
+
+            // Import workout plan
+            async function importWorkoutPlan(code) {
+                const loading = document.getElementById('import-workout-loading');
+                const preview = document.getElementById('import-workout-preview');
+                const errorDiv = document.getElementById('import-workout-error');
+
+                loading.classList.remove('hidden');
+                preview.classList.add('hidden');
+                errorDiv.classList.add('hidden');
+
+                try {
+                    // Fetch from Firestore
+                    const doc = await db.collection('shared_workouts').doc(code.toUpperCase()).get();
+
+                    if (!doc.exists) {
+                        loading.classList.add('hidden');
+                        errorDiv.classList.remove('hidden');
+                        document.getElementById('import-workout-error-text').textContent = 'Workout not found. Check the code and try again.';
+                        return;
+                    }
+
+                    const data = doc.data();
+                    const sharedWorkout = data.workoutPlan;
+                    const sharedBy = data.sharedBy;
+
+                    // Calculate preview info
+                    const daysPerWeek = Object.values(sharedWorkout.schedule || {}).filter(day => day !== 'Rest').length;
+                    let totalExercises = 0;
+                    if (sharedWorkout.workouts && Array.isArray(sharedWorkout.workouts)) {
+                        sharedWorkout.workouts.forEach(workout => {
+                            if (workout.exercises) {
+                                totalExercises += workout.exercises.length;
+                            }
+                        });
+                    }
+
+                    // Show preview
+                    document.getElementById('import-workout-preview-name').textContent = sharedWorkout.name || 'Unnamed Workout';
+                    document.getElementById('import-workout-preview-author').textContent = sharedBy || 'Unknown';
+                    document.getElementById('import-workout-preview-days').textContent = daysPerWeek;
+                    document.getElementById('import-workout-preview-exercises').textContent = totalExercises;
+
+                    loading.classList.add('hidden');
+                    preview.classList.remove('hidden');
+
+                    // Store the workout for import confirmation
+                    window.pendingImportWorkout = { workout: sharedWorkout, sharedBy: sharedBy, code: code.toUpperCase() };
+
+                } catch (error) {
+                    console.error('Error importing workout:', error);
+                    loading.classList.add('hidden');
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('import-workout-error-text').textContent = 'Unable to connect. Check your internet connection.';
+                }
+            }
+
+            // Confirm workout import
+            function confirmWorkoutImport() {
+                if (!window.pendingImportWorkout) return;
+
+                const hasExistingPlan = workoutPlan && workoutPlan.name && workoutPlan.workouts && workoutPlan.workouts.length > 0;
+
+                if (hasExistingPlan) {
+                    showConfirmModal(
+                        'Replace Current Plan?',
+                        'This will replace your current workout plan. Continue?',
+                        () => {
+                            finalizeWorkoutImport();
+                        }
+                    );
+                } else {
+                    finalizeWorkoutImport();
+                }
+            }
+
+            function finalizeWorkoutImport() {
+                const { workout, sharedBy, code } = window.pendingImportWorkout;
+
+                // Import the workout
+                workoutPlan = workout;
+                saveData();
+
+                // Track import in history
+                const importHistory = JSON.parse(localStorage.getItem('fitTrackAI_importHistory') || '[]');
+                importHistory.unshift({
+                    username: sharedBy,
+                    itemName: workout.name || 'Unnamed Workout',
+                    itemType: 'workout',
+                    importedAt: Date.now(),
+                    shareCode: code
+                });
+
+                // Keep only last 50 imports
+                if (importHistory.length > 50) importHistory.length = 50;
+                localStorage.setItem('fitTrackAI_importHistory', JSON.stringify(importHistory));
+
+                // Close modal and update UI
+                hideModal(document.getElementById('import-workout-modal'));
+                updateUI();
+
+                // Show success toast
+                const toast = document.getElementById('undo-toast');
+                document.getElementById('undo-toast-text').textContent = 'Workout imported successfully!';
+                document.getElementById('undo-toast-btn').style.display = 'none';
+                toast.style.transform = 'translate(-50%, 0)';
+                toast.style.opacity = '1';
+                setTimeout(() => {
+                    toast.style.transform = 'translate(-50%, 6rem)';
+                    toast.style.opacity = '0';
+                    document.getElementById('undo-toast-btn').style.display = 'block';
+                }, 3000);
+
+                // Clear pending import
+                window.pendingImportWorkout = null;
+            }
+
+            // Event listeners for share/import buttons
+            document.getElementById('share-workout-btn')?.addEventListener('click', shareWorkoutPlan);
+            document.getElementById('import-workout-btn')?.addEventListener('click', () => {
+                const modal = document.getElementById('import-workout-modal');
+                document.getElementById('import-workout-code-input').value = '';
+                document.getElementById('import-workout-preview').classList.add('hidden');
+                document.getElementById('import-workout-error').classList.add('hidden');
+                showModal(modal);
+            });
+
+            // Close modal buttons
+            document.getElementById('close-share-workout-modal-btn')?.addEventListener('click', () => {
+                hideModal(document.getElementById('share-workout-modal'));
+            });
+            document.getElementById('close-import-workout-modal-btn')?.addEventListener('click', () => {
+                hideModal(document.getElementById('import-workout-modal'));
+            });
+
+            // Copy code button
+            document.getElementById('copy-workout-code-btn')?.addEventListener('click', () => {
+                const code = document.getElementById('share-workout-code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const toast = document.getElementById('undo-toast');
+                    document.getElementById('undo-toast-text').textContent = 'Code copied!';
+                    document.getElementById('undo-toast-btn').style.display = 'none';
+                    toast.style.transform = 'translate(-50%, 0)';
+                    toast.style.opacity = '1';
+                    setTimeout(() => {
+                        toast.style.transform = 'translate(-50%, 6rem)';
+                        toast.style.opacity = '0';
+                        document.getElementById('undo-toast-btn').style.display = 'block';
+                    }, 2000);
+                });
+            });
+
+            // Find workout button
+            document.getElementById('find-workout-btn')?.addEventListener('click', () => {
+                const code = document.getElementById('import-workout-code-input').value.trim();
+                if (code.length !== 6) {
+                    document.getElementById('import-workout-error').classList.remove('hidden');
+                    document.getElementById('import-workout-error-text').textContent = 'Please enter a 6-character code.';
+                    return;
+                }
+                importWorkoutPlan(code);
+            });
+
+            // Import confirm button
+            document.getElementById('import-workout-confirm-btn')?.addEventListener('click', confirmWorkoutImport);
+
+            // Auto-uppercase input
+            document.getElementById('import-workout-code-input')?.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            // Update share button visibility based on workout plan
+            function updateShareButtonVisibility() {
+                const shareBtn = document.getElementById('share-workout-btn');
+                if (shareBtn && workoutPlan && workoutPlan.name && workoutPlan.workouts && workoutPlan.workouts.length > 0) {
+                    shareBtn.style.display = 'block';
+                } else if (shareBtn) {
+                    shareBtn.style.display = 'none';
+                }
+            }
+
+            // --- END WORKOUT SHARING FUNCTIONS ---
+
 
             // --- INITIALIZATION ---
             async function initializeApp() {
