@@ -250,10 +250,12 @@
                                     <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                                 </div>
                                 <!-- MODIFIED: Green swipe left background -->
-                                <div id="water-swipe-bg-left" class="swipe-action-container left !justify-start" style="opacity: 0; background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%));">
+                                <!-- USER EDIT: Centered justify-start to justify-center -->
+                                <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center" style="opacity: 0; background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%));">
                                     <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                                 </div>
-                                <div id="water-swipe-bg-right" class="swipe-action-container right !justify-end" style="opacity: 0; background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%));">
+                                <!-- USER EDIT: Centered justify-end to justify-center -->
+                                <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center" style="opacity: 0; background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%));">
                                     <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                                 </div>
                             </div>
@@ -1676,10 +1678,14 @@
                     }
                     const waterSwipeBgTop = document.getElementById('water-swipe-bg-top');
                     if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
+                        // VERTICAL SWIPE
                         waterCurrentX = 0;
                         ui.waterSwipeContent.style.transform = 'translateX(0px)';
-                        ui.waterSwipeBgLeft.style.opacity = '0';
-                        ui.waterSwipeBgRight.style.opacity = '0';
+                        
+                        // USER EDIT: Removed lines that hide horizontal icons
+                        // ui.waterSwipeBgLeft.style.opacity = '0';
+                        // ui.waterSwipeBgRight.style.opacity = '0'; 
+
                         if (waterPointerDelta.y > 0) { // Swiping Down
                             waterSwipeBgTop.style.opacity = Math.min(1, waterPointerDelta.y / 80).toString();
                             waterSwipeBgTop.style.height = `${waterPointerDelta.y}px`;
@@ -1690,8 +1696,12 @@
                             ui.waterSwipeContent.style.transform = `translateY(0px)`;
                         }
                     } else {
-                        waterSwipeBgTop.style.opacity = '0';
-                        waterSwipeBgTop.style.height = '0';
+                        // HORIZONTAL SWIPE
+                        
+                        // USER EDIT: Removed lines that hide vertical icon
+                        // waterSwipeBgTop.style.opacity = '0';
+                        // waterSwipeBgTop.style.height = '0';
+
                         ui.waterSwipeContent.style.transform = `translateY(0px)`;
                         waterCurrentX = waterPointerDelta.x;
                         ui.waterSwipeContent.style.transform = `translateX(${waterCurrentX}px)`;
