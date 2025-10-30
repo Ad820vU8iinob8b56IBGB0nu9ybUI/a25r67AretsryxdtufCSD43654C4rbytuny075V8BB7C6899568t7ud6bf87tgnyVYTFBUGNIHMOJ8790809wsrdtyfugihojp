@@ -54,6 +54,53 @@
         #summary-carousel-container:active {
             cursor: grabbing; /* Show grabbing cursor when dragging */
         }
+
+        /* --- ADDED: Styles for the check-in modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            color: var(--primary-text);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 1002;
+        }
+        .modal-close-btn:hover {
+            background-color: var(--input-bg);
+        }
+        .hidden {
+            display: none;
+        }
+        /* --- END: Styles for the check-in modal --- */
     </style>
 </head>
 <body class="antialiased">
@@ -147,7 +194,8 @@
             <!-- NEW: Quick Actions Card -->
             <div id="quick-actions-card" class="content-card">
                 <h3 class="text-2xl font-semibold mb-4">Quick Actions</h3>
-                <div class="grid grid-cols-3 gap-4">
+                <!-- MODIFIED: Changed to 2 or 4 columns -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <button id="quick-log-water-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
                         <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Log Water</span>
@@ -161,26 +209,17 @@
                         <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Macro Swap</span>
                     </a>
+                    <!-- ADDED: New button for logging weight -->
+                    <button id="quick-log-weight-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
+                        <i data-lucide="scale" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        <span class="text-xs sm:text-sm">Log Weight</span>
+                    </button>
                 </div>
                 <p id="quick-action-feedback" class="text-sm h-5 text-center mt-4 text-green-400"></p>
             </div>
 
-            <!-- Daily Check-in Card (MOVED HERE) -->
-            <div id="daily-check-in-card" class="content-card">
-                <h3 class="text-2xl font-semibold mb-4">Daily Check-in</h3>
-                <p class="text-sm text-secondary-text mb-4">Log your weight for today.</p>
-                <form id="check-in-form" class="flex flex-col gap-4"> <!-- Simplified layout -->
-                    <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
-                    <!-- SMM input removed -->
-                    <button type="submit" id="check-in-btn" class="btn btn-primary w-full"> <!-- Full width button -->
-                        <span class="btn-text">Check In</span>
-                        <div class="loader hidden"></div>
-                    </button>
-                </form>
-                <div id="check-in-feedback" class="mt-4 text-sm h-5 text-center"></div>
-            </div>
-            <!-- END Daily Check-in Card -->
-
+            <!-- Daily Check-in Card (REMOVED - Now a modal) -->
+            
              <div class="content-card">
                 <h3 class="text-2xl font-bold mb-4">Weekly Progress (Weight & Calories)</h3>
                  <div class="h-64">
@@ -189,6 +228,27 @@
             </div>
         </main>
     </div>
+
+    <!-- ADDED: Check-in Modal -->
+    <div id="check-in-modal-overlay" class="modal-overlay hidden">
+        <div id="check-in-modal-content" class="modal-content">
+            <!-- This is the content from the old "daily-check-in-card" -->
+            <div class="content-card !mb-0"> <!-- !mb-0 to prevent double margin -->
+                <button id="check-in-modal-close-btn" class="modal-close-btn">&times;</button>
+                <h3 class="text-2xl font-semibold mb-4">Daily Check-in</h3>
+                <p class="text-sm text-secondary-text mb-4">Log your weight for today.</p>
+                <form id="check-in-form" class="flex flex-col gap-4">
+                    <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
+                    <button type="submit" id="check-in-btn" class="btn btn-primary w-full">
+                        <span class="btn-text">Check In</span>
+                        <div class="loader hidden"></div>
+                    </button>
+                </form>
+                <div id="check-in-feedback" class="mt-4 text-sm h-5 text-center"></div>
+            </div>
+        </div>
+    </div>
+    <!-- END: Check-in Modal -->
 
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
@@ -307,7 +367,7 @@
                 }
             });
 
-            // --- START: RE-WRITTEN CAROUSEL LOGIC (NO CLONES) ---
+            // --- START: RE-WRITTEN CAROUSEL LOGIC (WITH CLONES FOR INFINITE LOOP) ---
             function setupSummaryCarousel() {
                 const container = document.getElementById('summary-carousel-container');
                 const track = document.getElementById('summary-carousel-track');
@@ -318,12 +378,28 @@
                     return;
                 }
 
-                // --- NO CLONING ---
-                let slides = Array.from(track.children);
-                let totalSlides = slides.length; // This is the original number (3)
+                let originalSlides = Array.from(track.children);
+                let totalSlides = originalSlides.length; // This is the original number (3)
 
-                let currentIndex = 0; // Start at the *real* first slide (index 0)
+                if (totalSlides <= 1) return; // No need for carousel
+
+                // --- 1. CREATE CLONES ---
+                const firstClone = originalSlides[0].cloneNode(true);
+                const lastClone = originalSlides[totalSlides - 1].cloneNode(true);
+                
+                // Add aria-hidden to clones for accessibility
+                firstClone.setAttribute('aria-hidden', 'true');
+                lastClone.setAttribute('aria-hidden', 'true');
+
+                track.appendChild(firstClone);
+                track.insertBefore(lastClone, originalSlides[0]);
+
+                // Update slides collection
+                let slides = Array.from(track.children);
+
+                let currentIndex = 1; // Start at the *real* first slide (index 1)
                 let isDragging = false;
+                let isTransitioning = false; // Add flag to prevent multiple transitions
                 let dragStartX = 0;
                 let dragDeltaX = 0;
                 let wasDragging = false; 
@@ -339,16 +415,25 @@
                 const dots = Array.from(dotsContainer.children);
 
                 function updateDots(index) {
-                    // index is already 0, 1, or 2
+                    // index is the *current* track index (e.g., 0 to 4)
+                    let dotIndex = index - 1; // 1 -> 0, 2 -> 1, 3 -> 2
+                    
+                    if (index === 0) { // On last clone
+                        dotIndex = totalSlides - 1; // Highlight last dot
+                    } else if (index === totalSlides + 1) { // On first clone
+                        dotIndex = 0; // Highlight first dot
+                    }
+                    
                     dots.forEach((dot, i) => {
-                        dot.classList.toggle('active', i === index);
+                        dot.classList.toggle('active', i === dotIndex);
                     });
                 }
 
                 function goToSlide(index, isProgrammatic = false, isInitial = false) {
-                    // Set transition style
+                    if (isTransitioning && !isInitial) return;
+                    isTransitioning = !isInitial;
+                    
                     track.style.transition = isInitial ? 'none' : 'transform 0.3s ease-in-out';
-                    // Move the track
                     track.style.transform = `translateX(-${index * 100}%)`;
                     currentIndex = index;
                     updateDots(index);
@@ -358,22 +443,29 @@
                     }
                 }
 
-                // --- REMOVED: Transition End Listener ---
+                // --- 2. ADD TRANSITION END LISTENER ---
+                track.addEventListener('transitionend', () => {
+                    isTransitioning = false; // Transition finished
+                    
+                    if (currentIndex === 0) { // Landed on last clone
+                        track.style.transition = 'none';
+                        currentIndex = totalSlides; // Jump to real last slide
+                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    } else if (currentIndex === totalSlides + 1) { // Landed on first clone
+                        track.style.transition = 'none';
+                        currentIndex = 1; // Jump to real first slide
+                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    }
+                });
 
                 function nextSlide(isProgrammatic = false) {
-                    let newIndex = currentIndex + 1;
-                    if (newIndex >= totalSlides) {
-                        newIndex = 0; // Loop back to start
-                    }
-                    goToSlide(newIndex, isProgrammatic);
+                    if (isTransitioning) return;
+                    goToSlide(currentIndex + 1, isProgrammatic);
                 }
 
                 function prevSlide() {
-                    let newIndex = currentIndex - 1;
-                    if (newIndex < 0) {
-                        newIndex = totalSlides - 1; // Loop to end
-                    }
-                    goToSlide(newIndex);
+                    if (isTransitioning) return;
+                    goToSlide(currentIndex - 1);
                 }
 
                 function startAutoCycle() {
@@ -383,20 +475,21 @@
 
                 // --- MODIFIED: Combined Drag/Swipe Handlers ---
                 function dragStart(e) {
+                    if (isTransitioning) return;
                     if (e.type === 'mousedown') {
-                        e.preventDefault(); // Prevent browser image drag, etc.
+                        e.preventDefault(); 
                     }
                     isDragging = true;
                     dragStartX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                    clearInterval(carouselInterval); // Pause on touch/click
-                    track.style.transition = 'none'; // Disable transition for fluid drag
+                    clearInterval(carouselInterval); 
+                    track.style.transition = 'none'; 
                     container.style.cursor = 'grabbing';
-                    wasDragging = false; // <-- RESET FLAG ON NEW DRAG
+                    wasDragging = false; 
                 }
 
                 function dragMove(e) {
                     if (!isDragging) return;
-                    e.preventDefault(); // Prevent page scroll/text selection
+                    e.preventDefault(); 
                     const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
                     dragDeltaX = currentX - dragStartX;
                     
@@ -412,17 +505,12 @@
                     if (!isDragging) return;
                     isDragging = false;
                     container.style.cursor = 'grab';
-                    track.style.transition = 'transform 0.3s ease-in-out'; // Re-enable animation
 
-                    // Check for swipe and loop
+                    // --- 3. MODIFIED DRAG END LOGIC ---
                     if (dragDeltaX < -50) { // Swipe left
-                        let newIndex = currentIndex + 1;
-                        if (newIndex >= totalSlides) newIndex = 0; // Loop to start
-                        goToSlide(newIndex);
+                        nextSlide();
                     } else if (dragDeltaX > 50) { // Swipe right
-                        let newIndex = currentIndex - 1;
-                        if (newIndex < 0) newIndex = totalSlides - 1; // Loop to end
-                        goToSlide(newIndex);
+                        prevSlide();
                     } else {
                         // No swipe, snap back to current slide
                         goToSlide(currentIndex);
@@ -430,7 +518,6 @@
                     
                     dragDeltaX = 0; // Reset delta
                     
-                    // Reset wasDragging flag after a tiny delay
                     setTimeout(() => {
                         wasDragging = false;
                     }, 0);
@@ -440,8 +527,9 @@
                 dotsContainer.addEventListener('click', (e) => {
                     const dot = e.target.closest('.carousel-dot');
                     if (dot) {
-                        // Use index directly
-                        goToSlide(parseInt(dot.dataset.index));
+                        // --- 4. MODIFIED DOT CLICK ---
+                        // Go to index + 1 (e.g., dot 0 -> slide 1)
+                        goToSlide(parseInt(dot.dataset.index) + 1);
                     }
                 });
 
@@ -464,8 +552,8 @@
                 container.addEventListener('mouseleave', dragEnd); 
 
 
-                // --- MODIFIED: Initial setup ---
-                goToSlide(0, true, true); // Go to the first slide (index 0)
+                // --- 5. MODIFIED: Initial setup ---
+                goToSlide(1, true, true); // Go to the first slide (index 1)
                 startAutoCycle();
             }
             // --- END: RE-WRITTEN CAROUSEL LOGIC ---
@@ -474,10 +562,10 @@
             // --- HELPER FUNCTIONS ---
             function dateToKey(date) { return date.toISOString().split('T')[0]; }
             function getWorkoutDayType(date) {
-                 const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
-                 const schedule = savedPlan.schedule || { "Monday": "Push", "Tuesday": "Pull", "Wednesday": "Legs", "Thursday": "Push", "Friday": "Pull", "Saturday": "Legs", "Sunday": "Rest" };
-                 const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-                 return { type: schedule[dayName] || 'Rest' };
+                const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
+                const schedule = savedPlan.schedule || { "Monday": "Push", "Tuesday": "Pull", "Wednesday": "Legs", "Thursday": "Push", "Friday": "Pull", "Saturday": "Legs", "Sunday": "Rest" };
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                return { type: schedule[dayName] || 'Rest' };
             }
             function calculateDuration(startTime, endTime, dateStr) {
                 const startDate = new Date(`${dateStr}T${startTime}`);
@@ -492,6 +580,21 @@
 
             // --- DATA LOADING & SAVING ---
             
+            // **** START FIX ****
+            // Added the getDayLog function
+            function getDayLog(date) {
+                const key = dateToKey(date);
+                if (!appData.allDailyLogs[key]) {
+                    appData.allDailyLogs[key] = { entries: [], water: 0 };
+                }
+                // Ensure water exists even if entries array is created
+                if (typeof appData.allDailyLogs[key].water === 'undefined') {
+                     appData.allDailyLogs[key].water = 0;
+                }
+                return appData.allDailyLogs[key];
+            }
+            // **** END FIX ****
+
             // NEW: Added saveData function
             function saveData() {
                 localStorage.setItem('fitTrackAI_userProfile', JSON.stringify(appData.userProfile));
@@ -517,7 +620,11 @@
                 if (!appData.userProfile.sleepHistory) appData.userProfile.sleepHistory = [];
                 if (!appData.userProfile.weightHistory) appData.userProfile.weightHistory = [];
 
-                const todayLogData = appData.allDailyLogs[todayKey] || { entries: [], water: 0 };
+                // **** FIX ****
+                // Use the new getDayLog function to correctly initialize today's log
+                const todayLogData = getDayLog(new Date()); 
+                // **** END FIX ****
+                
                 appData.todayLog = todayLogData.entries || [];
                 appData.goals = { ...defaultGoals, ...appData.goals };
             }
@@ -548,10 +655,10 @@
                 if (dayInfo.type === 'Rest') {
                     summaryHtml = `<p class="text-3xl font-bold text-green-400 mb-2">Rest Day</p><p class="text-lg font-semibold text-primary-text">Recovery is key!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full plan</a>`;
                 } else if (loggedExercises.length > 0) {
-                     const firstExercise = loggedExercises[0].name;
-                     const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
-                     const statusText = status === 'full' ? 'Complete' : (status === 'started' ? 'In Progress' : 'Logged');
-                     summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises. Started with ${firstExercise}.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
+                        const firstExercise = loggedExercises[0].name;
+                        const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
+                        const statusText = status === 'full' ? 'Complete' : (status === 'started' ? 'In Progress' : 'Logged');
+                        summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises. Started with ${firstExercise}.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
                 } else {
                     summaryHtml = `<p class="text-lg font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p>Time to hit the gym!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Start your workout</a>`;
                 }
@@ -581,7 +688,9 @@
                 for (let i = daysToDisplay - 1; i >= 0; i--) {
                     const date = new Date(); date.setDate(date.getDate() - i); const dateKey = dateToKey(date);
                     labels.push(date.toLocaleDateString(undefined, { weekday: 'short' }));
-                    const dailyLogData = appData.allDailyLogs[dateKey] || { entries: [], water: 0 };
+                    // **** FIX ****
+                    const dailyLogData = getDayLog(date); // Use the getDayLog function
+                    // **** END FIX ****
                     const dailyLogEntries = dailyLogData.entries || [];
                     const totalCalories = dailyLogEntries.reduce((sum, item) => sum + (item.calories || 0), 0);
                     calorieData.push(totalCalories || null);
@@ -617,6 +726,44 @@
             // Call setup for the carousel AFTER content is populated
             setupSummaryCarousel();
             // ************ END FIX ************
+
+            // --- START: MODAL LOGIC ---
+            const quickLogWeightBtn = document.getElementById('quick-log-weight-btn');
+            const checkInModalOverlay = document.getElementById('check-in-modal-overlay');
+            const checkInModalCloseBtn = document.getElementById('check-in-modal-close-btn');
+
+            function openCheckInModal() {
+                if (checkInModalOverlay) {
+                    checkInModalOverlay.classList.remove('hidden');
+                    // Reset form state
+                    const feedbackDiv = document.getElementById('check-in-feedback');
+                    const weightInput = document.getElementById('check-in-weight');
+                    if(feedbackDiv) feedbackDiv.textContent = '';
+                    if(weightInput) weightInput.value = '';
+                }
+            }
+
+            function closeCheckInModal() {
+                if (checkInModalOverlay) {
+                    checkInModalOverlay.classList.add('hidden');
+                }
+            }
+
+            if (quickLogWeightBtn) {
+                quickLogWeightBtn.addEventListener('click', openCheckInModal);
+            }
+            if (checkInModalCloseBtn) {
+                checkInModalCloseBtn.addEventListener('click', closeCheckInModal);
+            }
+            if (checkInModalOverlay) {
+                checkInModalOverlay.addEventListener('click', (e) => {
+                    // Close only if clicking the overlay itself, not the content
+                    if (e.target === checkInModalOverlay) {
+                        closeCheckInModal();
+                    }
+                });
+            }
+            // --- END: MODAL LOGIC ---
 
             // --- NEW: Quick Log Water Function ---
             function logQuickWater() {
@@ -661,19 +808,6 @@
                         return;
                     }
 
-                    // Check if profile is set up (using 'age' as a proxy, which is set in progress.html)
-                    // We need to load it first. loadData() does this.
-                    /* MODIFICATION: Removed this check. Users should be able to log weight without a full profile.
-                    if (!appData.userProfile || !appData.userProfile.age) {
-                         if (feedbackDiv) {
-                            feedbackDiv.textContent = "Please set up your profile in the Progress tab first.";
-                            feedbackDiv.classList.add('text-red-400');
-                            feedbackDiv.classList.remove('text-green-400');
-                        }
-                        return;
-                    }
-                    */
-
                     if (btn) {
                         btn.disabled = true;
                         btn.querySelector('.btn-text').style.display = 'none';
@@ -708,7 +842,8 @@
                         feedbackDiv.classList.add('text-green-400');
                         feedbackDiv.classList.remove('text-red-400');
                     }
-                    weightInput.value = '';
+                    // Don't clear weight input, user sees it before modal closes
+                    // weightInput.value = '';
 
                     // Reset button
                     if (btn) {
@@ -717,6 +852,10 @@
                             btn.querySelector('.btn-text').style.display = 'inline';
                             btn.querySelector('.loader').classList.add('hidden');
                             if (feedbackDiv) feedbackDiv.textContent = '';
+
+                            // ADDED: Close the modal after success
+                            closeCheckInModal();
+
                         }, 2000);
                     }
                     
@@ -750,21 +889,8 @@
                 }
             });
 
-            // --- START: NEW Dynamic Width Logic ---
-            function matchCarouselWidth() {
-                const carouselContainer = document.getElementById('summary-carousel-container');
-                const checkInCard = document.getElementById('daily-check-in-card');
-                
-                if (carouselContainer && checkInCard) {
-                    // This JS is no longer needed as the layout is fixed with grid/HTML structure
-                }
-            }
-            
-            // Run on load, after setup
-            // matchCarouselWidth(); // No longer needed
-            // Run on resize
-            // window.addEventListener('resize', matchCarouselWidth); // No longer needed
-            // --- END: NEW Dynamic Width Logic ---
+            // --- REMOVED: Dynamic Width Logic ---
+            // (This section was previously here, referencing the old card)
 
         }
         // --- End Original script ---
