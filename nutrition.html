@@ -616,8 +616,68 @@
     <!-- Hidden helper for html5-qrcode library -->
     <div id="barcode-reader-hidden-helper" class="hidden"></div>
 
+    <!-- Share Recipe Modal -->
+    <div id="share-recipe-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Share Recipe</h2>
+                <button id="close-share-recipe-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div id="share-recipe-loading" class="text-center py-8">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-secondary-text">Generating share code...</p>
+            </div>
+            <div id="share-recipe-content" class="hidden">
+                <div class="mb-4">
+                    <p class="text-secondary-text mb-2">Recipe Name:</p>
+                    <p id="share-recipe-name" class="text-lg font-semibold"></p>
+                </div>
+                <div class="mb-6 p-4 bg-input-bg rounded-lg border border-border-color">
+                    <p class="text-secondary-text text-sm mb-2">Share Code:</p>
+                    <p id="share-recipe-code" class="text-3xl font-bold text-center tracking-wider text-accent"></p>
+                </div>
+                <button id="copy-recipe-code-btn" class="w-full btn btn-primary mb-4">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    Copy Code
+                </button>
+                <p class="text-xs text-secondary-text text-center">Share this code so others can add this recipe to their library</p>
+            </div>
+        </div>
+    </div>
 
-    <!-- 
+    <!-- Import Recipe Modal -->
+    <div id="import-recipe-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Import Shared Recipe</h2>
+                <button id="close-import-recipe-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div class="mb-4">
+                <label for="import-recipe-code-input" class="form-label">Enter 6-Character Share Code</label>
+                <input type="text" id="import-recipe-code-input" class="form-input mt-1 text-center text-2xl tracking-wider uppercase" maxlength="6" placeholder="ABC123">
+            </div>
+            <button id="find-recipe-btn" class="w-full btn btn-primary mb-4">Find Recipe</button>
+            <div id="import-recipe-loading" class="hidden text-center py-4">
+                <div class="loader mx-auto"></div>
+            </div>
+            <div id="import-recipe-preview" class="hidden mt-4 p-4 bg-input-bg rounded-lg border border-border-color">
+                <h3 class="text-lg font-bold mb-2" id="import-recipe-preview-name"></h3>
+                <div class="text-sm text-secondary-text space-y-1 mb-4">
+                    <p>Shared by: <span id="import-recipe-preview-author" class="text-primary-text font-semibold"></span></p>
+                    <p>Ingredients: <span id="import-recipe-preview-ingredients" class="text-primary-text font-semibold"></span></p>
+                    <p>Calories: <span id="import-recipe-preview-calories" class="text-primary-text font-semibold"></span></p>
+                    <p>Protein: <span id="import-recipe-preview-protein" class="text-primary-text font-semibold"></span>g</p>
+                </div>
+                <button id="import-recipe-confirm-btn" class="w-full btn btn-primary">Import Recipe</button>
+            </div>
+            <div id="import-recipe-error" class="hidden mt-4 p-4 bg-red-900/20 border border-red-500 rounded-lg">
+                <p class="text-red-400 text-sm text-center" id="import-recipe-error-text"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!--
       FIX 4: Added the header/footer loading script from other pages.
       The original script from nutrition.html is wrapped in 
       an `initializeNutritionPage()` function and called from here.
