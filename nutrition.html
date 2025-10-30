@@ -1047,7 +1047,10 @@
                                    <p class="font-medium">${item.name}</p>
                                    ${item.type === 'recipe' ? '<span class="text-xs bg-blue-500 text-white rounded-full px-2 py-0.4">Recipe</span>' : ''}
                                 </div>
-                                <button class="log-item-btn btn btn-secondary !p-2" title="Log Item"><i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i></button>
+                                <div class="flex gap-2">
+                                    <button class="share-recipe-btn btn btn-secondary !p-2" title="Share Recipe"><i data-lucide="share-2" class="w-4 h-4 pointer-events-none"></i></button>
+                                    <button class="log-item-btn btn btn-secondary !p-2" title="Log Item"><i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>`).join('');
