@@ -82,12 +82,16 @@
 
                 <!-- Community Panel -->
                 <section id="community-panel" class="tab-panel">
-                    <div class="content-card">
-                        <h2 class="text-2xl font-semibold mb-4">Community</h2>
-                        <p class="text-secondary-text">Join challenges and discussions. (Coming Soon)</p>
-                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
-                            Community Forums / Challenges Area
-                         </div>
+                    <div class="content-card mb-6">
+                        <h2 class="text-2xl font-semibold mb-4">Community Feed</h2>
+                        <!-- Filter Buttons -->
+                        <nav class="segmented-control mb-6">
+                            <button id="filter-all" class="tab-btn active" data-filter="all">All</button>
+                            <button id="filter-workouts" class="tab-btn" data-filter="workout">Workouts</button>
+                            <button id="filter-recipes" class="tab-btn" data-filter="recipe">Recipes</button>
+                        </nav>
+                        <!-- Feed Content -->
+                        <div id="community-feed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                     </div>
                 </section>
 
