@@ -423,6 +423,8 @@
             let modalUnit = 'kg';
             let isNativeDragging = false;
             let chartRange = 'year';
+            // NEW: SVG Logo definition
+            const kowbiLogoSVG = `<svg width="100" height="24" viewBox="0 0 100 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="w-24 h-auto object-contain text-primary-text" style="height: 24px; width: auto;"><style>.logo-text { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.05em; } .halo-text { font-family: 'Manrope', sans-serif; font-size: 4px; font-weight: 500; }</style><text x="6" y="19" class="logo-text">K</text><circle cx="28" cy="12" r="7" /><circle cx="25" cy="10" r="1.5" fill="var(--background)"/><circle cx="31" cy="10" r="1.5" fill="var(--background)"/><ellipse cx="28" cy="2" rx="6" ry="1" stroke="currentColor" stroke-width="0.8" fill="none"/><text x="25.5" y="8" class="halo-text"></text><text x="37" y="19" class="logo-text">WBI</text></svg>`;
 
             // Undo Toast State
             let undoTimeout = null;
@@ -476,7 +478,9 @@
                 customExerciseManualChoiceBtn: document.getElementById('custom-exercise-manual-choice-btn'),
                 customExerciseForm: document.getElementById('custom-exercise-form'), customExerciseNameInput: document.getElementById('custom-exercise-name'),
                 aiGenerateExerciseDetailsBtn: document.getElementById('ai-generate-exercise-details-btn'), customExerciseDetailsContainer: document.getElementById('custom-exercise-details-container'),
-                customExerciseImgLoader: document.getElementById('custom-exercise-img-loader'), customExerciseImg: document.getElementById('custom-exercise-img'),
+                customExerciseImgLoader: document.getElementById('custom-exercise-img-loader'), 
+                customExerciseMediaContainer: document.getElementById('custom-exercise-media-container'), // UPDATED
+                customExerciseImg: document.getElementById('custom-exercise-img'),
                 customExerciseInstructions: document.getElementById('custom-exercise-instructions'), customExerciseRepRange: document.getElementById('custom-exercise-rep-range'),
                 customExerciseGroup: document.getElementById('custom-exercise-group'),
                 customExerciseActionButtons: document.getElementById('custom-exercise-action-buttons'),
@@ -750,7 +754,8 @@
             };
 
             function addWeightRepPart(container, weight='', reps='', isPartial=false) {
-                const partHtml = `<div class="set-part-row grid grid-cols-12 gap-2 items-center"><input type="number" step="any" min="0" placeholder="Weight (${modalUnit})" value="${weight}" class="form-input !py-2 col-span-4 set-weight"><span class="text-center col-span-1">x</span><input type="number" min="1" step="1" placeholder="Reps" value="${reps}" class="form-input !py-2 col-span-3 set-reps"><div class="col-span-3 flex items-center justify-center"><input type="checkbox" ${isPartial ? 'checked' : ''} class="form-checkbox h-5 w-5 bg-input-bg border-border-color rounded text-blue-500 focus:ring-blue-500 set-partial"><label class="ml-2 text-sm">Partial</label></div><button type="button" class="remove-part-btn text-gray-500 hover:text-red-400 p-1 col-span-1"><i data-lucide="x-circle" class="w-4 h-4 pointer-events-none"></i></button></div>`;
+                // MODIFICATION: Added oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3)" to both inputs
+                const partHtml = `<div class="set-part-row grid grid-cols-12 gap-2 items-center"><input type="number" step="any" min="0" placeholder="Weight (${modalUnit})" value="${weight}" class="form-input !py-2 col-span-4 set-weight" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3)"><span class="text-center col-span-1">x</span><input type="number" min="1" step="1" placeholder="Reps" value="${reps}" class="form-input !py-2 col-span-3 set-reps" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3)"><div class="col-span-3 flex items-center justify-center"><input type="checkbox" ${isPartial ? 'checked' : ''} class="form-checkbox h-5 w-5 bg-input-bg border-border-color rounded text-blue-500 focus:ring-blue-500 set-partial"><label class="ml-2 text-sm">Partial</label></div><button type="button" class="remove-part-btn text-gray-500 hover:text-red-400 p-1 col-span-1"><i data-lucide="x-circle" class="w-4 h-4 pointer-events-none"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', partHtml);
                 lucide.createIcons();
             };
@@ -1088,6 +1093,7 @@
                 } else if (totalDistance < 10) { // FIX 3: Only process as a tap if movement was minimal
                      if (elementToClean.classList.contains('plan-item-container')) {
                         const today = new Date(); today.setHours(0,0,0,0);
+                        // MODIFICATION: Check if viewDate is in the future
                         const isFutureDay = viewDate > today;
                         const { name, type, dayType } = swipedElement.dataset;
 
@@ -1095,7 +1101,7 @@
                             toggleFavoriteByName(name);
                             swipedElement = null; isSwiping = false;
                             return;
-                        } else if (type === 'exercise' && !isFutureDay && !isNativeDragging) {
+                        } else if (type === 'exercise' && !isFutureDay && !isNativeDragging) { // MODIFICATION: Check isFutureDay
                             openWorkoutModal(name);
                         } else if (type === 'warmup' && !isNativeDragging) {
                             openExerciseDetailModal(name, 'warmup', dayType);
@@ -1157,15 +1163,16 @@
 
                 ui.dayNavigationCard.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (isDayNavSwiping) {
-                    const today = new Date(); today.setHours(0,0,0,0);
+                    // MODIFICATION: Removed check for future day
+                    // const today = new Date(); today.setHours(0,0,0,0);
                     if (dayNavCurrentX < -swipeThreshold) { // Swipe left for next day
-                        const nextDay = new Date(viewDate);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        // Only allow swiping to today or past
-                        if (nextDay.getTime() <= today.getTime()) {
+                        // const nextDay = new Date(viewDate);
+                        // nextDay.setDate(nextDay.getDate() + 1);
+                        // Only allow swiping to today or past -- REMOVED
+                        // if (nextDay.getTime() <= today.getTime()) {
                              viewDate.setDate(viewDate.getDate() + 1);
                              updateUI();
-                        }
+                        // }
                     }
                     else if (dayNavCurrentX > swipeThreshold) { // Swipe right for previous day
                         viewDate.setDate(viewDate.getDate() - 1);
@@ -1500,6 +1507,9 @@
                 const antiDownloadAttributes = 'oncontextmenu="return false;" draggable="false"';
                 const preventInteractions = 'pointer-events: none;';
 
+                // Define the SVG logo HTML. I'll add a class to center it.
+                const svgLogoHtml = `<div class="w-full h-full flex items-center justify-center p-4">${kowbiLogoSVG}</div>`;
+
                 // Check for a specific media file (not a placeholder like logo.png)
                 if (mediaFilename && !mediaFilename.startsWith('data:') && mediaFilename !== 'logo.png') {
                     // MODIFIED: Prepend 'assets/media/' to the filename
@@ -1507,19 +1517,21 @@
                     const mediaType = mediaFilename.toLowerCase().match(/\.(mp4|mov|webm)$/) ? 'video' : 'image';
 
                     if (mediaType === 'video') {
-                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='assets/logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');"></video>`;
+                        // MODIFICATION: Replaced onerror with the SVG
+                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = svgLogoHtml;"></video>`;
                     } else if (mediaType === 'image' || mediaFilename.toLowerCase().match(/\.(jpg|png|jpeg|gif)$/)) {
-                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.src='assets/logo.png'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4');">`;
+                         // MODIFICATION: Replaced onerror with the SVG
+                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = svgLogoHtml;">`;
                     } else {
                         // Fallback for unknown file types
-                        ui.exerciseMediaContainer.innerHTML = `<img src="assets/logo.png" alt="kowbi Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
+                        ui.exerciseMediaContainer.innerHTML = svgLogoHtml;
                     }
                     ui.exerciseMediaLoader.classList.add('hidden');
                     return;
                 }
 
                 // --- Fallback to logo if no specific media is found ---
-                ui.exerciseMediaContainer.innerHTML = `<img src="assets/logo.png" alt="kowbi Logo" class="w-full h-full object-contain p-4 rounded-lg">`;
+                ui.exerciseMediaContainer.innerHTML = svgLogoHtml; // Use SVG here
                 ui.exerciseMediaLoader.classList.add('hidden');
             }
 
@@ -1551,7 +1563,12 @@
                 document.getElementById('exercise-detail-sets').textContent = item.sets ? `Aim for ${item.sets} sets.` : 'As needed.';
                 ui.exerciseDetailRepRange.textContent = item.repRange ? `Aim for ${item.repRange}.` : 'No specific rep range.';
                 ui.exerciseDetailNotes.value = item.notes || '';
-                ui.logFromDetailBtn.style.display = itemType === 'warmup' ? 'none' : 'block';
+
+                // MODIFICATION: Check for future day
+                const today = new Date(); today.setHours(0,0,0,0);
+                const isFutureDay = viewDate > today;
+                ui.logFromDetailBtn.style.display = (itemType === 'warmup' || isFutureDay) ? 'none' : 'block';
+                
                 showModal(ui.exerciseDetailModal);
             }
 
@@ -2064,7 +2081,7 @@
                     ui.customExerciseInstructions.value = Array.isArray(exercise.instructions) ? exercise.instructions.join('\n') : '';
                     ui.customExerciseRepRange.value = exercise.repRange || ''; ui.customExerciseGroup.value = exercise.group; document.getElementById('custom-exercise-type').value = exercise.type;
 
-                    const mediaContainer = document.getElementById('custom-exercise-media-container');
+                    const mediaContainer = ui.customExerciseMediaContainer; // Use UI element
                     mediaContainer.innerHTML = ''; // Clear container for media
 
                     if(exercise.videoPlaceholder && (exercise.videoPlaceholder.startsWith('http') || exercise.videoPlaceholder.startsWith('data:'))){
@@ -2076,17 +2093,22 @@
 
                         mediaContainer.innerHTML = mediaElement;
                         ui.customExerciseImg = mediaContainer.querySelector('img') || mediaContainer.querySelector('video');
-                        ui.customExerciseImg.classList.remove('hidden');
+                        if (ui.customExerciseImg) ui.customExerciseImg.classList.remove('hidden'); // Check if it exists
                     } else {
-                        // NEW: Show logo.png for custom exercise if no media is present
-                        mediaContainer.innerHTML = `<img id="custom-exercise-img" src="assets/logo.png" class="w-full h-full object-cover rounded-lg" oncontextmenu="return false;" draggable="false">`;
-                        ui.customExerciseImg = document.getElementById('custom-exercise-img');
-                        ui.customExerciseImg.classList.remove('hidden');
+                        // NEW: Show SVG logo for custom exercise if no media is present
+                        mediaContainer.innerHTML = `<div class="w-full h-full flex items-center justify-center p-4">${kowbiLogoSVG}</div>`;
+                        ui.customExerciseImg = mediaContainer.firstElementChild; // This is now the div
+                        if (ui.customExerciseImg) ui.customExerciseImg.classList.remove('hidden');
                     }
 
                     ui.customExerciseImgLoader.classList.add('hidden');
                     ui.customExerciseActionButtons.innerHTML = ` <button type="submit" id="save-custom-exercise-changes-btn" class="btn btn-primary w-full">Save Changes</button> <button type="button" id="save-as-variation-btn" class="btn btn-secondary w-full">Save as New Variation</button> `;
-                } else { ui.customExerciseActionButtons.innerHTML = '<button type="submit" id="save-new-custom-exercise-btn" class="w-full btn btn-primary">Save Custom Exercise</button>'; }
+                } else { 
+                    ui.customExerciseActionButtons.innerHTML = '<button type="submit" id="save-new-custom-exercise-btn" class="w-full btn btn-primary">Save Custom Exercise</button>'; 
+                    // Clear media container for new exercise
+                    ui.customExerciseMediaContainer.innerHTML = '';
+                    ui.customExerciseImg = null;
+                }
                 showModal(ui.customExerciseModal);
             }
 
@@ -2097,7 +2119,11 @@
             ui.customExerciseManualChoiceBtn.addEventListener('click', () => {
                 ui.customExerciseInitialChoice.classList.add('hidden'); ui.customExerciseForm.classList.remove('hidden');
                 ui.aiGenerateExerciseDetailsBtn.classList.add('hidden'); ui.customExerciseDetailsContainer.classList.remove('hidden');
-                ui.customExerciseImg.classList.add('hidden'); ui.customExerciseImgLoader.classList.add('hidden');
+                // MODIFICATION: Show SVG logo as placeholder
+                ui.customExerciseMediaContainer.innerHTML = `<div class="w-full h-full flex items-center justify-center p-4">${kowbiLogoSVG}</div>`;
+                ui.customExerciseImg = ui.customExerciseMediaContainer.firstElementChild;
+                ui.customExerciseImg.classList.remove('hidden');
+                ui.customExerciseImgLoader.classList.add('hidden');
             });
 
             ui.closeCustomExerciseModalBtn.addEventListener('click', () => {
@@ -2116,7 +2142,7 @@
                 const originalIcon = btn.innerHTML; btn.innerHTML = '<div class="loader"></div>';
                 ui.customExerciseDetailsContainer.classList.remove('hidden');
 
-                const mediaContainer = document.getElementById('custom-exercise-media-container');
+                const mediaContainer = ui.customExerciseMediaContainer; // Use UI element
                 mediaContainer.innerHTML = '';
                 ui.customExerciseImgLoader.classList.remove('hidden');
 
@@ -2128,9 +2154,9 @@
                      const textResult = await textResponse.json(); const details = JSON.parse(textResult.candidates[0].content.parts[0].text);
                      ui.customExerciseInstructions.value = details.instructions.join('\n'); ui.customExerciseRepRange.value = details.repRange;
 
-                     // Removed AI image generation, fallback to logo
-                     mediaContainer.innerHTML = `<img id="custom-exercise-img" src="assets/logo.png" class="w-full h-full object-contain p-4" oncontextmenu="return false;" draggable="false">`;
-                     ui.customExerciseImg = document.getElementById('custom-exercise-img');
+                     // MODIFICATION: Removed AI image generation, fallback to SVG logo
+                     mediaContainer.innerHTML = `<div class="w-full h-full flex items-center justify-center p-4">${kowbiLogoSVG}</div>`;
+                     ui.customExerciseImg = mediaContainer.firstElementChild;
 
                  } catch (error) { console.error("AI Custom Exercise Error:", error); showCustomAlert("AI Error", "Could not generate all details. Please try again or fill them manually.");
                  } finally { ui.customExerciseImgLoader.classList.add('hidden'); btn.disabled = false; btn.innerHTML = originalIcon; lucide.createIcons(); }
@@ -2141,7 +2167,7 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        const mediaContainer = document.getElementById('custom-exercise-media-container');
+                        const mediaContainer = ui.customExerciseMediaContainer; // Use UI element
                         mediaContainer.innerHTML = `<img id="custom-exercise-img" src="${e.target.result}" class="w-full h-full object-cover" oncontextmenu="return false;" draggable="false">`;
                         ui.customExerciseImg = document.getElementById('custom-exercise-img'); // Re-map the element
                         ui.customExerciseImgLoader.classList.add('hidden');
@@ -2151,16 +2177,34 @@
             });
 
             function handleSaveCustomExercise(isNewVariation = false) {
-             const newExerciseData = { id: (editingExerciseId && !isNewVariation) ? editingExerciseId : crypto.randomUUID(), isCustom: true, name: ui.customExerciseNameInput.value.trim(), instructions: ui.customExerciseInstructions.value.split('\n').filter(Boolean), repRange: ui.customExerciseRepRange.value, group: document.getElementById('custom-exercise-group').value, type: document.getElementById('custom-exercise-type').value, videoPlaceholder: document.getElementById('custom-img-url').value.trim() || ui.customExerciseImg?.src || '', notes: '', favorite: false, };
-             if (!newExerciseData.name || !newExerciseData.group) { showCustomAlert("Missing Info", "Exercise name and muscle group are required."); return; }
-             const isNameDuplicate = exerciseDB.some(ex => ex.name.toLowerCase() === newExerciseData.name.toLowerCase() && ex.id !== newExerciseData.id);
-             if (isNameDuplicate) { showCustomAlert("Duplicate Name", "An exercise with this name already exists. Please choose a different name."); return; }
-             if (editingExerciseId && !isNewVariation) { const index = exerciseDB.findIndex(ex => ex.id === editingExerciseId); if (index > -1) exerciseDB[index] = { ...exerciseDB[index], ...newExerciseData }; }
-             else { exerciseDB.push(newExerciseData); }
-             saveData(); hideModal(ui.customExerciseModal);
-             showCustomAlert("Success", `Exercise "${newExerciseData.name}" has been saved!`);
-             if (isAddingFromLibrary) { openExerciseLibrary(libraryModalContext.group); isAddingFromLibrary = false; }
-             else { updateUI(); }
+                 // MODIFICATION: Safely get src attribute
+                const mediaEl = ui.customExerciseImg;
+                let mediaSrc = '';
+                if (mediaEl && (mediaEl.tagName === 'IMG' || mediaEl.tagName === 'VIDEO')) {
+                    mediaSrc = mediaEl.src;
+                }
+
+                 const newExerciseData = { 
+                     id: (editingExerciseId && !isNewVariation) ? editingExerciseId : crypto.randomUUID(), 
+                     isCustom: true, 
+                     name: ui.customExerciseNameInput.value.trim(), 
+                     instructions: ui.customExerciseInstructions.value.split('\n').filter(Boolean), 
+                     repRange: ui.customExerciseRepRange.value, 
+                     group: document.getElementById('custom-exercise-group').value, 
+                     type: document.getElementById('custom-exercise-type').value, 
+                     videoPlaceholder: document.getElementById('custom-img-url').value.trim() || mediaSrc || '', 
+                     notes: '', 
+                     favorite: false, 
+                 };
+                 if (!newExerciseData.name || !newExerciseData.group) { showCustomAlert("Missing Info", "Exercise name and muscle group are required."); return; }
+                 const isNameDuplicate = exerciseDB.some(ex => ex.name.toLowerCase() === newExerciseData.name.toLowerCase() && ex.id !== newExerciseData.id);
+                 if (isNameDuplicate) { showCustomAlert("Duplicate Name", "An exercise with this name already exists. Please choose a different name."); return; }
+                 if (editingExerciseId && !isNewVariation) { const index = exerciseDB.findIndex(ex => ex.id === editingExerciseId); if (index > -1) exerciseDB[index] = { ...exerciseDB[index], ...newExerciseData }; }
+                 else { exerciseDB.push(newExerciseData); }
+                 saveData(); hideModal(ui.customExerciseModal);
+                 showCustomAlert("Success", `Exercise "${newExerciseData.name}" has been saved!`);
+                 if (isAddingFromLibrary) { openExerciseLibrary(libraryModalContext.group); isAddingFromLibrary = false; }
+                 else { updateUI(); }
             }
 
             ui.customExerciseForm.addEventListener('submit', (e) => { e.preventDefault(); handleSaveCustomExercise(false); });
@@ -2204,7 +2248,7 @@
 
             function addMessageToChat(message, sender, isLoading = false) {
                 const chatHistoryContainer = document.getElementById('ai-chat-history');
-                if (workoutChatHistory.length === 1 && sender === 'user') { chatHistoryContainer.innerHTML = ''; }
+                if(workoutChatHistory.length === 1 && sender === 'user') { chatHistoryContainer.innerHTML = ''; }
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `p-3 rounded-lg max-w-[85%] ${sender === 'user' ? 'bg-blue-600 self-end' : 'bg-input-bg self-start'}`;
                 if(isLoading) messageDiv.id = 'ai-loading-message';
