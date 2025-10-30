@@ -1476,6 +1476,185 @@
             }
             // --- END NEW Compound Food Modal Functions ---
 
+            // --- RECIPE SHARING FUNCTIONS ---
+
+            // Generate unique 6-character share code
+            async function generateShareCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let attempts = 0;
+                const maxAttempts = 5;
+
+                while (attempts < maxAttempts) {
+                    let code = '';
+                    for (let i = 0; i < 6; i++) {
+                        code += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+
+                    // Check if code already exists in Firestore
+                    try {
+                        const doc = await db.collection('shared_recipes').doc(code).get();
+                        if (!doc.exists) {
+                            return code;
+                        }
+                    } catch (error) {
+                        console.error('Error checking code:', error);
+                    }
+                    attempts++;
+                }
+
+                throw new Error('Failed to generate unique code after ' + maxAttempts + ' attempts');
+            }
+
+            // Share recipe
+            async function shareRecipe(recipe, recipeType) {
+                const username = localStorage.getItem('fitTrackAI_userUsername');
+
+                if (!username || username.trim() === '') {
+                    showCustomAlert('Username Required', 'Please set your username in Settings before sharing recipes.');
+                    return;
+                }
+
+                // Open modal and show loading state
+                const modal = document.getElementById('share-recipe-modal');
+                const loading = document.getElementById('share-recipe-loading');
+                const content = document.getElementById('share-recipe-content');
+
+                loading.classList.remove('hidden');
+                content.classList.add('hidden');
+                showModal(modal);
+
+                try {
+                    // Generate unique share code
+                    const code = await generateShareCode();
+
+                    // Upload to Firestore
+                    await db.collection('shared_recipes').doc(code).set({
+                        code: code,
+                        recipe: recipe,
+                        recipeType: recipeType,
+                        sharedBy: username,
+                        sharedAt: firebase.firestore.Timestamp.now(),
+                        type: 'recipe'
+                    });
+
+                    // Show success state
+                    document.getElementById('share-recipe-name').textContent = recipe.name || 'Unnamed Recipe';
+                    document.getElementById('share-recipe-code').textContent = code;
+                    loading.classList.add('hidden');
+                    content.classList.remove('hidden');
+                    lucide.createIcons();
+                } catch (error) {
+                    console.error('Error sharing recipe:', error);
+                    hideModal(modal);
+                    showCustomAlert('Sharing Failed', 'Unable to connect. Check your internet connection and try again.');
+                }
+            }
+
+            // Import recipe
+            async function importRecipe(code) {
+                const loading = document.getElementById('import-recipe-loading');
+                const preview = document.getElementById('import-recipe-preview');
+                const errorDiv = document.getElementById('import-recipe-error');
+
+                loading.classList.remove('hidden');
+                preview.classList.add('hidden');
+                errorDiv.classList.add('hidden');
+
+                try {
+                    // Fetch from Firestore
+                    const doc = await db.collection('shared_recipes').doc(code.toUpperCase()).get();
+
+                    if (!doc.exists) {
+                        loading.classList.add('hidden');
+                        errorDiv.classList.remove('hidden');
+                        document.getElementById('import-recipe-error-text').textContent = 'Recipe not found. Check the code and try again.';
+                        return;
+                    }
+
+                    const data = doc.data();
+                    const sharedRecipe = data.recipe;
+                    const sharedBy = data.sharedBy;
+                    const recipeType = data.recipeType;
+
+                    // Calculate preview info
+                    const totalCalories = sharedRecipe.calories || 0;
+                    const totalProtein = sharedRecipe.protein || 0;
+                    let numIngredients = 0;
+                    if (sharedRecipe.ingredients && Array.isArray(sharedRecipe.ingredients)) {
+                        numIngredients = sharedRecipe.ingredients.length;
+                    }
+
+                    // Show preview
+                    document.getElementById('import-recipe-preview-name').textContent = sharedRecipe.name || 'Unnamed Recipe';
+                    document.getElementById('import-recipe-preview-author').textContent = sharedBy || 'Unknown';
+                    document.getElementById('import-recipe-preview-ingredients').textContent = numIngredients;
+                    document.getElementById('import-recipe-preview-calories').textContent = totalCalories.toFixed(0);
+                    document.getElementById('import-recipe-preview-protein').textContent = totalProtein.toFixed(1);
+
+                    loading.classList.add('hidden');
+                    preview.classList.remove('hidden');
+
+                    // Store the recipe for import confirmation
+                    window.pendingImportRecipe = { recipe: sharedRecipe, sharedBy: sharedBy, code: code.toUpperCase(), recipeType: recipeType };
+
+                } catch (error) {
+                    console.error('Error importing recipe:', error);
+                    loading.classList.add('hidden');
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('import-recipe-error-text').textContent = 'Unable to connect. Check your internet connection.';
+                }
+            }
+
+            // Confirm recipe import
+            function confirmRecipeImport() {
+                if (!window.pendingImportRecipe) return;
+
+                const { recipe, sharedBy, code, recipeType } = window.pendingImportRecipe;
+
+                // Check if recipe already exists
+                const existingInRecipes = savedRecipes.some(r => r.name.toLowerCase() === recipe.name.toLowerCase());
+                const existingInFavorites = favoriteFoods.some(f => f.name.toLowerCase() === recipe.name.toLowerCase());
+
+                if (existingInRecipes || existingInFavorites) {
+                    showCustomAlert('Already Exists', 'This recipe is already in your library.');
+                    return;
+                }
+
+                // Import the recipe
+                if (recipeType === 'recipe') {
+                    savedRecipes.push(recipe);
+                } else {
+                    favoriteFoods.push(recipe);
+                }
+                saveData();
+
+                // Track import in history
+                const importHistory = JSON.parse(localStorage.getItem('fitTrackAI_importHistory') || '[]');
+                importHistory.unshift({
+                    username: sharedBy,
+                    itemName: recipe.name || 'Unnamed Recipe',
+                    itemType: 'recipe',
+                    importedAt: Date.now(),
+                    shareCode: code
+                });
+
+                // Keep only last 50 imports
+                if (importHistory.length > 50) importHistory.length = 50;
+                localStorage.setItem('fitTrackAI_importHistory', JSON.stringify(importHistory));
+
+                // Close modal and update UI
+                hideModal(document.getElementById('import-recipe-modal'));
+                fullRender();
+
+                // Show success alert
+                showCustomAlert('Success', 'Recipe imported successfully!');
+
+                // Clear pending import
+                window.pendingImportRecipe = null;
+            }
+
+            // --- END RECIPE SHARING FUNCTIONS ---
+
             // --- EVENT LISTENERS ---
             ui.addFoodBtn.addEventListener('click', async () => {
                 ui.addFoodError.textContent = '';
