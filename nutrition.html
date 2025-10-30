@@ -2622,6 +2622,78 @@
                 });
             }
 
+            // --- RECIPE SHARING EVENT LISTENERS ---
+
+            // Event delegation for share recipe buttons
+            ui.savedItemsListDiv.addEventListener('click', (e) => {
+                const shareBtn = e.target.closest('.share-recipe-btn');
+                if (shareBtn) {
+                    const swipeItem = shareBtn.closest('.swipe-item');
+                    if (swipeItem) {
+                        const itemName = swipeItem.dataset.name;
+                        const itemType = swipeItem.dataset.type;
+                        const itemIndex = parseInt(swipeItem.dataset.index);
+
+                        let recipe;
+                        if (itemType === 'recipe') {
+                            recipe = savedRecipes[itemIndex];
+                        } else {
+                            recipe = favoriteFoods[itemIndex];
+                        }
+
+                        if (recipe) {
+                            shareRecipe(recipe, itemType);
+                        }
+                    }
+                }
+            });
+
+            // Import recipe button
+            document.getElementById('import-recipe-btn')?.addEventListener('click', () => {
+                const modal = document.getElementById('import-recipe-modal');
+                document.getElementById('import-recipe-code-input').value = '';
+                document.getElementById('import-recipe-preview').classList.add('hidden');
+                document.getElementById('import-recipe-error').classList.add('hidden');
+                showModal(modal);
+            });
+
+            // Close modal buttons
+            document.getElementById('close-share-recipe-modal-btn')?.addEventListener('click', () => {
+                hideModal(document.getElementById('share-recipe-modal'));
+            });
+            document.getElementById('close-import-recipe-modal-btn')?.addEventListener('click', () => {
+                hideModal(document.getElementById('import-recipe-modal'));
+            });
+
+            // Copy code button
+            document.getElementById('copy-recipe-code-btn')?.addEventListener('click', () => {
+                const code = document.getElementById('share-recipe-code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    showCustomAlert('Code Copied', 'Share code copied to clipboard!');
+                });
+            });
+
+            // Find recipe button
+            document.getElementById('find-recipe-btn')?.addEventListener('click', () => {
+                const code = document.getElementById('import-recipe-code-input').value.trim();
+                if (code.length !== 6) {
+                    document.getElementById('import-recipe-error').classList.remove('hidden');
+                    document.getElementById('import-recipe-error-text').textContent = 'Please enter a 6-character code.';
+                    return;
+                }
+                importRecipe(code);
+            });
+
+            // Import confirm button
+            document.getElementById('import-recipe-confirm-btn')?.addEventListener('click', confirmRecipeImport);
+
+            // Auto-uppercase input
+            document.getElementById('import-recipe-code-input')?.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            // --- END RECIPE SHARING EVENT LISTENERS ---
+
             // --- INITIAL LOAD AND RENDER (FIX for persistence) ---
             loadData();
             updateDayView(viewDate);
