@@ -11,8 +11,8 @@
     --danger: #E53E3E;
     --edit: #3b82f6; /* Added from workouts.html */
     --validation-error: #F87171; /* Added from workoutplangeneratorpopup.html */
-    --nav-footer-height: 64px; /* Set height of the new fixed footer nav */
-    --nav-header-height: 64px; /* NEW: Set height of the new fixed header nav */
+    --nav-footer-height: 32px; /* Set height of the new fixed footer nav */
+    --nav-header-height: 32px; /* NEW: Set height of the new fixed header nav */
 }
 
 /* Light theme overrides */
