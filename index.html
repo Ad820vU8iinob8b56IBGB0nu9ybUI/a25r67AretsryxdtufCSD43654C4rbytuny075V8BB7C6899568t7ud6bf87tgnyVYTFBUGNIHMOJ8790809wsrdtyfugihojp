@@ -117,7 +117,8 @@
         .swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
         /* Water Button Specific Styles */
-        #quick-log-water-btn { position: relative; overflow: hidden; touch-action: none; background-color: var(--input-bg); } /* Ensure base bg */
+        /* MODIFIED: Removed background-color override. Will now use btn-secondary transparent bg. */
+        #quick-log-water-btn { position: relative; overflow: hidden; touch-action: none; } /* Base bg now from btn-secondary */
         
         /* ADDED: Styles for the water fill background */
         #water-fill { 
@@ -137,13 +138,18 @@
         
         #water-swipe-content.swiping { transition: none; }
         #water-swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #quick-log-water-btn:hover:not(:disabled) #water-swipe-content { background-color: var(--border-color); }
+        /* MODIFIED: water-swipe-content is now transparent, so we hover the *parent* button */
+        #quick-log-water-btn:hover:not(:disabled) { background-color: var(--border-color); }
+        
         /* Specific swipe backgrounds for water button */
         #water-swipe-bg-top { position: absolute; opacity: 0; background: linear-gradient(to bottom, hsl(262, 83%, 60%), hsl(262, 83%, 70%)); height: 0; transition: height 0.3s ease, opacity 0.3s ease; top: 0; left: 0; right: 0; bottom: auto; display: flex; align-items: center; justify-content: center; }
         #water-swipe-bg-left { background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%)); }
         #water-swipe-bg-right { background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%)); }
-        /* --- END: Styles for water button swipe --- */
-
+        /* --- ADDED: Make water swipe actions overlay content --- */
+        #water-swipe-actions {
+            z-index: 3;
+        }
+        /* --- END: Added Style --- */
         /* --- MODIFIED: Styles for Undo Toast --- */
         #undo-toast {
             position: fixed;
@@ -299,11 +305,12 @@
                 <!-- CHANGE 1: Made carousel shorter. You can edit min-h-[140px] (line 204) to adjust height. -->
                 <div id="summary-carousel-container" class="md:col-span-2 lg:col-span-3 content-card relative overflow-hidden min-h-[140px] !p-0">
                     
-                    <!-- ADDED: Carousel Header for Title and Dots -->
-                    <div class="flex justify-between items-center p-4 md:p-6">
+                    <!-- MODIFIED: Carousel Header for Title and Dots -->
+                    <!-- Added absolute positioning and pointer-events logic -->
+                    <div class="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 md:p-6 pointer-events-none">
                         <h3 id="carousel-title" class="text-xl font-bold"></h3> 
-                        <!-- MODIFIED: Moved dots container here and removed absolute/positioning classes -->
-                        <div id="carousel-dots-container" class="flex gap-2 z-10">
+                        <!-- MODIFIED: Moved dots container here, removed z-10, added pointer-events-auto -->
+                        <div id="carousel-dots-container" class="flex gap-2 pointer-events-auto">
                             <!-- Dots will be added by JS -->
                         </div>
                     </div>
@@ -314,8 +321,8 @@
                         <!-- Slide 1: Nutrition -->
                         <div class="carousel-slide" data-title="Nutrition">
                             <!-- Make the slide itself the link -->
-                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
-                            <a href="nutrition.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                            <!-- MODIFIED: Added pt-20 md:pt-24 to push content below the absolute header -->
+                            <a href="nutrition.html" class="block h-full px-4 md:px-4 pb-4 md:pb-6 pt-16 md:pt-16 clickable-card-slide">
                                 <!-- MODIFIED: Removed <h3> -->
                                 <div class="flex items-center gap-4">
                                     <div class="w-20 h-20 flex-shrink-0">
@@ -334,8 +341,8 @@
                         
                         <!-- Slide 2: Workout -->
                         <div class="carousel-slide" data-title="Today's Workout">
-                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
-                            <a href="workouts.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                            <!-- MODIFIED: Added pt-20 md:pt-24 to push content below the absolute header -->
+                            <a href="workouts.html" class="block h-full px-4 md:px-4 pb-4 md:pb-4 pt-16 md:pt-16 clickable-card-slide">
                                 <!-- MODIFIED: Removed <h3> -->
                                 <!-- MODIFICATION 3: Added flex structure and canvas -->
                                 <div class="flex items-center gap-4">
@@ -353,8 +360,8 @@
                         
                         <!-- Slide 3: Sleep -->
                         <div class="carousel-slide" data-title="Last Night's Sleep">
-                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
-                            <a href="sleep.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                            <!-- MODIFIED: Added pt-20 md:pt-24 to push content below the absolute header -->
+                            <a href="sleep.html" class="block h-full px-4 md:px-4 pb-4 md:pb-4 pt-16 md:pt-16 clickable-card-slide">
                                 <!-- MODIFIED: Removed <h3> -->
                                 <!-- MODIFICATION 3: Added flex structure and canvas -->
                                 <div class="flex items-center gap-4">
@@ -604,6 +611,7 @@
             let feedbackTimeout = null; // ADDED: For feedback toast
             let lastWaterLogAmount = 0;
             let openModalCount = 0; // Track open modals
+            let tapProcessing = false; // Add this flag
 
             // ADDED: State for rearranging quick actions
             let isRearrangeMode = false; // This is now unused, but harmless
@@ -1676,7 +1684,7 @@
                 // --- FIX: Prevent ghost click ---
                 // Only preventDefault for touchstart. Mouse clicks need default behavior (like focus).
                 if (e.type === 'touchstart') {
-                    e.preventDefault(); 
+                    // e.preventDefault(); // This breaks scrolling on mobile when touch starts on button
                 }
                 // --- End Fix ---
                 
@@ -1705,9 +1713,10 @@
                     isWaterSwiping = true;
                 }
                 if (isWaterSwiping) {
-                    if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x) && Math.abs(waterPointerDelta.y) > 10) {
-                        if (e.cancelable) e.preventDefault();
+                    if (Math.abs(waterPointerDelta.x) > 10 && Math.abs(waterPointerDelta.x) > Math.abs(waterPointerDelta.y)) {
+                        if (e.cancelable) e.preventDefault(); // Prevent horizontal page swipe
                     }
+
                     if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
                         // VERTICAL SWIPE
                         waterCurrentX = 0;
@@ -1746,6 +1755,10 @@
             function onWaterPointerUp(e) {
                 // Don't swipe if in rearrange mode
                 if (isRearrangeMode) return;
+                
+                // --- ADDED: Check tapProcessing flag ---
+                if (tapProcessing) return;
+                // --- END ADDED ---
 
                 document.removeEventListener('mousemove', onWaterPointerMove);
                 document.removeEventListener('mouseup', onWaterPointerUp);
@@ -1764,6 +1777,9 @@
                 const horizontalSwipeThreshold = waterSwipeContent.offsetWidth * 0.35;
 
                 if (!isWaterSwiping && totalDistance < 10) {
+                    // --- ADDED: Set tapProcessing flag ---
+                    tapProcessing = true; 
+                    // --- END ADDED ---
                     const defaultSize = appData.userProfile.waterServingSize || 250;
                     updateWater(defaultSize);
                     waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
@@ -1813,12 +1829,15 @@
                 } else {
                     waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
                 }
+                // --- MODIFIED: Reset tapProcessing flag in existing timeout ---
                 setTimeout(() => {
+                    tapProcessing = false; // Add this
                     if (waterSwipeContent) {
                         waterSwipeContent.classList.remove('returning');
                         waterSwipeContent.style.transform = '';
                     }
                 }, 300);
+                // --- END MODIFIED ---
                 isWaterSwiping = false;
                 waterPointerDelta = { x: 0, y: 0 };
                 waterCurrentX = 0;
