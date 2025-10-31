@@ -98,6 +98,125 @@
         .col-span-full {
             grid-column: span 1 / span 1;
         }
+
+        /* --- NEW: Styles for Undo Toast (from index.html) --- */
+        #undo-toast {
+            position: fixed;
+            bottom: 5rem; /* 80px (above footer nav) */
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+            background-color: var(--card-bg);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem; /* 12px 20px */
+            border-radius: 0.75rem; /* 12px, more rounded */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* To push button to the right */
+            gap: 1.5rem; /* 24px */
+            z-index: 200; /* Above modals */
+            width: calc(100% - 2rem); /* 90% width on mobile */
+            max-width: 320px;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+            /* Add pointer-events: none when hidden */
+            pointer-events: none;
+        }
+        #undo-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            /* Add pointer-events: auto when shown */
+            pointer-events: auto;
+        }
+        #undo-toast-btn {
+            font-weight: 600;
+            color: var(--accent);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            transition: color 0.2s ease;
+        }
+        #undo-toast-btn:hover {
+            color: var(--accent-hover);
+        }
+        /* --- END: Undo Toast Styles --- */
+
+        /* --- NEW: Fullscreen Media Overlay --- */
+        #media-fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 2000; /* On top of everything */
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        #media-fullscreen-overlay.show {
+            display: flex;
+        }
+        #media-fullscreen-content {
+            width: 100%;
+            height: 100%;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #media-fullscreen-content img,
+        #media-fullscreen-content video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+        #close-media-fullscreen-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2001;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        #open-media-fullscreen-btn {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.375rem; /* p-1.5 */
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+            display: none; /* Hidden by default, shown by JS */
+        }
+        #exercise-media-container:hover #open-media-fullscreen-btn {
+            opacity: 1;
+        }
+        /* --- END: Fullscreen Media --- */
+
     </style>
 </head>
 <body class="antialiased">
@@ -300,6 +419,10 @@
         <div class="w-full aspect-video bg-black rounded-lg flex items-center justify-center overflow-hidden border border-gray-800 relative">
             <div id="exercise-media-loader" class="loader hidden"></div>
             <div id="exercise-media-container" class="w-full h-full bg-no-repeat bg-cover bg-center"></div>
+            <!-- NEW: Fullscreen button -->
+            <button id="open-media-fullscreen-btn" title="View fullscreen">
+                <i data-lucide="maximize" class="w-4 h-4"></i>
+            </button>
         </div>
         <div><h3 class="font-bold text-lg text-blue-400 mb-2">Instructions</h3><textarea id="exercise-detail-instructions" class="form-input mt-1 w-full bg-input-bg text-sm transition-colors" disabled style="resize: none; overflow-y: hidden;"></textarea><button id="save-instructions-btn" class="mt-2 w-full btn btn-secondary">Edit Instructions</button></div><div class="grid grid-cols-2 gap-4"><div><h3 class="font-bold text-lg text-blue-400 mb-2">Sets</h3><p id="exercise-detail-sets" class="text-gray-300"></p></div><div><h3 class="font-bold text-lg text-blue-400 mb-2">Rep Range</h3><p id="exercise-detail-rep-range" class="text-gray-300"></p></div></div><div><h3 class="font-bold text-lg text-blue-400 mb-2">Personal Notes & Advice</h3><textarea id="exercise-detail-notes" rows="4" class="form-input mt-1" placeholder="Add your personal cues, weight progression goals, etc."></textarea><button id="save-exercise-notes-btn" class="mt-2 w-full btn btn-secondary">Save Notes</button></div><button id="log-from-detail-btn" class="w-full btn btn-primary mt-4">Log This Exercise</button></div></div></div>
     <div id="warmup-manage-modal" class="modal-backdrop"><div class="modal-content"><div class="flex justify-between items-center mb-4"><h2 id="warmup-form-title" class="text-xl font-bold">Manage Warm-up</h2><button id="close-warmup-manage-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button></div><form id="warmup-form" class="space-y-3"><div><label for="warmup-name" class="form-label">Name</label><input type="text" id="warmup-name" class="form-input mt-1" required></div><div><label for="warmup-instructions" class="form-label">Instructions (one per line)</label><textarea id="warmup-instructions" rows="4" class="form-input mt-1"></textarea></div><button type="submit" id="save-warmup-btn" class="w-full btn btn-primary">Add Warm-up</button></form></div></div>
@@ -346,10 +469,20 @@
         </div>
     </div>
 
-    <!-- Undo Toast Notification -->
-    <div id="undo-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-4 transform translate-y-24 opacity-0 z-[200]">
+    <!-- MODIFIED: Undo Toast Notification (from index.html) -->
+    <div id="undo-toast">
         <span id="undo-toast-text"></span>
-        <button id="undo-toast-btn" class="font-bold text-blue-400 hover:text-blue-300">Undo</button>
+        <button id="undo-toast-btn">Undo</button>
+    </div>
+    
+    <!-- NEW: Fullscreen Media Overlay -->
+    <div id="media-fullscreen-overlay">
+        <button id="close-media-fullscreen-btn" title="Close fullscreen">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div id="media-fullscreen-content">
+            <!-- Media will be injected here by JS -->
+        </div>
     </div>
 
     <script type="module">
@@ -506,6 +639,15 @@
                 permanentEditWarningModal: document.getElementById('permanent-edit-warning-modal'),
                 permanentEditOkBtn: document.getElementById('permanent-edit-ok-btn'),
                 permanentEditDontShowAgain: document.getElementById('permanent-edit-dont-show-again'),
+                // NEW: Undo Toast (from index.html)
+                undoToast: document.getElementById('undo-toast'),
+                undoToastText: document.getElementById('undo-toast-text'),
+                undoToastBtn: document.getElementById('undo-toast-btn'),
+                // NEW: Fullscreen Media
+                mediaFullscreenOverlay: document.getElementById('media-fullscreen-overlay'),
+                mediaFullscreenContent: document.getElementById('media-fullscreen-content'),
+                closeMediaFullscreenBtn: document.getElementById('close-media-fullscreen-btn'),
+                openMediaFullscreenBtn: document.getElementById('open-media-fullscreen-btn'),
             };
 
             // --- CHART.JS SETUP ---
@@ -638,23 +780,25 @@
             }
 
 
-            // --- UNDO TOAST FUNCTION ---
-            function showUndoToast(message, onUndo) {
-                const toast = document.getElementById('undo-toast');
-                const toastText = document.getElementById('undo-toast-text');
-
-                toastText.textContent = message;
-                undoCallback = onUndo;
-
+            // --- NEW: Undo Toast Functions (from index.html) ---
+            function showUndo(message, onUndo) {
                 clearTimeout(undoTimeout);
-
-                toast.classList.add('show');
+                undoCallback = onUndo; // Use undoCallback
+                ui.undoToastText.textContent = message;
+                ui.undoToast.classList.add('show');
+                ui.undoToast.style.pointerEvents = 'auto'; // Make clickable
 
                 undoTimeout = setTimeout(() => {
-                    toast.classList.remove('show');
-                    undoCallback = null;
+                    hideUndo();
                 }, 5000); // 5 second duration
             }
+
+            function hideUndo() {
+                undoCallback = null;
+                ui.undoToast.classList.remove('show');
+                ui.undoToast.style.pointerEvents = 'none'; // Make unclickable
+            }
+            // --- END: Undo Toast Functions ---
 
             // --- REST TIMER ---
             function stopRestTimer() {
@@ -981,7 +1125,7 @@
                             if (index > -1) modsForDay.warmups.splice(index, 1);
                          }
 
-                        showUndoToast(`${name} removed for today.`, () => {
+                        showUndo(`${name} removed for today.`, () => {
                              if (modsForDay.removedWarmups?.includes(name)) {
                                  const index = modsForDay.removedWarmups.indexOf(name);
                                  if (index > -1) modsForDay.removedWarmups.splice(index, 1);
@@ -1000,13 +1144,13 @@
 
                     if (addedIndex > -1) {
                         modsForDay.added.splice(addedIndex, 1);
-                        showUndoToast(`${name} removed for today.`, () => {
+                        showUndo(`${name} removed for today.`, () => {
                             if (!modsForDay.added.includes(name)) modsForDay.added.push(name);
                             saveData(); updateUI();
                         });
                     } else {
                         if (!modsForDay.removed.includes(name)) modsForDay.removed.push(name);
-                        showUndoToast(`${name} removed for today.`, () => {
+                        showUndo(`${name} removed for today.`, () => {
                             const index = modsForDay.removed.indexOf(name);
                             if (index > -1) modsForDay.removed.splice(index, 1);
                             saveData(); updateUI();
@@ -1278,10 +1422,10 @@
                 }
             });
 
-            document.getElementById('undo-toast-btn').addEventListener('click', () => {
+            // MODIFIED: Replaced old undo listener with new one
+            ui.undoToastBtn.addEventListener('click', () => {
                 if (undoCallback) undoCallback();
-                clearTimeout(undoTimeout); document.getElementById('undo-toast').classList.remove('show');
-                undoCallback = null;
+                hideUndo();
             });
 
             ui.closeExerciseLibraryModalBtn.addEventListener('click', () => hideModal(ui.exerciseLibraryModal));
@@ -1499,6 +1643,8 @@
             async function displayExerciseMedia(exerciseName) {
                 ui.exerciseMediaLoader.classList.remove('hidden');
                 ui.exerciseMediaContainer.innerHTML = ''; // Clear content
+                // HIDE the fullscreen button by default
+                ui.openMediaFullscreenBtn.style.display = 'none';
 
                 const item = exerciseDB.find(ex => ex.name === exerciseName) || Object.values(warmups).flat().find(w => w.name === exerciseName);
 
@@ -1518,14 +1664,17 @@
 
                     if (mediaType === 'video') {
                         // MODIFICATION: Replaced onerror with the SVG
-                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = svgLogoHtml;"></video>`;
+                        ui.exerciseMediaContainer.innerHTML = `<video src="${mediaPath}" loop autoplay muted playsinline class="w-full h-full object-cover rounded-lg" style="${preventInteractions}" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = '${svgLogoHtml}';"></video>`;
                     } else if (mediaType === 'image' || mediaFilename.toLowerCase().match(/\.(jpg|png|jpeg|gif)$/)) {
                          // MODIFICATION: Replaced onerror with the SVG
-                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = svgLogoHtml;">`;
+                         ui.exerciseMediaContainer.innerHTML = `<img src="${mediaPath}" alt="${exerciseName}" class="w-full h-full object-cover rounded-lg" ${antiDownloadAttributes} onerror="this.onerror=null; this.parentNode.innerHTML = '${svgLogoHtml}';">`;
                     } else {
                         // Fallback for unknown file types
                         ui.exerciseMediaContainer.innerHTML = svgLogoHtml;
                     }
+                    
+                    // SHOW the fullscreen button
+                    ui.openMediaFullscreenBtn.style.display = 'flex';
                     ui.exerciseMediaLoader.classList.add('hidden');
                     return;
                 }
@@ -1533,6 +1682,8 @@
                 // --- Fallback to logo if no specific media is found ---
                 ui.exerciseMediaContainer.innerHTML = svgLogoHtml; // Use SVG here
                 ui.exerciseMediaLoader.classList.add('hidden');
+                // HIDE fullscreen button for placeholder
+                ui.openMediaFullscreenBtn.style.display = 'none';
             }
 
 
@@ -1571,6 +1722,35 @@
                 
                 showModal(ui.exerciseDetailModal);
             }
+
+            // --- NEW: Fullscreen Media Functions ---
+            function openMediaFullscreen() {
+                const mediaContent = ui.exerciseMediaContainer.innerHTML;
+                if (mediaContent.trim() === '' || mediaContent.includes(kowbiLogoSVG)) {
+                    // Don't open fullscreen for placeholder
+                    return;
+                }
+                ui.mediaFullscreenContent.innerHTML = mediaContent;
+                // Ensure video in modal also loops and plays
+                const video = ui.mediaFullscreenContent.querySelector('video');
+                if (video) {
+                    video.muted = true;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.playsInline = true;
+                    video.play();
+                }
+                ui.mediaFullscreenOverlay.classList.add('show');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+
+            function closeMediaFullscreen() {
+                ui.mediaFullscreenOverlay.classList.remove('show');
+                ui.mediaFullscreenContent.innerHTML = ''; // Clear content
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+            // --- END: Fullscreen Media Functions ---
+
 
             ui.closeExerciseDetailModalBtn.addEventListener('click', () => hideModal(ui.exerciseDetailModal));
             ui.logFromDetailBtn.addEventListener('click', () => { hideModal(ui.exerciseDetailModal); openWorkoutModal(currentlyLoggingExercise); });
@@ -2342,6 +2522,16 @@
                          input.blur();
                     }
                 });
+            });
+
+            // --- NEW: Fullscreen Media Listeners ---
+            ui.openMediaFullscreenBtn.addEventListener('click', openMediaFullscreen);
+            ui.closeMediaFullscreenBtn.addEventListener('click', closeMediaFullscreen);
+            ui.mediaFullscreenOverlay.addEventListener('click', (e) => {
+                // Close if clicking on the backdrop, not the content
+                if (e.target === ui.mediaFullscreenOverlay) {
+                    closeMediaFullscreen();
+                }
             });
 
 
