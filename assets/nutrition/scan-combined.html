@@ -53,9 +53,9 @@
             background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
             backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
-            border-bottom-left-radius: 0.5rem; /* Match parent */
-            border-bottom-right-radius: 0.5rem; /* Match parent */
-            padding: 1.5rem 0.5rem 0.25rem 0.5rem; 
+            border-bottom-left-radius: 0rem; /* Match parent */
+            border-bottom-right-radius: 0rem; /* Match parent */
+            padding: 0.15rem 0.25rem 0.01rem 0.25rem; 
             color: var(--primary-text);
             text-align: left;
             opacity: 1;
@@ -151,7 +151,7 @@
         }
         
         .tab-dot.active {
-            background-color: var(--primary); /* Active color */
+            background-color: var(--accent); /* MODIFIED: Changed from --primary to --accent */
             transform: scale(1.25);
         }
         
@@ -192,8 +192,8 @@
 
     </style>
 </head>
-<!-- MODIFIED: Added h-full, flex, flex-col, overflow-hidden -->
-<body class="antialiased h-full flex flex-col overflow-hidden">
+<!-- MODIFIED: Removed h-full, flex, flex-col, overflow-hidden -->
+<body class="antialiased">
 
     <script>
         // Apply theme immediately
@@ -203,142 +203,146 @@
         })();
     </script>
     
-    <div id="header-placeholder"></div>
+    <!-- MODIFIED: Added container structure from index.html -->
+    <div class="container mx-auto max-w-7xl px-4 py-4">
+        <div id="header-placeholder"></div>
 
-    <!-- Main content area -->
-    <!-- MODIFIED: Replaced main content with swipe container structure -->
-    <div class="content-card flex-grow overflow-hidden flex flex-col !p-0">
-        
-        <div id="swipe-container" class="flex-grow overflow-hidden relative flex flex-col">
-            <!-- Swipe Track -->
-            <div id="swipe-track" class="flex h-full flex-grow">
+        <main> <!-- Added main wrapper -->
+            <!-- Main content area -->
+            <!-- MODIFIED: Removed flex-grow, overflow-hidden, flex, flex-col. Kept !p-0. Added explicit height. -->
+            <div class="content-card !p-0" style="height: 75vh;">
                 
-                <!-- Panel 1: Log -->
-                <div id="log-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 overflow-y-auto custom-scrollbar">
-                    <div class="flex-shrink-0 mb-4 flex items-center justify-between">
-                        <h2 class="text-2xl font-bold">Today's Logged Items</h2>
-                        <!-- NEW: Button to go to Camera -->
-                        <button class="btn btn-secondary !p-2 go-to-camera-btn" data-index="1" title="Go to Camera">
-                            <i data-lucide="camera" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    <div id="scanned-log-display" class="space-y-2 flex-grow">
-                        <!-- Logged items will be rendered here -->
-                        <p class="text-secondary-text">No items logged yet.</p>
-                    </div>
-                </div>
-
-                <!-- Panel 2: Camera (Original Content) -->
-                <div id="camera-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 overflow-hidden">
-                    <!-- This div holds the original layout -->
-                    <div class="space-y-4 flex-grow flex flex-col">
-                        <div id="ai-live-camera-container" class="!flex-shrink-0 bg-input-bg rounded-lg relative overflow-hidden flex-grow">
-                            
-                            <div id="photo-popup">
-                                <img id="photo-popup-img" src="" alt="Scanned item" class="w-full h-full object-cover">
+                <!-- MODIFIED: Added style="height: 100%" to make swipe container fill the card -->
+                <div id="swipe-container" class="relative flex flex-col overflow-hidden" style="height: 100%;">
+                    <!-- Swipe Track -->
+                    <div id="swipe-track" class="flex h-full flex-grow">
+                        
+                        <!-- Panel 1: Log -->
+                        <div id="log-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 overflow-y-auto custom-scrollbar">
+                            <div class="flex-shrink-0 mb-4 flex items-center justify-between">
+                                <h2 class="text-2xl font-bold">Today's Logged Items</h2>
+                                <!-- REMOVED: Button to go to Camera -->
                             </div>
+                            <div id="scanned-log-display" class="space-y-2 flex-grow">
+                                <!-- Logged items will be rendered here -->
+                                <p class="text-secondary-text">No items logged yet.</p>
+                            </div>
+                        </div>
 
-                            <!-- MODIFIED: Animate from bottom (translate-y-full), smoother (duration-1000) -->
-                            <div id="camera-overlay" class="absolute inset-0 z-20 rounded-lg overflow-hidden transition-all duration-1000 opacity-0 pointer-events-none translate-y-full">
-                                <!-- MODIFIED: Changed to object-cover -->
-                                <canvas id="camera-overlay-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
-                                <div class="absolute top-0 left-0 w-full h-full bg-black/70 backdrop-blur-sm"></div>
-                                <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">
-                                    <button id="start-camera-overlay-btn" class="btn bg-white text-black hover:bg-gray-200"><i data-lucide="camera"></i>Start Camera</button>
+                        <!-- Panel 2: Camera (Original Content) -->
+                        <div id="camera-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 overflow-hidden">
+                            <!-- This div holds the original layout -->
+                            <div class="space-y-4 flex-grow flex flex-col">
+                                <div id="ai-live-camera-container" class="!flex-shrink-0 bg-input-bg rounded-lg relative overflow-hidden flex-grow">
+                                    
+                                    <div id="photo-popup">
+                                        <img id="photo-popup-img" src="" alt="Scanned item" class="w-full h-full object-cover">
+                                    </div>
+
+                                    <!-- MODIFIED: Changed from fixed to absolute and re-added rounded-lg to fix panel overflow bug. -->
+                                    <div id="camera-overlay" class="absolute inset-0 z-20 overflow-hidden opacity-0 pointer-events-none rounded-lg">
+                                        <!-- MODIFIED: Changed to object-cover -->
+                                        <canvas id="camera-overlay-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
+                                        <div class="absolute top-0 left-0 w-full h-full bg-black/70 backdrop-blur-sm"></div>
+                                        <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">
+                                            <button id="start-camera-overlay-btn" class="btn bg-white text-black hover:bg-gray-200"><i data-lucide="camera"></i>Start Camera</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- NEW: Gradient overlay for title -->
+                                    <div class="absolute top-0 left-0 right-0 h-24 z-20" style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%); pointer-events: none;"></div>
+
+                                    <h2 class="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-lg font-bold text-white pointer-events-none">
+                                        AI Scanner
+                                    </h2>
+                                    
+                                    <!-- MODIFIED: Changed to object-cover -->
+                                    <video id="ai-camera-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
+                                    <canvas id="ai-camera-canvas" class="hidden"></canvas> 
+                                    
+                                    <!-- MODIFIED: Changed to button, moved to top-right (right-4) -->
+                                    <button id="scanner-close-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 right-4 z-30" title="Close Scanner">
+                                        <i data-lucide="x" class="w-5 h-5"></i>
+                                    </button>
+
+                                    <!-- NEW: Tab Indicators MOVED here -->
+                                    <!-- MODIFIED: Changed from left-16 to left-4 -->
+                                    <div id="tab-indicators" class="absolute top-4 left-4 flex gap-2 z-30">
+                                        <button class="tab-dot" data-index="0" aria-label="Go to Log panel"></button>
+                                        <button class="tab-dot active" data-index="1" aria-label="Go to Camera panel"></button>
+                                        <button class="tab-dot" data-index="2" aria-label="Go to Upload panel"></button>
+                                    </div>
+                                    
+                                    <!-- REMOVED: scanned-log-popup-btn -->
+
+                                    <!-- MODIFIED: Larger button (!p-3) -->
+                                    <button id="flip-camera-btn" class="btn btn-overlay !p-3 !rounded-full absolute bottom-3 left-3" title="Flip Camera">
+                                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                    </button>
+
+                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                                        <!-- REMOVED: capture-ai-photo-btn -->
+                                        <!-- MODIFIED: Larger button (!p-4) -->
+                                        <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-4 !rounded-full" title="Close Camera">
+                                            <i data-lucide="x" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- REMOVED: Upload label and input from here -->
+
+                                </div>
+                                
+                                <!-- NEW: Toggle button for carousel -->
+                                <button id="toggle-carousel-btn" class="btn btn-secondary w-full !py-2 !text-sm">
+                                    <span class="flex items-center gap-2">
+                                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                                        <span>Show Scanned Items</span>
+                                    </span>
+                                </button>
+                                
+                                <!-- MODIFIED: Carousel wrapper is now collapsible -->
+                                <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper collapsed">
+                                    <div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel !flex !flex-row !flex-nowrap">
+                                        <!-- Scanned items will be prepended here by JS -->
+                                    </div>
+                                    <!-- MOVED status text inside carousel -->
+                                    <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem] mt-2 flex-shrink-0"></p>
+                                </div>
+                                
+                                <!-- MOVED status text -->
+                            </div>
+                        </div>
+
+                        <!-- Panel 3: Upload -->
+                        <div id="upload-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 items-center justify-center overflow-y-auto custom-scrollbar">
+                            <!-- NEW: Header with button -->
+                            <div class="w-full max-w-sm mb-4">
+                                <div class="flex-shrink-0 flex items-center justify-between">
+                                    <h2 class="text-2xl font-bold">Upload Photo</h2>
+                                    <!-- REMOVED: Go to camera button -->
                                 </div>
                             </div>
-
-                            <!-- NEW: Gradient overlay for title -->
-                            <div class="absolute top-0 left-0 right-0 h-24 z-20" style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%); pointer-events: none;"></div>
-
-                            <h2 class="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-lg font-bold text-white pointer-events-none">
-                                AI Scanner
-                            </h2>
                             
-                            <!-- MODIFIED: Changed to object-cover -->
-                            <video id="ai-camera-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
-                            <canvas id="ai-camera-canvas" class="hidden"></canvas> 
-                            
-                            <!-- MODIFIED: Changed to button, moved to left, removed href -->
-                            <button id="scanner-close-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 left-4 z-30" title="Close Scanner">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                            
-                            <!-- REMOVED: scanned-log-popup-btn -->
-
-                            <!-- MODIFIED: Larger button (!p-3) -->
-                            <button id="flip-camera-btn" class="btn btn-overlay !p-3 !rounded-full absolute bottom-3 left-3" title="Flip Camera">
-                                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                            </button>
-
-                            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-                                <!-- REMOVED: capture-ai-photo-btn -->
-                                <!-- MODIFIED: Larger button (!p-4) -->
-                                <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-4 !rounded-full" title="Close Camera">
-                                    <i data-lucide="x" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- REMOVED: Upload label and input from here -->
-
-                            <!-- NEW: Tab Indicators MOVED here -->
-                            <div id="tab-indicators" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-                                <button class="tab-dot" data-index="0" aria-label="Go to Log panel"></button>
-                                <button class="tab-dot active" data-index="1" aria-label="Go to Camera panel"></button>
-                                <button class="tab-dot" data-index="2" aria-label="Go to Upload panel"></button>
-                            </div>
+                            <!-- MODIFIED: Removed h-64 and added flex-grow to make it proportionally sized -->
+                            <label for="ai-upload-photo-input" class="flex flex-col items-center justify-center w-full max-w-sm flex-grow bg-input-bg border-2 border-border-color border-dashed rounded-lg cursor-pointer hover:bg-card-bg transition-colors">
+                                <i data-lucide="upload-cloud" class="w-16 h-16 text-secondary-text mb-4"></i>
+                                <p class="text-lg font-semibold">Click to upload</p>
+                                <p class="text-sm text-secondary-text">or drag and drop</p>
+                            </label>
+                            <input type="file" id="ai-upload-photo-input" class="hidden" accept="image/*" multiple>
+                            <p class="text-xs text-secondary-text mt-4 text-center">Upload a photo of food or a barcode.</p>
                         </div>
-                        
-                        <!-- NEW: Toggle button for carousel -->
-                        <button id="toggle-carousel-btn" class="btn btn-secondary w-full !py-2 !text-sm">
-                            <span class="flex items-center gap-2">
-                                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
-                                <span>Show Scanned Items</span>
-                            </span>
-                        </button>
-                        
-                        <!-- MODIFIED: Carousel wrapper is now collapsible -->
-                        <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper collapsed">
-                            <div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel !flex !flex-row !flex-nowrap">
-                                <!-- Scanned items will be prepended here by JS -->
-                            </div>
-                            <!-- MOVED status text inside carousel -->
-                            <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem] mt-2 flex-shrink-0"></p>
-                        </div>
-                        
-                        <!-- MOVED status text -->
+
                     </div>
-                </div>
 
-                <!-- Panel 3: Upload -->
-                <div id="upload-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 items-center justify-center overflow-y-auto custom-scrollbar">
-                    <!-- NEW: Header with button -->
-                    <div class="w-full max-w-sm mb-4">
-                        <div class="flex-shrink-0 flex items-center justify-between">
-                            <h2 class="text-2xl font-bold">Upload Photo</h2>
-                            <button class="btn btn-secondary !p-2 go-to-camera-btn" data-index="1" title="Go to Camera" aria-label="Go to Camera">
-                                <i data-lucide="camera" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <label for="ai-upload-photo-input" class="flex flex-col items-center justify-center w-full max-w-sm h-64 bg-input-bg border-2 border-border-color border-dashed rounded-lg cursor-pointer hover:bg-card-bg transition-colors">
-                        <i data-lucide="upload-cloud" class="w-16 h-16 text-secondary-text mb-4"></i>
-                        <p class="text-lg font-semibold">Click to upload</p>
-                        <p class="text-sm text-secondary-text">or drag and drop</p>
-                    </label>
-                    <input type="file" id="ai-upload-photo-input" class="hidden" accept="image/*" multiple>
-                    <p class="text-xs text-secondary-text mt-4 text-center">Upload a photo of food or a barcode.</p>
+                    <!-- Tab Indicators -->
+                    <!-- MOVED: This div is no longer here -->
                 </div>
 
             </div>
-
-            <!-- Tab Indicators -->
-            <!-- MOVED: This div is no longer here -->
-        </div>
-
-    </div>
-    <!-- END: New swipe container structure -->
+            <!-- END: New swipe container structure -->
+        </main>
+    </div> <!-- END: Added container div -->
 
 
     <!-- Hidden helper for html5-qrcode library -->
@@ -408,6 +412,7 @@
             let foodCameraStream = null;
             let html5QrCode = null;
             let currentFacingMode = 'environment';
+            let isCameraManuallyStopped = false; // NEW: State to track manual camera stop
 
             let scannerLogs = {}; // This now stores *scanned* items for the filmstrip
             let viewDate = new Date();
@@ -458,7 +463,7 @@
             };
 
             const getApiUrl = (model, action = 'generateContent') => {
-                const apiKey = ""; // WARNING: Never expose API keys in client-side code for production. Use a backend proxy.
+                const apiKey = "AIzaSyA8-WLMo2U2Km-FN2r_fYk8OUfxyZ7dJoM"; // WARNING: Never expose API keys in client-side code for production. Use a backend proxy.
                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
 
@@ -615,9 +620,24 @@
 
                     // Update carousel button if it exists
                     if (itemToDelete.scannerLogId) {
-                        const carouselLogButton = ui.scannerResultsContainer.querySelector(`.ai-log-button[data-log-id="${itemToDelete.scannerLogId}"]`);
+                        // This is the scannerLogId
+                        const scannerLogId = itemToDelete.scannerLogId;
+
+                        // Find and remove from carousel DOM
+                        const carouselLogButton = ui.scannerResultsContainer.querySelector(`.ai-log-button[data-log-id="${scannerLogId}"]`);
                         if (carouselLogButton) {
-                            logButtonSetState(carouselLogButton, false, null);
+                            const carouselItemElement = carouselLogButton.closest('.scroll-item');
+                            if (carouselItemElement) {
+                                carouselItemElement.remove();
+                            }
+                        }
+
+                        // Find and remove from scannerLogs state
+                        const dayLog = getTodaysLog(); // This is scannerLogs
+                        const scannerIndex = dayLog.entries.findIndex(entry => entry.logId === scannerLogId);
+                        if (scannerIndex > -1) {
+                            dayLog.entries.splice(scannerIndex, 1);
+                            saveScannerLog(); // Save removal from scanner log
                         }
                     }
                     return;
@@ -897,6 +917,8 @@
 
             // --- MODIFIED: manualStopAiCamera ---
             function manualStopAiCamera() {
+                isCameraManuallyStopped = true; // NEW: Set the flag
+                
                 // NEW: If camera is already stopped, do nothing.
                 if (!foodCameraStream) return;
 
@@ -918,8 +940,8 @@
                     foodCameraStream = null;
                 }
                 
-                // MODIFIED: Animate from bottom (translate-y-full)
-                ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-full');
+                // MODIFIED: Removed 'translate-y-full'
+                ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none');
                 
                 ui.foodScannerStatus.textContent = 'Camera off. Tap to start.';
                 if (html5QrCode && html5QrCode.isScanning) {
@@ -928,11 +950,13 @@
             }
 
             async function startAiCamera() {
+                isCameraManuallyStopped = false; // NEW: User is explicitly starting camera, so reset flag
+                
                 // --- MODIFIED: startAiCamera ---
                 if (foodCameraStream) return; // Don't restart if already running
                 
-                // MODIFIED: Reset animation state to bottom (translate-y-full)
-                ui.cameraOverlay.classList.add('opacity-0', 'pointer-events-none', 'translate-y-full');
+                // MODIFIED: Reset animation state. Removed 'translate-y-full'
+                ui.cameraOverlay.classList.add('opacity-0', 'pointer-events-none');
                 ui.liveCameraContainer.classList.remove('hidden');
 
                 ui.foodScannerStatus.textContent = 'Starting camera...';
@@ -1107,7 +1131,14 @@
 
                 // Manage camera state
                 if (currentPanelIndex === 1) { // Camera panel
-                    startAiCamera();
+                    // MODIFIED: Check flag before starting camera
+                    if (!isCameraManuallyStopped) {
+                        startAiCamera();
+                    } else {
+                        // Ensure overlay is visible if camera was manually stopped
+                        ui.foodScannerStatus.textContent = 'Camera off. Tap to start.';
+                        ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    }
                 } else {
                     manualStopAiCamera();
                 }
@@ -1123,7 +1154,7 @@
                 ui.scannerResultsContainer.style.cursor = 'grabbing';
             });
             ui.scannerResultsContainer.addEventListener('mouseup', () => {
-                scannerResultsContainer.style.cursor = 'grab';
+                ui.scannerResultsContainer.style.cursor = 'grab';
             });
 
             ui.startCameraOverlayBtn.addEventListener('click', startAiCamera);
@@ -1132,7 +1163,11 @@
             ui.uploadPhotoInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files)); // Listener for new upload panel
 
             // MODIFIED: Added click listener for scanner-close-btn
-            document.getElementById('scanner-close-btn').addEventListener('click', manualStopAiCamera);
+            document.getElementById('scanner-close-btn').addEventListener('click', () => {
+                manualStopAiCamera(); // Stop the camera first
+                history.back(); // Go to the previous page
+            });
+
 
             ui.scannedLogDisplay.addEventListener('click', (e) => {
                 const removeBtn = e.target.closest('.remove-log-btn');
@@ -1200,14 +1235,14 @@
                 if (Math.abs(swipeDeltaX) > Math.abs(swipeDeltaY)) {
                     // Horizontal swipe is dominant
                     if (Math.abs(swipeDeltaX) > 10) { 
-                        e.preventDefault(); // Prevent vertical scroll
+                        if (e.cancelable) e.preventDefault(); // Prevent vertical scroll
                     }
                     // Apply horizontal transform
                     ui.swipeTrack.style.transform = `translateX(calc(-${currentPanelIndex * 100}% + ${swipeDeltaX}px))`;
                 } else {
                     // Vertical swipe is dominant
                     if (Math.abs(swipeDeltaY) > 10) {
-                        e.preventDefault(); // Prevent horizontal swipe
+                         if (e.cancelable) e.preventDefault(); // Prevent horizontal swipe
                     }
                     // Don't move the track horizontally
                 }
@@ -1298,3 +1333,11 @@
     </script>
 </body>
 </html>
+
+can you make the ai-camera-video the fit in the absolute top-0 left-0 w-full h-full flex items-center justify-center z-10
+
+can you make the camera on when the user first opens it
+
+can you make the tab-indicators in line with the ai scanner title
+
+can you center the btn btn-primary ai-log-button !p-2 !rounded-full !flex-shrink-0 and add a delete button with the same size and position as the btn btn-primary ai-log-button !p-2 !rounded-full !flex-shrink-0 is at now currently
