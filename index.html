@@ -169,10 +169,14 @@
             max-width: 320px;
             /* MODIFIED: Smoother transition */
             transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+            /* FIX: Add pointer-events: none when hidden */
+            pointer-events: none;
         }
         #undo-toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
+            /* FIX: Add pointer-events: auto when shown */
+            pointer-events: auto;
         }
         #undo-toast-btn {
             font-weight: 600;
@@ -212,10 +216,14 @@
             width: calc(100% - 2rem); /* 90% width on mobile */
             max-width: 320px;
             transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+            /* FIX: Add pointer-events: none when hidden */
+            pointer-events: none;
         }
         #feedback-toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
+            /* FIX: Add pointer-events: auto when shown */
+            pointer-events: auto;
         }
         /* --- END: Styles for Feedback Toast --- */
 
@@ -391,56 +399,63 @@
             <!-- MODIFIED: Added quick-action-grid class for targeting -->
             <div class="grid grid-cols-4 gap-2 sm:gap-4 quick-action-grid">
                 
-                <!-- REMOVED: Settings Button from grid -->
+                <!-- 
+                  FIX: Reordered the items as requested.
+                  1. Log Weight
+                  2. Macro Swap
+                  3. Scan Food
+                  4. Log Water
+                -->
+                
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                <button id="quick-log-weight-btn" data-action-id="weight" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                    <!-- CHANGE 3: Replaced icon -->
+                    <i data-lucide="gauge" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <span class="text-xs sm:text-sm">Log Weight</span>
+                </button>
+
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" data-action-id="macro" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                    <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <span class="text-xs sm:text-sm">Macro Swap</span>
+                </a>
+
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                <a href="assets/nutrition/scan-combined.html" data-action-id="scan" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                    <i data-lucide="scan-line" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <span class="text-xs sm:text-sm">Scan Food</span>
+                </a>
 
                 <!-- CHANGED: Replaced simple button with swipe-enabled button -->
-                        <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                        <button id="quick-log-water-btn" data-action-id="water" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden h-20 sm:h-24 quick-action-item" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
-                        <!-- Swipe backgrounds -->
-                        <div id="water-swipe-actions" class="swipe-actions">
-                                <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center">
-                                    <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
-                                </div>
-                                <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center">
-                                    <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
-                                </div>
-                                <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center">
-                                    <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
-                                </div>
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                <button id="quick-log-water-btn" data-action-id="water" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden h-20 sm:h-24 quick-action-item" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
+                <!-- Swipe backgrounds -->
+                <div id="water-swipe-actions" class="swipe-actions">
+                        <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center">
+                            <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                         </div>
-                        <!-- ADDED: Re-added water fill span -->
-                        <span id="water-fill"></span>
-                        <!-- This is the part that moves -->
-                        <!-- MODIFIED: Added !bg-transparent to keep fill visible -->
-                        <div id="water-swipe-content" class="swipe-content relative w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 !p-2 sm:!p-4 !bg-transparent">
-                            <!-- REPLACED SVG with original lucide icon -->
-                            <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
-                            <!-- MODIFIED: Added ID to this span -->
-                            <span id="water-log-text" class="text-xs sm:text-sm">Log Water</span>
+                        <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center">
+                            <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
                         </div>
-                    </button>
-
-                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                        <a href="assets/nutrition/scan-combined.html" data-action-id="scan" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                            <i data-lucide="scan-line" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            <span class="text-xs sm:text-sm">Scan Food</span>
-                        </a>
-                        
-                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                        <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" data-action-id="macro" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                            <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            <span class="text-xs sm:text-sm">Macro Swap</span>
-                        </a>
-                        
-                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                        <button id="quick-log-weight-btn" data-action-id="weight" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                            <!-- CHANGE 3: Replaced icon -->
-                            <i data-lucide="gauge" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            <span class="text-xs sm:text-sm">Log Weight</span>
-                        </button>
+                        <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center">
+                            <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                        </div>
                 </div>
-                <!-- CHANGED: Removed quick action feedback p tag -->
+                <!-- ADDED: Re-added water fill span -->
+                <span id="water-fill"></span>
+                <!-- This is the part that moves -->
+                <!-- MODIFIED: Added !bg-transparent to keep fill visible -->
+                <div id="water-swipe-content" class="swipe-content relative w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 !p-2 sm:!p-4 !bg-transparent">
+                    <!-- REPLACED SVG with original lucide icon -->
+                    <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
+                    <!-- MODIFIED: Added ID to this span -->
+                    <span id="water-log-text" class="text-xs sm:text-sm">Log Water</span>
+                </div>
+            </button>
+                
             </div>
+            <!-- CHANGED: Removed quick action feedback p tag -->
+        </div>
 
             <!-- Daily Check-in Card (REMOVED - Now a modal) -->
             
@@ -812,7 +827,7 @@
                     }
                 });
 
-                function nextSlide(isProgrammatic = false) {
+                function nextSlide(isProgrammatic = false) { // MODIFIED: Added isProgrammatic default
                     if (isTransitioning) return;
                     goToSlide(currentIndex + 1, isProgrammatic);
                 }
@@ -824,7 +839,8 @@
 
                 function startAutoCycle() {
                     clearInterval(carouselInterval);
-                    carouselInterval = setInterval(() => nextSlide(true), 3000);
+                    // FIX: Changed () => nextSlide(true) to just nextSlide
+                    carouselInterval = setInterval(nextSlide, 3000); 
                 }
 
                 // --- MODIFIED: Combined Drag/Swipe Handlers ---
@@ -1047,8 +1063,10 @@
                     const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
                     const workoutForDay = (savedPlan.workouts || []).find(w => w.day === dayInfo.type);
                     const totalExercises = workoutForDay ? (workoutForDay.exercises || []).length : 0;
-                    const loggedExerciseNames = new Set(loggedExercises.map(ex => ex.name)); // CHANGED
-                    const exerciseCount = loggedExerciseNames.size; // CHANGED
+                    
+                    // FIX: Use Set to count unique exercises
+                    const loggedExerciseNames = new Set(loggedExercises.map(ex => ex.name));
+                    const exerciseCount = loggedExerciseNames.size;
                     const remaining = Math.max(0, totalExercises - exerciseCount);
 
                     if (loggedExercises.length > 0) {
@@ -1061,6 +1079,7 @@
                         } else if (workoutForDay && workoutForDay.exercises) {
                             const plannedExercises = workoutForDay.exercises;
                             for (const plannedEx of plannedExercises) {
+                                // FIX: Check against the Set
                                 if (!loggedExerciseNames.has(plannedEx.name)) {
                                     nextExerciseName = plannedEx.name;
                                     break;
