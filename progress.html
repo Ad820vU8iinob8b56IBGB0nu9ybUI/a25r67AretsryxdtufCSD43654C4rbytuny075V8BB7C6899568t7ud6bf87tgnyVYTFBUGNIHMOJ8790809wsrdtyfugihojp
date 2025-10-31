@@ -673,6 +673,125 @@
             function renderNutritionProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.nutritionHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const calorieGoals = Array(labels.length).fill(goals.calories); const proteinGoals = Array(labels.length).fill(goals.protein); nutritionProgressChart.data = { labels, datasets: [ { label: 'Calories Consumed', data: sortedHistory.map(d => d.calories || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 2 }, { label: 'Protein Consumed (g)', data: sortedHistory.map(d => d.protein || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 3 }, { label: 'Calorie Goal', data: calorieGoals, borderColor: 'rgba(251, 191, 36, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 1 }, { label: 'Protein Goal', data: proteinGoals, borderColor: 'rgba(52, 211, 153, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 4 } ] }; updateChartAppearance(); nutritionProgressChart.update(); }
             function renderWorkoutProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.workoutHistory, timeRange); const volumeByDay = {}; history.forEach(log => { const dateKey = log.date; const sets = typeof log.sets === 'string' ? JSON.parse(log.sets) : log.sets; const logVolume = sets.flat().reduce((total, s) => total + (s.weight * s.reps), 0); if (!volumeByDay[dateKey]) { volumeByDay[dateKey] = 0; } volumeByDay[dateKey] += logVolume; }); const workoutsByWeek = {}; const volumeByWeek = {}; Object.keys(volumeByDay).forEach(dateStr => { const date = new Date(dateStr.replace(/-/g, '/')); const dayOfWeek = date.getDay(); const firstDayOfWeek = new Date(date); firstDayOfWeek.setDate(date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); const weekKey = firstDayOfWeek.toISOString().split('T')[0]; if (!workoutsByWeek[weekKey]) workoutsByWeek[weekKey] = 0; if (!volumeByWeek[weekKey]) volumeByWeek[weekKey] = 0; workoutsByWeek[weekKey]++; volumeByWeek[weekKey] += volumeByDay[dateStr]; }); const sortedWeeks = Object.keys(workoutsByWeek).sort(); const labels = sortedWeeks.map(weekKey => new Date(weekKey.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const workoutCountData = sortedWeeks.map(weekKey => workoutsByWeek[weekKey]); const totalVolumeData = sortedWeeks.map(weekKey => volumeByWeek[weekKey] / 1000); workoutProgressChart.data = { labels, datasets: [ { label: 'Workouts Logged', data: workoutCountData, backgroundColor: 'rgba(239, 68, 68, 0.7)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 4, yAxisID: 'y', type: 'bar', order: 2 }, { label: 'Total Volume (MT/1000kg)', data: totalVolumeData, borderColor: '#fbbf24', backgroundColor: 'transparent', yAxisID: 'y', tension: 0.4, type: 'line', borderWidth: 2, pointRadius: 3, order: 1 } ] }; updateChartAppearance(); workoutProgressChart.update(); }
 
+            // --- NEW ANALYTICAL CALCULATION FUNCTIONS ---
+            function calculateTrendDirection(history, days = 7) {
+                if (!history || history.length < 2) return '→';
+                const now = new Date();
+                const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+                const daysBackTwice = new Date(now.getTime() - (days * 2) * 24 * 60 * 60 * 1000);
+
+                const recentData = history.filter(d => new Date(d.date.replace(/-/g, '/')) >= daysAgo);
+                const olderData = history.filter(d => {
+                    const date = new Date(d.date.replace(/-/g, '/'));
+                    return date >= daysBackTwice && date < daysAgo;
+                });
+
+                if (recentData.length === 0 || olderData.length === 0) return '→';
+
+                const recentAvg = recentData.reduce((sum, d) => sum + d.weight, 0) / recentData.length;
+                const olderAvg = olderData.reduce((sum, d) => sum + d.weight, 0) / olderData.length;
+                const diff = recentAvg - olderAvg;
+
+                const threshold = 0.2;
+                if (Math.abs(diff) <= threshold) return '→';
+                return diff < 0 ? '↓' : '↑';
+            }
+
+            function getStatusColor(currentValue, goalValue, isLossGoal = true) {
+                if (!goalValue) return '#60a5fa';
+                const diff = Math.abs(currentValue - goalValue);
+                const totalDiff = Math.abs(goalValue * 2 - goalValue); // Distance from goal to opposite
+                const percentToGoal = Math.abs(currentValue - goalValue) / Math.abs(goalValue);
+
+                if (isLossGoal) {
+                    if (currentValue <= goalValue) return '#34d399'; // At goal
+                    if (percentToGoal <= 0.1) return '#34d399'; // Within 10% (green)
+                    if (percentToGoal <= 0.2) return '#fbbf24'; // Within 20% (yellow)
+                } else {
+                    if (currentValue >= goalValue) return '#34d399'; // At goal
+                    if (percentToGoal <= 0.1) return '#34d399'; // Within 10% (green)
+                    if (percentToGoal <= 0.2) return '#fbbf24'; // Within 20% (yellow)
+                }
+
+                return '#ef4444'; // Off track (red)
+            }
+
+            function predictWeeksToGoal(currentWeight, goalWeight, weeklyTrend) {
+                if (!weeklyTrend || weeklyTrend === 0 || Math.abs(weeklyTrend) < 0.01) return '—';
+                const weeksNeeded = (goalWeight - currentWeight) / weeklyTrend;
+                if (weeksNeeded < 0) return 'Off pace';
+                return Math.round(weeksNeeded);
+            }
+
+            function calculateWeeklyAverage(weightHistory, weeks = 4) {
+                if (!weightHistory || weightHistory.length < 2) return 0;
+                const weeksMs = weeks * 7 * 24 * 60 * 60 * 1000;
+                const cutoffDate = new Date(Date.now() - weeksMs);
+                const recentHistory = weightHistory.filter(d => new Date(d.date.replace(/-/g, '/')) >= cutoffDate);
+
+                if (recentHistory.length < 2) return 0;
+                const firstWeight = recentHistory[0].weight;
+                const lastWeight = recentHistory[recentHistory.length - 1].weight;
+                const daysBetween = (new Date(recentHistory[recentHistory.length - 1].date.replace(/-/g, '/')) -
+                                     new Date(recentHistory[0].date.replace(/-/g, '/'))) / (1000 * 60 * 60 * 24);
+
+                if (daysBetween <= 0) return 0;
+                return ((lastWeight - firstWeight) / daysBetween) * 7;
+            }
+
+            function generateSmartInsights(userProfile, weightHistory, inbodyHistory) {
+                const insights = [];
+
+                if (!weightHistory || weightHistory.length < 7) {
+                    insights.push('📊 Getting started! Log consistently for 4 weeks to see reliable trends.');
+                    return insights;
+                }
+
+                const weeklyAvg = calculateWeeklyAverage(weightHistory, 4);
+                const currentWeight = userProfile.weight;
+                const goalWeight = userProfile.idealWeight || 70;
+                const trendDir = calculateTrendDirection(weightHistory, 7);
+
+                // Check for good progress
+                if (trendDir === '↓' && Math.abs(weeklyAvg) >= 0.3) {
+                    const weeksToGoal = predictWeeksToGoal(currentWeight, goalWeight, weeklyAvg);
+                    insights.push(`✅ Great progress! Down ${Math.abs(weeklyAvg).toFixed(2)} kg/week toward your ${goalWeight}kg goal.`);
+                    if (weeksToGoal !== '—' && weeksToGoal !== 'Off pace') {
+                        insights.push(`At this pace, you'll reach your goal in ${weeksToGoal} weeks.`);
+                    }
+                }
+                // Weight stable (concerning if loss goal)
+                else if (trendDir === '→' && userProfile.goal === 'lose') {
+                    insights.push(`⚠️ Weight stable for 7 days—no progress toward goal. Try increasing your deficit by 100-200 kcal or adding 20 min cardio.`);
+                }
+                // Weight increasing (concerning if loss goal)
+                else if (trendDir === '↑' && userProfile.goal === 'lose') {
+                    const weeklyGain = Math.abs(weeklyAvg);
+                    insights.push(`⚠️ Weight up ${weeklyGain.toFixed(1)} kg this week. Check your deficit, water intake, and stress levels.`);
+                }
+                // Muscle gain with fat loss (recomposition)
+                else if (inbodyHistory && inbodyHistory.length >= 2 && userProfile.goal === 'recomposition') {
+                    const lastInBody = inbodyHistory[inbodyHistory.length - 1];
+                    const firstInBody = inbodyHistory[0];
+                    const smmChange = lastInBody.smm - firstInBody.smm;
+                    const bfmChange = lastInBody.bfm - firstInBody.bfm;
+                    if (smmChange > 0 && bfmChange < 0) {
+                        insights.push(`🎉 Excellent recomposition! Muscle +${smmChange.toFixed(1)}kg, Fat -${Math.abs(bfmChange).toFixed(1)}kg.`);
+                    }
+                }
+                // Good consistency
+                else if (weightHistory.length >= 7) {
+                    const last7 = weightHistory.slice(-7);
+                    insights.push(`🔥 Amazing logging streak: ${last7.length} days! Your consistency is your edge.`);
+                }
+
+                if (insights.length === 0) {
+                    insights.push(`📈 Keep logging! You have ${weightHistory.length} entries. Trends emerge with more data.`);
+                }
+
+                return insights.length > 0 ? insights : ['Keep logging to see insights!'];
+            }
+
             // --- UI UPDATE FUNCTIONS (UPDATED) ---
             function populateProfileForm() { 
                 if (!isDataLoaded) return; 
