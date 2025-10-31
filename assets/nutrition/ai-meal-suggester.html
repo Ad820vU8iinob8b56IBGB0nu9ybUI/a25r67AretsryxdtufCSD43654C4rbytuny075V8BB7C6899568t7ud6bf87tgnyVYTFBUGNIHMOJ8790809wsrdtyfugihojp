@@ -311,7 +311,17 @@
     Respond ONLY with a valid JSON object with the following schema:
     {
       "mealName": "string (e.g., 'Quick Chicken & Broccoli Stir-fry')",
-      "markdownDescription": "string (The full meal description, prep/cook time, and instructions, formatted with Markdown)",
+      "ingredients": [
+        {
+          "name": "string (e.g., 'Chicken Breast')",
+          "amount": "string (e.g., '100g' or '1 cup')"
+        }
+      ],
+      "instructions": [
+        "string (Step 1)",
+        "string (Step 2)",
+        "..."
+      ],
       "totalMacros": {
         "calories": "number",
         "protein": "number",
@@ -321,18 +331,12 @@
         "sodium": "number",
         "potassium": "number",
         "grams": "number"
-      },
-      "ingredients": [
-        {
-          "name": "string (e.g., 'Chicken Breast')",
-          "amount": "string (e.g., '100g' or '1 cup')"
-        }
-      ]
+      }
     }
     
-    Ensure the 'markdownDescription' is formatted for display.
     Ensure 'totalMacros' is the sum for the entire meal.
     Ensure 'ingredients' is a list of objects with 'name' and 'amount'.
+    Ensure 'instructions' is an array of strings.
     `;
                 
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
@@ -350,14 +354,46 @@
                     const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
                     currentSuggestion = aiResponse; // Store the full response
 
-                    let text = aiResponse.markdownDescription || "No description provided.";
+                    // --- NEW RENDERING LOGIC ---
+                    let ingredientsHtml = '';
+                    if (aiResponse.ingredients && aiResponse.ingredients.length > 0) {
+                        ingredientsHtml = `
+                            <h3 class="text-lg font-semibold mt-4 mb-2">Ingredients:</h3>
+                            <ul class="list-disc ml-4 space-y-1">
+                                ${aiResponse.ingredients.map(ing => `<li>${ing.amount} ${ing.name}</li>`).join('')}
+                            </ul>
+                        `;
+                    }
+
+                    let instructionsHtml = '';
+                    if (aiResponse.instructions && aiResponse.instructions.length > 0) {
+                        instructionsHtml = `
+                            <h3 class="text-lg font-semibold mt-4 mb-2">Instructions:</h3>
+                            <ol class="list-decimal ml-4 space-y-1">
+                                ${aiResponse.instructions.map(step => `<li>${step}</li>`).join('')}
+                            </ol>
+                        `;
+                    }
                     
-                    // Format markdown for HTML
-                    text = text.replace(/\*\*(.*?)\*\*/g, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>') // Bold to h3
-                               .replace(/(\n|^)\* (.*?)(?=\n\* |\n\n|$)/g, '$1<li>$2</li>') // Bullets to li
-                               .replace(/<li>/g, '<li class="list-disc ml-4">') // Style lists
-                               .replace(/(\n|^)(\d+\.) (.*?)(?=\n\d+\. |\n\n|$)/g, '$1<li class="list-decimal ml-4">$3</li>') // Numbered list
-                               .replace(/\n/g, '<br>'); // Newlines to <br>
+                    let macrosHtml = '';
+                    if (aiResponse.totalMacros) {
+                        const m = aiResponse.totalMacros;
+                        macrosHtml = `
+                            <h3 class="text-lg font-semibold mt-4 mb-2">Estimated Macros:</h3>
+                            <p class="text-sm">
+                                ${m.calories.toFixed(0)} kcal | ${m.protein.toFixed(1)}p | ${m.carbs.toFixed(1)}c | ${m.fat.toFixed(1)}f
+                            </p>
+                        `;
+                    }
+
+                    // Combine all parts
+                    const text = `
+                        <h3 class="text-xl font-bold mb-2">${aiResponse.mealName || 'Your Meal'}</h3>
+                        ${ingredientsHtml}
+                        ${instructionsHtml}
+                        ${macrosHtml}
+                    `;
+                    // --- END NEW RENDERING LOGIC ---
 
                     
                     // Add the action buttons
