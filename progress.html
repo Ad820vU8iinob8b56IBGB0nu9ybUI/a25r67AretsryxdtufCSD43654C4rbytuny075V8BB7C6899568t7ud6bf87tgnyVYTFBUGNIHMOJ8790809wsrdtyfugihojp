@@ -273,12 +273,15 @@
                         <div class="w-full h-96 flex items-center justify-center"><canvas id="progress-chart"></canvas></div>
                     </div>
 
-                    <div class="content-card">
-                        <h2 class="text-2xl font-semibold mb-4">AI Progress Insights</h2>
-                        <ul id="progress-insights-output" class="list-disc list-inside space-y-2 text-secondary-text">
-                            <li>Log your weight daily to generate powerful insights.</li>
-                        </ul>
-                    </div>
+                    <details class="content-card" id="detailed-analytics-section">
+                        <summary class="font-semibold text-lg">📊 Show Detailed Analytics</summary>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Detailed Analytics & Export</h3>
+                            <div id="detailed-analytics-output" class="space-y-4">
+                                <p class="text-secondary-text">Log data to see detailed analytics including historical trends, monthly summaries, and export options.</p>
+                            </div>
+                        </div>
+                    </details>
                 </section>
 
                 <!-- Section 2: Goals Panel (Profile Form & Adaptive Plan) -->
