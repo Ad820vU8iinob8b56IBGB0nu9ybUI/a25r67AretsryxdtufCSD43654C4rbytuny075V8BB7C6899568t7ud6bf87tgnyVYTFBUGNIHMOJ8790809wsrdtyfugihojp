@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full"> <!-- ADDED h-full -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,129 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Added for barcode scanning --><script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <link rel="stylesheet" href="../styles.css">
+
     <style>
-        /* Dark theme is the default */
-        :root {
-            --background: #000000;
-            --primary-text: #eaeaea;
-            --secondary-text: #888888;
-            --card-bg: #111111;
-            --input-bg: #191919;
-            --border-color: #222222;
-            --accent: #FFFFFF;
-            --accent-hover: #DDDDDD;
-            --danger: #E53E3E;
-            --edit: #3b82f6;
-        }
-
-        /* Light theme overrides */
-        [data-theme="light"] {
-            --background: #f8fafc; /* slate-50 */
-            --primary-text: #0f172a; /* slate-900 */
-            --secondary-text: #64748b; /* slate-500 */
-            --card-bg: #ffffff;
-            --input-bg: #f1f5f9; /* slate-100 */
-            --border-color: #e2e8f0; /* slate-200 */
-            --accent: #0f172a; /* slate-900 */
-            --accent-hover: #334155; /* slate-700 */
-        }
-
-
         html, body {
             overscroll-behavior-y: contain;
         }
 
-        body {
-            background-color: var(--background);
-            color: var(--primary-text);
-            font-family: 'Manrope', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        .content-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        /* RE-ADDED from original file for the grams input */
-        .form-input, .form-select {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            color: var(--primary-text);
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
-        }
-
-        .btn {
-            border-radius: 0.5rem;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transform: translateY(0);
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background-color: var(--accent);
-            color: var(--background);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--primary-text);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background-color: var(--border-color);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: var(--primary-text);
-        }
-
-        .btn-danger:hover:not(:disabled) {
-             background-color: #C53030;
-        }
-
-        /* NEW: Styles for video overlay buttons */
+        /* Styles for video overlay buttons */
         .btn-overlay {
             background-color: rgba(0, 0, 0, 0.7);
             color: var(--primary-text); /* Force light text */
@@ -142,12 +28,10 @@
         }
         
         .btn-overlay:hover:not(:disabled) {
-            /* MODIFIED: Changed to a neutral dark hover */
             background-color: rgba(0, 0, 0, 0.85); 
-            transform: translateY(0); /* Override default btn hover */
+            transform: translateY(0);
         }
 
-        /* NEW: Rules for danger buttons */
         .btn-overlay.btn-overlay-danger {
             background-color: rgba(229, 62, 62, 0.7); /* Red base color */
         }
@@ -156,292 +40,401 @@
             background-color: rgba(229, 62, 62, 0.9); /* Darker red hover */
         }
 
-        /* NEW: Set z-index for overlay buttons higher than carousel nav */
         .btn-overlay {
             z-index: 20;
         }
         
-        /* NEW: Styles for the item overlay content */
+        /* MODIFIED: Item overlay for filmstrip */
         .item-overlay-content {
-            position: relative;
+            position: absolute; 
             bottom: 0;
             left: 0;
             right: 0;
-            /* MODIFIED: Made gradient more solid at the bottom */
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0) 100%);
-            backdrop-filter: blur(4px); /* Kept blur */
-            -webkit-backdrop-filter: blur(4px);
-            /* RE-ADD: Rounded corners to match parent */
-            border-bottom-left-radius: 0.75rem;
-            border-bottom-right-radius: 0.75rem;
-            /* MODIFIED: Reduced bottom padding */
-            padding: 2.5rem 1rem 0.25rem 1rem; 
+            /* MODIFIED: Lighter gradient for smaller card */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-bottom-left-radius: 0.5rem; /* Match parent */
+            border-bottom-right-radius: 0.5rem; /* Match parent */
+            padding: 1.5rem 0.5rem 0.25rem 0.5rem; 
             color: var(--primary-text);
             text-align: left;
-            opacity: 1; /* MODIFIED: Always visible */
-            transition: opacity 0.3s ease; /* Kept transition for fade-ins if needed, but not on hover */
-            display: flex; /* Use flex for internal layout */
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* MODIFIED: Align content to bottom */
-            pointer-events: auto; /* MODIFIED: Always interactive */
-            z-index: 10; /* Below carousel buttons */
-        }
-
-        /* REMOVED: .scroll-item:hover .item-overlay-content rule */
-        /*
-        .scroll-item:hover .item-overlay-content {
-            opacity: 1; 
+            justify-content: flex-end;
             pointer-events: auto;
+            z-index: 10;
         }
-        */
 
         .item-overlay-content p {
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.25rem;
-            color: var(--primary-text); /* Ensure text is visible */
+            font-size: 0.75rem; /* text-xs */
+            line-height: 1rem;
+            color: var(--primary-text);
         }
 
         .item-overlay-content .item-title {
             font-weight: 600; /* font-semibold */
-            /* MODIFIED: Removed margin-bottom, now handled by flex container */
-            /* margin-bottom: 0.5rem; */ 
+            font-size: 0.75rem; /* text-xs */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .item-overlay-content .item-nutrients {
-            font-size: 0.75rem; /* text-xs */
-            color: var(--secondary-text);
-            /* MODIFIED: Removed margin-bottom, now handled by flex container */
-            /* margin-bottom: 0.75rem; */
+            display: none; /* Hide nutrients on small filmstrip */
         }
-
-        /* REMOVED: Full-width button style */
-        /*
-        .item-overlay-content .btn {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-        */
-        /* END: Item Details Overlay */
         
-        /* REMOVED: Modal styles */
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .loader {
-            border: 2px solid #333;
-            border-top: 2px solid var(--accent);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Carousel Styles */
+        /* MODIFIED: Carousel Wrapper is now the filmstrip container */
         .carousel-wrapper {
             position: relative;
             width: 100%;
-            margin: 0 auto;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            background-color: rgba(17, 17, 17, 0.7);
-            color: var(--primary-text);
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            width: 2.5rem;
-            height: 2.5rem;
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            opacity: 0;
-            pointer-events: none;
+            z-index: 15; /* Above camera, below buttons */
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            /* ADDED: Ensure it doesn't shrink */
+            flex-shrink: 0; 
         }
 
-        .carousel-btn.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        /* REMOVED: Carousel Button Styles */
 
-        .carousel-btn:hover {
-            background-color: var(--input-bg);
-        }
-        .carousel-prev { left: -0.75rem; }
-        .carousel-next { right: -0.75rem; }
-
+        /* MODIFIED: Horizontal scroll container for filmstrip */
         .horizontal-scroll-container {
             display: flex;
             flex-direction: row;
             flex-wrap: nowrap;
             overflow-x: auto;
             scroll-behavior: smooth;
-            scroll-snap-type: x mandatory;
-            gap: 1rem;
-            padding-top: 1rem;
+            /* MODIFIED: Add snap type for fluid scroll */
+            scroll-snap-type: x mandatory; 
+            gap: 0.75rem; /* 12px */
             padding-bottom: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
             -ms-overflow-style: none;
             scrollbar-width: none;
+            cursor: grab;
         }
         .horizontal-scroll-container::-webkit-scrollbar {
             display: none;
         }
+        .horizontal-scroll-container:active {
+            cursor: grabbing;
+        }
+        
+        /* MODIFIED: Scroll item for filmstrip */
         .scroll-item {
-            flex: 0 0 85%; /* Default item width */
-            width: 85%;
-            scroll-snap-align: center;
+            flex: 0 0 7rem; /* w-28 */
+            width: 7rem; /* w-28 */
+            height: 7rem; /* h-28 */
+            scroll-snap-align: start; /* Snap to start */
             white-space: normal;
         }
-        /* Centering padding */
-        .horizontal-scroll-container::before,
-        .horizontal-scroll-container::after {
-            content: '';
-            width: calc((100% - 85%) / 2 - 0.5rem);
-            flex-shrink: 0;
+        /* REMOVED: Centering padding */
+        
+        /* REMOVED: scanner-carousel specific styles */
+
+        /* Custom scrollbar for the scanned items list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-text);
+        }
+        .custom-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: thin;  /* Firefox */
+            scrollbar-color: var(--border-color) transparent;
         }
 
-        /* Wider items for scanner carousels */
-        .scanner-carousel .scroll-item {
-            flex: 0 0 95%; /* Make scanner items wider */
-            width: 95%;
-            scroll-snap-align: start; /* Align to start for better visibility */
+        /* --- MODIFIED: Photo Popup Styles --- */
+        #photo-popup {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: scale(0.9);
+            display: none; /* Hidden by default */
+            /* MODIFIED: Positioned absolutely inside the camera container */
+            position: absolute;
+            top: 1rem; /* 4 */
+            left: 1rem; /* 4 */
+            z-index: 30; /* Above video, below buttons */
+            width: 6rem; /* w-24 */
+            height: 6rem; /* h-24 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border-width: 2px;
+            border-color: #FFFFFF; /* border-white */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            overflow: hidden;
+            opacity: 0;
         }
-        .scanner-carousel::before,
-        .scanner-carousel::after {
-            width: calc((100% - 95%) / 2 - 0.5rem);
+        #photo-popup.show {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
         }
+        #photo-popup.hide {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        /* --- REMOVED: Camera Overlay Styles --- */
+        /* Tailwind classes will handle this now */
+        /* --- END: Camera Overlay Styles --- */
+
     </style>
 </head>
-<body class="antialiased">
-
-     <script>
-         // Apply theme immediately
-         (function() {
-             const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
-             document.documentElement.setAttribute('data-theme', theme);
-         })();
-     </script>
-
-    <!-- REMOVED "Open Scanner" Button Section --><!-- <div class="container mx-auto max-w-lg px-4 py-12 text-center"> ... </div> --><!-- NEW: AI Scanner is now embedded directly on the page --><div class="container mx-auto max-w-lg px-4 py-12">
-        <div class="space-y-4">
-            <!-- Removed the modal header and close button --><h2 class="text-2xl font-bold mb-6 text-center">AI Scanner</h2>
-            
-            <!-- This container is no longer needed here --><!-- <div id="ai-live-camera-container" class="relative"> ... </div> --><p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem]"></p>
-            
-            <!-- MODIFIED: Wrapper is no longer hidden by default --><div id="ai-scanner-carousel-wrapper" class="carousel-wrapper">
-                <button id="ai-scanner-prev" type="button" class="carousel-btn carousel-prev"><i data-lucide="chevron-left"></i></button>
-                
-                <!-- MODIFIED: Container now holds the camera AND results. min-h-[300px] is removed for h-96 items. --><div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel mt-4 !flex !flex-row !flex-nowrap">
-                    
-                    <!-- Results injected here --><!-- MODIFIED: "Start Camera" button is now SECOND-TO-LAST item --><div id="ai-scanner-initial-options" class="scroll-item h-96 !flex-shrink-0 flex flex-col items-center justify-center p-4 bg-input-bg rounded-lg hidden">
-                        <button id="start-ai-camera-btn" class="btn bg-white text-black hover:bg-gray-200"><i data-lucide="camera"></i>Start Camera</button>
-                    </div>
-
-                    <!-- NEW: ADDED BACK THE MISSING LIVE CAMERA CONTAINER --><div id="ai-live-camera-container" class="scroll-item h-96 !flex-shrink-0 bg-input-bg rounded-lg relative overflow-hidden">
-                        <video id="ai-camera-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
-                        <canvas id="ai-camera-canvas" class="hidden"></canvas> <!-- For capturing frames --><!-- Top-left button: Stop Camera (REMOVED) --><!-- 
-                        <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-2 !rounded-full absolute top-3 left-3" title="Close Camera">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button> 
-                        --><!-- Bottom-left button: Log All --><button id="log-all-scanned-btn" class="btn btn-overlay !p-2 !rounded-full absolute bottom-3 left-3" title="Log All New Items">
-                            <i data-lucide="check-check" class="w-5 h-5"></i>
-                        </button>
-
-                        <!-- Bottom-center button: Capture --><div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-                            <button id="capture-ai-photo-btn" class="btn btn-overlay !p-2 !rounded-full" title="Capture Photo">
-                                <i data-lucide="camera" class="w-5 h-5"></i>
-                            </button>
-                            <!-- MOVED: Stop Camera button --><button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-2 !rounded-full" title="Close Camera">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                        
-                        <!-- Bottom-right button: Upload --><label for="ai-upload-photo-input" class="btn btn-overlay !p-2 !rounded-full absolute bottom-3 right-3 cursor-pointer" title="Upload Photo">
-                            <i data-lucide="upload" class="w-5 h-5"></i>
-                        </label>
-                        <input type="file" id="ai-upload-photo-input" class="hidden" accept="image/*" multiple>
-                    </div>
-                    <!-- END: ADDED BACK CAMERA CONTAINER --></div>
-                <button id="ai-scanner-next" type="button" class="carousel-btn carousel-next"><i data-lucide="chevron-right"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NEW: ADDED BACK LOGGED ITEMS DISPLAY --><div class="container mx-auto max-w-lg px-4 py-6 text-left">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">Today's Scanned Items</h2>
-            <a href="nutrition.html" class="btn btn-secondary !p-2 text-xs">
-                <i data-lucide="pie-chart" class="w-4 h-4"></i>
-                View Nutrition
-            </a>
-        </div>
-        <div id="scanned-log-display" class="space-y-2">
-            <p class="text-secondary-text">No items scanned and logged yet.</p>
-        </div>
-    </div>
-    <!-- END: ADDED BACK LOGGED ITEMS DISPLAY --><!-- REMOVED: Item Details Modal --><!--
-    <div id="item-details-modal" class="modal-backdrop" style="z-index: 60;">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Item Details</h2>
-                <button id="close-item-details-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
-            </div>
-            <div id="item-details-content" class="min-h-[100px] flex items-center justify-center">
-                <div class="loader mx-auto"></div>
-            </div>
-        </div>
-    </div>
-    --><!-- Hidden helper for html5-qrcode library --><div id="barcode-reader-hidden-helper" class="hidden"></div>
-
+<!-- MODIFIED: Added h-full, flex, flex-col, overflow-hidden -->
+<body class="antialiased h-full flex flex-col overflow-hidden">
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Apply theme immediately
+        (function() {
+            const theme = localStorage.getItem('fitTrackAI_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    
+    <!-- REMOVED: Photo Popup Container from here -->
+
+    <div id="header-placeholder"></div>
+
+    <!-- Main content area, adjusted padding for header/footer -->
+    <!-- MODIFIED: Removed container, max-w, margins, and padding. Added flex-grow, overflow-hidden, flex, flex-col -->
+    <div class="content-card flex-grow overflow-hidden flex flex-col">
+        <!-- MODIFIED: Added flex-grow, flex, flex-col, p-4 -->
+        <div class="space-y-4 flex-grow flex flex-col p-4">
+            
+            <!-- MODIFIED: This is now the main camera view. Replaced h-96 with flex-grow -->
+            <div id="ai-live-camera-container" class="!flex-shrink-0 bg-input-bg rounded-lg relative overflow-hidden flex-grow">
+                
+                <!-- MOVED: Photo Popup Container here -->
+                <div id="photo-popup">
+                    <!-- MODIFIED: Added object-cover -->
+                    <img id="photo-popup-img" src="" alt="Scanned item" class="w-full h-full object-cover">
+                </div>
+
+                <!-- MODIFIED: Camera Off Overlay - Now uses canvas and Tailwind -->
+                <div id="camera-overlay" class="absolute inset-0 z-20 rounded-lg overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+                    <!-- Canvas for last frame -->
+                    <canvas id="camera-overlay-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
+                    <!-- Darkening layer -->
+                    <div class="absolute top-0 left-0 w-full h-full bg-black/70 backdrop-blur-sm"></div>
+                    <!-- Button container -->
+                    <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">
+                        <button id="start-camera-overlay-btn" class="btn bg-white text-black hover:bg-gray-200"><i data-lucide="camera"></i>Start Camera</button>
+                    </div>
+                </div>
+
+                <!-- ADDED: AI Scanner Title Overlay -->
+                <h2 class="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-lg font-bold text-white bg-black/30 px-4 py-1 rounded-full pointer-events-none">
+                    AI Scanner
+                </h2>
+                
+                <!-- MODIFIED: Reverted to object-cover -->
+                <video id="ai-camera-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
+                <canvas id="ai-camera-canvas" class="hidden"></canvas> 
+                
+                <!-- MODIFIED: Close button moved to top-right -->
+                <a href="javascript:history.back()" id="scanner-close-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 right-4 z-30" title="Close Scanner">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </a>
+                
+                <!-- ADDED: Today's Log Button -->
+                <button id="scanned-log-popup-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 left-4 z-30" title="Today's Log">
+                    <i data-lucide="list" class="w-5 h-5"></i>
+                </button>
+
+                <!-- MODIFIED: log-all-scanned-btn replaced with flip-camera-btn -->
+                <button id="flip-camera-btn" class="btn btn-overlay !p-2 !rounded-full absolute bottom-3 left-3" title="Flip Camera">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                    <button id="capture-ai-photo-btn" class="btn btn-overlay !p-2 !rounded-full" title="Capture Photo">
+                        <i data-lucide="camera" class="w-5 h-5"></i>
+                    </button>
+                    <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-2 !rounded-full" title="Close Camera">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <label for="ai-upload-photo-input" class="btn btn-overlay !p-2 !rounded-full absolute bottom-3 right-3 cursor-pointer" title="Upload Photo">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                </label>
+                <input type="file" id="ai-upload-photo-input" class="hidden" accept="image/*" multiple>
+            </div>
+            
+            <!-- MOVED: ai-scanner-status is now at the bottom of this card -->
+            
+            <!-- MODIFIED: Carousel wrapper is now the filmstrip -->
+            <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper">
+                <div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel !flex !flex-row !flex-nowrap">
+                    <!-- Scanned items will be prepended here by JS -->
+                </div>
+            </div>
+            
+            <!-- MOVED: ai-scanner-status is here -->
+            <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem] mt-4 flex-shrink-0"></p> <!-- ADDED flex-shrink-0 -->
+        </div>
+    </div>
+
+    <!-- REMOVED: Today's Scanned Items section from here -->
+
+    <!-- Hidden helper for html5-qrcode library -->
+    <div id="barcode-reader-hidden-helper" class="hidden"></div>
+    
+    <!-- --- ADDED: Undo Toast --- -->
+    <div id="undo-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 transform opacity-0 transition-all duration-300 z-[100]
+                        bg-input-bg border border-border-color rounded-lg shadow-lg flex items-center gap-4 py-3 px-4">
+        <span id="undo-toast-text" class="text-sm text-primary-text">Item removed.</span>
+        <button id="undo-toast-btn" class="font-semibold text-blue-400 hover:text-blue-300 text-sm">Undo</button>
+    </div>
+
+    <!-- ADDED: Scanned Log Modal -->
+    <div id="scanned-log-modal" class="modal-backdrop" style="z-index: 1001;">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Today's Scanned Items</h2>
+                <button id="close-scanned-log-modal-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div id="scanned-log-display" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">
+                <p class="text-secondary-text">No items scanned and logged yet.</p>
+            </div>
+            <button id="scanned-log-modal-ok-btn" class="btn btn-primary w-full mt-6">Close</button>
+        </div>
+    </div>
+    <!-- END: Scanned Log Modal -->
+
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        // --- Load Header and Footer ---
+        async function loadComponent(url, placeholderId) {
+            // ... (existing loadComponent function) ...
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                let text = await response.text();
+                
+                text = text.replace(/href="index\.html"/g, 'href="../../index.html"');
+                text = text.replace(/href="settings\.html"/g, 'href="../../settings.html"');
+                text = text.replace(/href="nutrition\.html"/g, 'href="../../nutrition.html"');
+                text = text.replace(/href="workouts\.html"/g, 'href="../../workouts.html"');
+                text = text.replace(/href="sleep\.html"/g, 'href="../../sleep.html"');
+                text = text.replace(/href="progress\.html"/g, 'href="../../progress.html"');
+                text = text.replace(/href="social\.html"/g, 'href="../../social.html"');
+
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = text;
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = `<p class="text-red-500 text-center">Error loading component.</p>`;
+                }
+            }
+        }
+
+        async function initializeLayout() {
+            // ... (existing initializeLayout function) ...
+            await Promise.all([
+                loadComponent('../header.html', 'header-placeholder'),
+                loadComponent('../footer.html', 'footer-placeholder')
+            ]);
+            lucide.createIcons(); 
+
+            const currentPage = 'nutrition';
+            const navLinks = document.querySelectorAll('#mobile-footer-nav .nav-link');
+            navLinks.forEach(link => {
+                const linkPage = link.getAttribute('data-page');
+                if (linkPage === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            initializeAppPage();
+        }
+        // --- End Load Header and Footer ---
+
+        // --- Original page script wrapped in a function ---
+        function initializeAppPage() {
             let foodCameraStream = null;
             let html5QrCode = null;
+            // ADDED: Camera facing mode state
+            let currentFacingMode = 'environment';
 
-            // --- NEW: Local log state ---
             let scannerLogs = {};
             let viewDate = new Date();
             viewDate.setHours(0, 0, 0, 0);
-            // --- END: Local log state ---
 
-            // --- UI ELEMENT DEFINITIONS ---
+            let isDragging = false;
+            let dragStartX = 0;
+            // MODIFIED: Reverted drag logic
+            let scrollLeftStart = 0;
+            let dragDeltaX = 0;
+            
+            // --- MODIFIED: Added variables for new drag logic ---
+            let currentTranslate = 0;
+            let startTranslate = 0;
+            let animationFrameId = null;
+
+            // --- ADDED: Undo Toast State ---
+            let undoTimeout = null;
+            let lastAction = null;
+            // --- END: Undo Toast State ---
+
             const ui = {
                 uploadPhotoInput: document.getElementById('ai-upload-photo-input'),
                 scannerResultsContainer: document.getElementById('ai-scanner-results-container'),
                 foodScannerStatus: document.getElementById('ai-scanner-status'),
-                foodScannerInitialOptions: document.getElementById('ai-scanner-initial-options'),
+                // REMOVED: foodScannerInitialOptions
                 liveCameraContainer: document.getElementById('ai-live-camera-container'),
-                startFoodCameraBtn: document.getElementById('start-ai-camera-btn'),
+                // ADDED: cameraOverlay and startCameraOverlayBtn
+                cameraOverlay: document.getElementById('camera-overlay'),
+                startCameraOverlayBtn: document.getElementById('start-camera-overlay-btn'),
                 stopFoodCameraBtn: document.getElementById('stop-ai-camera-btn'),
                 captureFoodPhotoBtn: document.getElementById('capture-ai-photo-btn'),
                 foodCameraVideo: document.getElementById('ai-camera-video'),
                 foodCameraCanvas: document.getElementById('ai-camera-canvas'),
                 foodScannerCarouselWrapper: document.getElementById('ai-scanner-carousel-wrapper'),
-                foodScannerPrev: document.getElementById('ai-scanner-prev'),
-                foodScannerNext: document.getElementById('ai-scanner-next'),
+                // REMOVED foodScannerPrev and foodScannerNext from UI object
                 scannedLogDisplay: document.getElementById('scanned-log-display'),
-                logAllBtn: document.getElementById('log-all-scanned-btn'),
-                // REMOVED: Item details modal elements
-                // itemDetailsModal: document.getElementById('item-details-modal'),
-                // itemDetailsContent: document.getElementById('item-details-content'),
-                // closeItemDetailsModalBtn: document.getElementById('close-item-details-modal-btn'),
+                // MODIFIED: logAllBtn -> flipCameraBtn
+                flipCameraBtn: document.getElementById('flip-camera-btn'),
+                // --- ADDED: Undo Toast UI ---
+                undoToast: document.getElementById('undo-toast'),
+                undoToastText: document.getElementById('undo-toast-text'),
+                undoToastBtn: document.getElementById('undo-toast-btn'),
+                // --- ADDED: Photo Popup UI ---
+                photoPopup: document.getElementById('photo-popup'),
+                photoPopupImg: document.getElementById('photo-popup-img'),
+                // --- ADDED: Scanned Log Modal UI ---
+                scannedLogPopupBtn: document.getElementById('scanned-log-popup-btn'),
+                scannedLogModal: document.getElementById('scanned-log-modal'),
+                closeScannedLogModalBtn: document.getElementById('close-scanned-log-modal-btn'),
+                scannedLogModalOkBtn: document.getElementById('scanned-log-modal-ok-btn'),
             };
 
-            // --- GEMINI API ---
             const getApiUrl = (model, action = 'generateContent') => {
-                 const apiKey = ""; // Leave empty for Canvas environment
-                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
+                const apiKey = "AIzaSyA8-WLMo2U2Km-FN2r_fYk8OUfxyZ7dJoM"; // Leave empty for Canvas environment
+                return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
 
-            // Helper function to make API calls with exponential backoff
             async function fetchWithBackoff(apiUrl, payload, maxRetries = 3) {
+                // ... (existing fetchWithBackoff function) ...
                 for (let i = 0; i < maxRetries; i++) {
                     try {
                         const response = await fetch(apiUrl, {
@@ -457,84 +450,64 @@
                             const hasStructuredResponse = payload.generationConfig?.responseMimeType === "application/json";
 
                            if (hasText || hasImageData || hasStructuredResponse) {
-                                return result; // Successful and valid response structure
+                                return result;
                             } else {
                                 console.warn("API response structure unexpected, but status OK:", result);
                                 if (i === maxRetries - 1) throw new Error("Invalid API response format after retries.");
                             }
-                        } else if (response.status === 429 || response.status >= 500) { // Retry
+                        } else if (response.status === 429 || response.status >= 500) {
                             if (i === maxRetries - 1) throw new Error(`API Error: ${response.status} after ${maxRetries} attempts.`);
                             const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
                             await new Promise(resolve => setTimeout(resolve, delay));
-                        } else { // Don't retry for other client errors (4xx)
+                        } else {
                             throw new Error(`API Error: ${response.status} - ${await response.text()}`);
                         }
                     } catch (error) {
                         console.error(`Fetch attempt ${i + 1} failed:`, error);
-                        if (i === maxRetries - 1) throw error; // Re-throw final error
+                        if (i === maxRetries - 1) throw error;
                         const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
                 throw new Error("API call failed after all retries.");
             }
-            // --- END GEMINI API ---
 
-            // REMOVED: Modal show/hide functions
-            // function showModal(modalElement) { ... }
-            // function hideModal(modalElement) { ... }
-            // --- END Modal functions ---
-
-            // --- Helper Functions ---
             function capitalizeWords(str) { if (!str) return ''; return str.replace(/\b\w/g, char => char.toUpperCase()); }
 
-            function setupCarousel(containerId, prevBtnId, nextBtnId) {
-                const container = document.getElementById(containerId);
-                const prevBtn = document.getElementById(prevBtnId);
-                const nextBtn = document.getElementById(nextBtnId);
-                const wrapper = container ? container.closest('.carousel-wrapper') : null;
-
-                if (!container || !prevBtn || !nextBtn || !wrapper) {
-                     console.warn(`Carousel setup failed for ${containerId}. Missing elements.`);
-                     return;
+            // --- ADDED: Modal Show/Hide ---
+            let openModalCount = 0;
+            function showModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'flex';
+                if (openModalCount === 0) {
+                    // document.body.style.overflow = 'hidden'; // Body overflow is already hidden
                 }
+                openModalCount++;
+            }
+            function hideModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'none';
+                openModalCount--;
+                if (openModalCount <= 0) {
+                    // document.body.style.overflow = '';
+                    openModalCount = 0; // Failsafe
+                }
+            }
+            // --- END: Modal Show/Hide ---
 
-                const updateCarouselButtons = () => {
-                    const scrollLeft = container.scrollLeft;
-                    const scrollWidth = container.scrollWidth;
-                    const clientWidth = container.clientWidth;
-                    
-                    // NEW: Check how many items are visible
-                    const visibleItems = container.querySelectorAll('.scroll-item:not(.hidden)').length;
-
-                    prevBtn.classList.toggle('visible', scrollLeft > 10 && visibleItems > 1);
-                    nextBtn.classList.toggle('visible', scrollLeft < scrollWidth - clientWidth - 10 && visibleItems > 1);
-                };
-
-                const scrollAmount = () => {
-                    const firstItem = container.querySelector('.scroll-item');
-                    return firstItem ? firstItem.offsetWidth + 16 : container.offsetWidth * 0.9;
-                };
-
-                prevBtn.onclick = () => {
-                    container.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
-                };
-
-                nextBtn.onclick = () => {
-                    container.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
-                };
-
-                container.addEventListener('scroll', updateCarouselButtons);
-                setTimeout(updateCarouselButtons, 100);
+            // REMOVED setupCarousel function
+            function fileToGenerativePart(file) { 
+                // ... (existing fileToGenerativePart function) ...
+                return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { const base64Data = reader.result.split(',')[1]; resolve({ inlineData: { mimeType: file.type, data: base64Data } }); }; reader.onerror = (err) => reject(err); reader.readAsDataURL(file); }); 
             }
 
-            function fileToGenerativePart(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => { const base64Data = reader.result.split(',')[1]; resolve({ inlineData: { mimeType: file.type, data: base64Data } }); }; reader.onerror = (err) => reject(err); reader.readAsDataURL(file); }); }
-
-
-            // --- NEW: Local Log Functions ---
-            function dateToKey(date) { return date.toISOString().split('T')[0]; }
+            function dateToKey(date) { 
+                // ... (existing dateToKey function) ...
+                return date.toISOString().split('T')[0]; 
+            }
 
             function getTodaysLog() {
+                // ... (existing getTodaysLog function) ...
                 const key = dateToKey(viewDate);
                 if (!scannerLogs[key]) {
                     scannerLogs[key] = { entries: [] };
@@ -543,20 +516,114 @@
             }
 
             function saveScannerLog() {
+                // ... (existing saveScannerLog function) ...
                 localStorage.setItem('scannerAI_logs', JSON.stringify(scannerLogs));
             }
 
             function loadScannerLog() {
+                // ... (existing loadScannerLog function) ...
                 scannerLogs = JSON.parse(localStorage.getItem('scannerAI_logs')) || {};
             }
 
+            // --- ADDED: Undo Toast Functions ---
+            function showUndoToast(message, onUndo) {
+                clearTimeout(undoTimeout);
+                lastAction = { onUndo }; // Store the undo callback
+                ui.undoToastText.textContent = message;
+                ui.undoToast.classList.add('opacity-100', '!-translate-x-1/2');
+                ui.undoToast.classList.remove('opacity-0', 'translate-y-24'); // translate-y-24 was from a different style
+
+                undoTimeout = setTimeout(hideUndo, 5000); // 5 seconds
+            }
+
+            function hideUndo() {
+                lastAction = null;
+                ui.undoToast.classList.remove('opacity-100', '!-translate-x-1/2');
+                ui.undoToast.classList.add('opacity-0');
+            }
+            // --- END: Undo Toast Functions ---
+            
+            // --- ADDED: Unified Delete Function ---
+            function deleteLogItem(logId, source = 'list') {
+                const dayLog = getTodaysLog();
+                const logIndex = dayLog.entries.findIndex(entry => entry.logId === logId);
+
+                if (logIndex === -1) return; // Item not found
+
+                const itemToDelete = dayLog.entries.splice(logIndex, 1)[0];
+                if (!itemToDelete) return;
+
+                saveScannerLog();
+                renderScannerLog(); // Update bottom list
+
+                // Find the carousel card
+                const carouselLogButton = ui.scannerResultsContainer.querySelector(`.ai-log-button[data-log-id="${logId}"]`);
+                
+                if (source === 'carouselDblClick') {
+                    // Remove the card from the carousel
+                    if (carouselLogButton) {
+                        const itemToRemove = carouselLogButton.closest('.scroll-item');
+                        if (itemToRemove) {
+                            itemToRemove.remove();
+                            // After removing, we must recalculate positions for the drag logic
+                            // REMOVED: updateCarouselPositions();
+                        }
+                    }
+                } else {
+                    // Just update the button to "unlogged" state
+                    if (carouselLogButton) {
+                        logButtonSetState(carouselLogButton, false, null);
+                    }
+                }
+
+                // Show undo
+                showUndoToast(`Removed "${itemToDelete.name}"`, () => {
+                    // Undo logic
+                    dayLog.entries.splice(logIndex, 0, itemToDelete); // Re-insert item
+                    saveScannerLog();
+                    renderScannerLog();
+                    
+                    // If we removed the card, we can't easily add it back.
+                    // So we'll just update the button state *if it still exists*.
+                    const buttonToRestore = ui.scannerResultsContainer.querySelector(`.ai-log-button[data-log-id="${logId}"]`);
+                    if (buttonToRestore) {
+                        logButtonSetState(buttonToRestore, true, logId);
+                    }
+                    // If the card was removed (carouselDblClick), it stays removed for simplicity.
+                    // The item is restored to the log list, which is the main goal.
+                });
+            }
+
+            // --- ADDED: Helper to set log button state ---
+            function logButtonSetState(button, isLogged, logId) {
+                if (isLogged) {
+                    button.innerHTML = '<i data-lucide="check-check" class="w-4 h-4 pointer-events-none"></i>';
+                    button.title = 'Logged! (Tap to undo)';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-secondary');
+                    button.isLogged = true;
+                    button.logId = logId;
+                    button.dataset.logId = logId;
+                } else {
+                    button.innerHTML = '<i data-lucide="check" class="w-4 h-4 pointer-events-none"></i>';
+                    button.title = 'Log this';
+                    button.classList.remove('btn-secondary');
+                    button.classList.add('btn-primary');
+                    button.isLogged = false;
+                    button.logId = null;
+                    button.dataset.logId = "null";
+                }
+                lucide.createIcons({ root: button });
+            }
+
+
             function renderScannerLog() {
+                // ... (existing renderScannerLog function) ...
                 const dayLog = getTodaysLog();
                 if (dayLog.entries.length === 0) {
                     ui.scannedLogDisplay.innerHTML = '<p class="text-secondary-text">No items scanned and logged yet.</p>';
                     return;
                 }
-
                 ui.scannedLogDisplay.innerHTML = dayLog.entries.map((item, index) => `
                     <div class="bg-card-bg border border-border-color p-3 rounded-lg flex justify-between items-center">
                         <div>
@@ -568,16 +635,11 @@
                         </button>
                     </div>
                 `).join('');
-                
-                lucide.createIcons(); // Moved inside to render new icons
-                
+                lucide.createIcons();
             } 
 
-            /* REMOVED: checkLogAllButtonVisibility function */
-            
-            // --- Scanner Core Functions ---
-
             async function getAiImageClassification(imagePart) {
+                // ... (existing getAiImageClassification function) ...
                 const prompt = "Is this image primarily a barcode or a picture of food? Respond with ONLY 'barcode' or 'food'.";
                 const apiUrl = getApiUrl('gemini-2.5-flash-preview-09-2025');
                 const payload = { contents: [{ parts: [{ text: prompt }, imagePart] }] };
@@ -591,12 +653,10 @@
                 }
             }
 
-           // MODIFIED: Takes resultElement directly
            async function processBarcodeScan(decodedText, file, resultElement) {
+                // ... (existing processBarcodeScan function) ...
                 const overlayContent = resultElement.querySelector('.item-overlay-content');
                 if (!overlayContent) return;
-
-                // Show loader within the overlay
                 overlayContent.innerHTML = '<div class="loader mx-auto"></div>';
 
                 try {
@@ -615,13 +675,17 @@
                         const servingMatch = String(product.serving_size).match(/(\d+(\.\d+)?)/);
                         if (servingMatch) { defaultGrams = parseFloat(servingMatch[0]); }
                     } else if (product.quantity) {
-                         const quantityMatch = String(product.quantity).match(/(\d+(\.\d+)?)/);
-                         if (quantityMatch) { defaultGrams = parseFloat(quantityMatch[0]); }
+                          const quantityMatch = String(product.quantity).match(/(\d+(\.\d+)?)/);
+                          if (quantityMatch) { defaultGrams = parseFloat(quantityMatch[0]); }
                     }
 
                     const productName = capitalizeWords(product.product_name) || 'Scanned Item';
-
-                    // --- NEW: Auto-log logic ---
+                    
+                    if ((productName === 'Scanned Item' && per100g.calories === 0) || !product.product_name) {
+                        overlayContent.innerHTML = `<p class="text-yellow-400 text-xs">Could not identify this barcode. Please try a food photo instead.</p>`;
+                        return;
+                    }
+                    
                     const logId = Date.now();
                     const servings = 1;
                     const grams = defaultGrams;
@@ -630,7 +694,7 @@
                         servings: servings, grams: grams,
                         calories: (per100g.calories / 100 * grams) || 0, 
                         protein: (per100g.protein / 100 * grams) || 0, 
-                        carbs: (per100g.carbs / 100 * grams) || 0, // <-- Fixed bug from per100g.carbohydrates
+                        carbs: (per100g.carbs / 100 * grams) || 0,
                         fat: (per100g.fat / 100 * grams) || 0,
                         sugar: (per100g.sugar / 100 * grams) || 0, 
                         sodium: (per100g.sodium / 100 * grams) || 0, 
@@ -640,57 +704,41 @@
                     dayLog.entries.unshift(foodItem);
                     saveScannerLog();
                     renderScannerLog();
-                    // --- END: Auto-log logic ---
 
                     overlayContent.innerHTML = `
                         <div>
                             <div class="flex justify-between items-start gap-2">
                                 <div>
                                     <p class="item-title">${productName} (est. ${defaultGrams.toFixed(0)}g)</p>
-                                    <p class="item-nutrients">${per100g.calories.toFixed(0)} kcal | ${per100g.protein.toFixed(1)}p | ${per100g.carbs.toFixed(1)}c | ${per100g.fat.toFixed(1)}f</p>
+                                    <!-- Hiding nutrients in filmstrip -->
                                 </div>
-                                <!-- MODIFIED: Default to logged state (btn-secondary, check-check, logId) -->
                                 <button class="btn btn-secondary ai-log-button !p-2 !rounded-full !flex-shrink-0" data-log-id="${logId}" title="Logged! (Tap to undo)">
                                     <i data-lucide="check-check" class="w-4 h-4 pointer-events-none"></i>
                                 </button>
                             </div>
                         </div>
                     `;
-                    lucide.createIcons({ root: overlayContent }); // Render the new icon
+                    lucide.createIcons({ root: overlayContent });
                     
                     const logButton = overlayContent.querySelector('.ai-log-button');
-                    
-                    // --- NEW: Set initial state for the button ---
-                    logButton.isLogged = true;
-                    logButton.logId = logId;
+                    logButtonSetState(logButton, true, logId); // Use helper
 
                     logButton.onclick = () => {
-                        const servings = 1; // Assuming 1 serving for a scanned item unless more sophisticated logic
+                        const servings = 1;
                         const grams = defaultGrams;
 
                         if (logButton.isLogged) {
-                            const dayLog = getTodaysLog();
-                            const logIndex = dayLog.entries.findIndex(entry => entry.logId === logButton.logId);
-                            if (logIndex > -1) {
-                                dayLog.entries.splice(logIndex, 1);
-                                saveScannerLog();
-                                renderScannerLog();
-                            }
-                            logButton.innerHTML = '<i data-lucide="check" class="w-4 h-4 pointer-events-none"></i>';
-                            logButton.title = 'Log this';
-                            logButton.classList.remove('btn-secondary');
-                            logButton.classList.add('btn-primary');
-                            logButton.isLogged = false;
-                            logButton.logId = null;
-                            lucide.createIcons({ root: logButton }); // Re-render icon
+                            // --- MODIFIED: Use deleteLogItem ---
+                            deleteLogItem(logButton.logId, 'logButton');
+                            logButtonSetState(logButton, false, null); // State is set in deleteLogItem
                         } else {
-                            const logId = Date.now();
+                            const newLogId = Date.now();
                             const foodItem = {
-                                logId: logId, name: productName, brand: product.brands || '',
+                                logId: newLogId, name: productName, brand: product.brands || '',
                                 servings: servings, grams: grams,
                                 calories: (per100g.calories / 100 * grams) || 0, 
                                 protein: (per100g.protein / 100 * grams) || 0, 
-                                carbs: (per100g.carbs / 100 * grams) || 0, // <-- Fixed bug from per100g.carbohydrates
+                                carbs: (per100g.carbs / 100 * grams) || 0,
                                 fat: (per100g.fat / 100 * grams) || 0,
                                 sugar: (per100g.sugar / 100 * grams) || 0, 
                                 sodium: (per100g.sodium / 100 * grams) || 0, 
@@ -700,14 +748,7 @@
                             dayLog.entries.unshift(foodItem);
                             saveScannerLog();
                             renderScannerLog();
-
-                            logButton.innerHTML = '<i data-lucide="check-check" class="w-4 h-4 pointer-events-none"></i>';
-                            logButton.title = 'Logged! (Tap to undo)';
-                            logButton.classList.remove('btn-primary');
-                            logButton.classList.add('btn-secondary');
-                            logButton.isLogged = true;
-                            logButton.logId = logId;
-                            lucide.createIcons({ root: logButton }); // Re-render icon
+                            logButtonSetState(logButton, true, newLogId);
                         }
                     };
 
@@ -717,74 +758,79 @@
                 }
             }
 
-            // NEW: Auto-stop function for observer
             function autoStopAiCamera() {
+                // ... (existing autoStopAiCamera function) ...
                 if (foodCameraStream) {
                     foodCameraStream.getTracks().forEach(track => track.stop());
                     foodCameraStream = null;
-                    ui.foodScannerStatus.textContent = 'Camera paused. Scroll back to resume.';
+                    ui.foodScannerStatus.textContent = 'Camera paused.';
                 }
             }
 
-            // MODIFIED: Renamed from stopAiCamera
+            // --- MODIFIED: manualStopAiCamera ---
             function manualStopAiCamera() {
+                // --- Capture last frame ---
+                const video = ui.foodCameraVideo;
+                const overlayCanvas = document.getElementById('camera-overlay-canvas');
+                if (overlayCanvas && video.videoWidth > 0 && video.videoHeight > 0) {
+                    try {
+                        const overlayCtx = overlayCanvas.getContext('2d');
+                        overlayCanvas.width = video.videoWidth;
+                        overlayCanvas.height = video.videoHeight;
+                        overlayCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                    } catch (e) {
+                        console.error("Error drawing last frame to canvas:", e);
+                    }
+                }
+                // --- End capture ---
+
                 if (foodCameraStream) {
                     foodCameraStream.getTracks().forEach(track => track.stop());
                     foodCameraStream = null;
                 }
-                // This part shows the "Start" card
-                ui.liveCameraContainer.classList.add('hidden');
-                ui.foodScannerInitialOptions.classList.remove('hidden');
-                setTimeout(() => {
-                    ui.foodScannerInitialOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }, 100);
-                ui.foodScannerStatus.textContent = '';
+                
+                // Use opacity for transition
+                ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                
+                ui.foodScannerStatus.textContent = 'Camera off. Tap to start.';
                 if (html5QrCode && html5QrCode.isScanning) {
                     html5QrCode.stop().catch(err => console.error("Error stopping barcode scanner:", err));
                 }
             }
 
             async function startAiCamera() {
-                // MODIFIED: This function is now more robust.
-                
-                // If the "Start" card is visible, hide it.
-                if (!ui.foodScannerInitialOptions.classList.contains('hidden')) {
-                    ui.foodScannerInitialOptions.classList.add('hidden');
-                }
-                
-                // Always make sure the camera container is visible.
+                // --- MODIFIED: startAiCamera ---
+                // Hide overlay
+                ui.cameraOverlay.classList.add('opacity-0', 'pointer-events-none');
                 ui.liveCameraContainer.classList.remove('hidden');
 
-                // If stream already exists, just scroll to it and exit.
-                // This handles the seamless observer logic.
                 if (foodCameraStream) {
-                    setTimeout(() => {
-                        ui.liveCameraContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                    }, 100);
-                    return;
+                    foodCameraStream.getTracks().forEach(track => track.stop());
+                    foodCameraStream = null;
                 }
 
-                // If we're here, the stream doesn't exist and we need to start it.
                 ui.foodScannerStatus.textContent = 'Starting camera...';
                 try {
-                    foodCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    foodCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
                     ui.foodCameraVideo.srcObject = foodCameraStream;
                     ui.foodScannerStatus.textContent = 'Camera active. Point and capture.';
-                    // MODIFIED: Scroll to camera view after it starts
-                    setTimeout(() => {
-                        ui.liveCameraContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                    }, 100); // Small delay for rendering
+                    
+                    // MODIFIED: No scroll, camera is fixed
                 } catch (err) {
                     console.error("Camera access error:", err);
-                    ui.foodScannerStatus.textContent = 'Could not access camera.';
-                    manualStopAiCamera(); // Use manual stop to show "Start" button
+                    ui.foodScannerStatus.textContent = `Could not access ${currentFacingMode} camera.`;
+                    manualStopAiCamera(); // Show overlay on failure
                 }
             }
 
-            /* MODIFIED: Renamed stopAiCamera to manualStopAiCamera */
-            // function stopAiCamera() { ... }
+            // --- ADDED: Flip Camera Function ---
+            function flipCamera() {
+                currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+                startAiCamera(); // Restart camera with new mode
+            }
 
             function captureAiPhoto() {
+                // ... (existing captureAiPhoto function) ...
                 const video = ui.foodCameraVideo;
                 const canvas = ui.foodCameraCanvas;
                 canvas.width = video.videoWidth;
@@ -800,12 +846,10 @@
                 }, 'image/jpeg', 0.9);
             }
 
-            // MODIFIED: Takes resultElement directly
             async function processFoodImageAI(imagePart, resultElement) {
+                // ... (existing processFoodImageAI function) ...
                 const overlayContent = resultElement.querySelector('.item-overlay-content');
                 if (!overlayContent) return;
-
-                // Show loader within the overlay
                 overlayContent.innerHTML = '<div class="loader mx-auto"></div>';
 
                 try {
@@ -818,13 +862,23 @@
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response format.");
 
                     const data = JSON.parse(result.candidates[0].content.parts[0].text);
+                    const foodName = capitalizeWords(data.name) || 'Unknown Food';
+
+                    if (foodName.toLowerCase().includes('unknown') || foodName.toLowerCase().includes('no food') || foodName.toLowerCase().includes('not food')) {
+                        overlayContent.innerHTML = `
+                            <div>
+                                <p class="item-title text-yellow-400">No food detected</p>
+                                <p class="item-nutrients">Please try capturing the image again.</p>
+                            </div>
+                        `;
+                        return;
+                    }
                     
-                    // --- NEW: Auto-log logic ---
                     const logId = Date.now();
                     const servings = data.servings || 1;
                     const grams = data.totalGrams || 0;
                     const foodItem = {
-                        logId: logId, name: capitalizeWords(data.name) || 'Scanned Food', brand: data.brand || '',
+                        logId: logId, name: foodName, brand: data.brand || '',
                         servings: servings, grams: grams,
                         calories: data.calories || 0, protein: data.protein || 0, carbs: data.carbs || 0, fat: data.fat || 0,
                         sugar: data.sugar || 0, sodium: data.sodium || 0, potassium: data.potassium || 0,
@@ -833,55 +887,37 @@
                     dayLog.entries.unshift(foodItem);
                     saveScannerLog();
                     renderScannerLog();
-                    // --- END: Auto-log logic ---
                     
                     overlayContent.innerHTML = `
                         <div>
                             <div class="flex justify-between items-start gap-2">
                                 <div>
-                                    <p class="item-title">${capitalizeWords(data.name) || 'Unknown Food'} (${(data.servings || 1).toFixed(1)} serv.)</p>
+                                    <p class="item-title">${foodName} (${(data.servings || 1).toFixed(1)} serv.)</p>
                                     <p class="item-nutrients">${data.calories?.toFixed(0) || '?'} kcal | ${data.protein?.toFixed(1) || '?'}p | ${data.carbs?.toFixed(1) || '?'}c | ${data.fat?.toFixed(1) || '?'}f</p>
                                 </div>
-                                <!-- MODIFIED: Default to logged state (btn-secondary, check-check, logId) -->
                                 <button class="btn btn-secondary ai-log-button !p-2 !rounded-full !flex-shrink-0" data-log-id="${logId}" title="Logged! (Tap to undo)">
                                     <i data-lucide="check-check" class="w-4 h-4 pointer-events-none"></i>
                                 </button>
                             </div>
                         </div>
                     `;
-                    lucide.createIcons({ root: overlayContent }); // Render the new icon
+                    lucide.createIcons({ root: overlayContent });
 
                     const logButton = overlayContent.querySelector('.ai-log-button');
-                    
-                    // --- NEW: Set initial state for the button ---
-                    logButton.isLogged = true;
-                    logButton.logId = logId;
+                    logButtonSetState(logButton, true, logId); // Use helper
 
                     logButton.onclick = () => {
                         const servings = data.servings || 1;
                         const grams = data.totalGrams || 0;
 
                         if (logButton.isLogged) {
-                            // UNLOG
-                            const dayLog = getTodaysLog();
-                            const logIndex = dayLog.entries.findIndex(entry => entry.logId === logButton.logId);
-                            if (logIndex > -1) {
-                                dayLog.entries.splice(logIndex, 1);
-                                saveScannerLog();
-                                renderScannerLog();
-                            }
-                            logButton.innerHTML = '<i data-lucide="check" class="w-4 h-4 pointer-events-none"></i>';
-                            logButton.title = 'Log this';
-                            logButton.classList.remove('btn-secondary');
-                            logButton.classList.add('btn-primary');
-                            logButton.isLogged = false;
-                            logButton.logId = null;
-                            lucide.createIcons({ root: logButton }); // Re-render icon
+                            // --- MODIFIED: Use deleteLogItem ---
+                            deleteLogItem(logButton.logId, 'logButton');
+                            logButtonSetState(logButton, false, null); // State is set in deleteLogItem
                         } else {
-                            // LOG
-                            const logId = Date.now();
+                            const newLogId = Date.Now();
                             const foodItem = {
-                                logId: logId, name: capitalizeWords(data.name) || 'Scanned Food', brand: data.brand || '',
+                                logId: newLogId, name: foodName, brand: data.brand || '',
                                 servings: servings, grams: grams,
                                 calories: data.calories || 0, protein: data.protein || 0, carbs: data.carbs || 0, fat: data.fat || 0,
                                 sugar: data.sugar || 0, sodium: data.sodium || 0, potassium: data.potassium || 0,
@@ -890,14 +926,7 @@
                             dayLog.entries.unshift(foodItem);
                             saveScannerLog();
                             renderScannerLog();
-
-                            logButton.innerHTML = '<i data-lucide="check-check" class="w-4 h-4 pointer-events-none"></i>';
-                            logButton.title = 'Logged! (Tap to undo)';
-                            logButton.classList.remove('btn-primary');
-                            logButton.classList.add('btn-secondary');
-                            logButton.isLogged = true;
-                            logButton.logId = logId;
-                            lucide.createIcons({ root: logButton }); // Re-render icon
+                            logButtonSetState(logButton, true, newLogId);
                         }
                     };
 
@@ -908,9 +937,8 @@
                 }
             }
 
-            // MODIFIED: Takes resultElement directly
             async function classifyAndProcessImage(file, resultElement) {
-                // Initial loader is now inside the overlay
+                // ... (existing classifyAndProcessImage function) ...
                 const overlayContent = resultElement.querySelector('.item-overlay-content');
                 if (overlayContent) {
                     overlayContent.innerHTML = '<div class="loader mx-auto"></div>';
@@ -927,15 +955,15 @@
                                 html5QrCode = new Html5Qrcode("barcode-reader-hidden-helper");
                             }
                             const decodedText = await html5QrCode.scanFile(file, false);
-                            await processBarcodeScan(decodedText, file, resultElement); // Pass resultElement
+                            await processBarcodeScan(decodedText, file, resultElement);
                         } catch (err) {
                              console.warn("Local barcode scan failed, falling back to food AI:", err);
                             ui.foodScannerStatus.textContent = 'Barcode scan failed, trying food analysis...';
-                            await processFoodImageAI(imagePart, resultElement); // Pass resultElement
+                            await processFoodImageAI(imagePart, resultElement);
                         }
                     } else if (classification.includes('food')) {
                         ui.foodScannerStatus.textContent = 'Food detected, analyzing...';
-                        await processFoodImageAI(imagePart, resultElement); // Pass resultElement
+                        await processFoodImageAI(imagePart, resultElement);
                     } else {
                         throw new Error("Could not classify image.");
                     }
@@ -949,126 +977,164 @@
             }
 
             function handleAiScanFiles(files) {
+                // ... (existing handleAiScanFiles function) ...
                 if (!files || files.length === 0) return;
-                 
                 const filesArray = Array.from(files);
+                
+                // --- ADDED: Double-tap state ---
+                let lastTap = 0;
 
                 for(const file of filesArray) {
                     const resultElement = document.createElement('div');
-                    resultElement.className = 'scroll-item bg-input-bg rounded-lg text-center !flex-shrink-0 h-96 overflow-hidden relative';
+                    // MODIFIED: Smaller filmstrip item styles
+                    resultElement.className = 'scroll-item bg-input-bg rounded-lg text-center !flex-shrink-0 h-28 w-28 overflow-hidden relative';
 
                     resultElement.innerHTML = `
-                        <img class="w-full h-full object-cover" src="https://placehold.co/400x600/191919/191919?text=." alt="Scanned item placeholder">
+                        <!-- MODIFIED: Added object-cover -->
+                        <img class="w-full h-full object-cover" src="https://placehold.co/112x112/191919/191919?text=." alt="Scanned item placeholder">
                         <div class="item-overlay-content">
-                            <!-- Loader or actual content will be injected here by classifyAndProcessImage --></div>
+                        </div>
                     `;
                     
-                    ui.scannerResultsContainer.insertBefore(resultElement, ui.foodScannerInitialOptions);
+                    // --- ADDED: Double-tap listener ---
+                    resultElement.addEventListener('click', (e) => {
+                        // Don't interfere with button clicks
+                        if (e.target.closest('button')) {
+                            return;
+                        }
+
+                        const currentTime = new Date().getTime();
+                        const timeSinceLastTap = currentTime - lastTap;
+
+                        if (timeSinceLastTap < 300 && timeSinceLastTap > 0) { // Double tap
+                            // Find the log button to get the logId
+                            const logButton = resultElement.querySelector('.ai-log-button');
+                            if (logButton && logButton.logId) {
+                                deleteLogItem(logButton.logId, 'carouselDblClick');
+                            }
+                            lastTap = 0; // Reset tap
+                        } else {
+                            lastTap = currentTime;
+                        }
+                    });
+
+
+                    // MODIFIED: Prepend to the carousel container
+                    ui.scannerResultsContainer.prepend(resultElement);
 
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const imageUrl = e.target.result;
                         const img = resultElement.querySelector('img');
-img.src = imageUrl;
+                        img.src = imageUrl;
+
+                        // --- Show Photo Popup ---
+                        if (ui.photoPopup && ui.photoPopupImg) {
+                            ui.photoPopupImg.src = imageUrl;
+                            ui.photoPopup.style.display = 'block'; // Make it visible for transition
+                            setTimeout(() => { // Timeout to allow display:block to register before transition
+                                ui.photoPopup.classList.add('show');
+                                ui.photoPopup.classList.remove('hide');
+                            }, 10);
+
+                            setTimeout(() => {
+                                ui.photoPopup.classList.add('hide');
+                                ui.photoPopup.classList.remove('show');
+                                setTimeout(() => {
+                                    if (!ui.photoPopup.classList.contains('show')) {
+                                        ui.photoPopup.style.display = 'none';
+                                    }
+                                }, 300);
+                            }, 2000); // Show for 2 seconds
+                        }
+                        // --- End Photo Popup ---
                         
-                        // Immediately start classification and populate overlay
                         classifyAndProcessImage(file, resultElement);
                     };
                      reader.onerror = () => {
                          const overlayContent = resultElement.querySelector('.item-overlay-content');
                          if (overlayContent) {
-                            overlayContent.innerHTML = `<p class="text-red-400 text-xs">Error reading file.</p>`;
+                             overlayContent.innerHTML = `<p class="text-red-400 text-xs">Error reading file.</p>`;
                          }
                      };
                      reader.readAsDataURL(file);
 
+                    // MODIFIED: Scroll to the camera, not the new element
                     setTimeout(() => {
+                        // Scroll to the new item first, then snap back
                         resultElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                     }, 100); 
                 }
-                 setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next');
+                 // REMOVED call to setupCarousel
             }
             
-            // --- EVENT LISTENERS ---
+            function getPointerCoordinates(e) {
+                return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
+            }
+
+            // --- REMOVED: Carousel Drag Logic ---
+            // Native scroll is now used for the filmstrip
             
-            ui.startFoodCameraBtn.addEventListener('click', startAiCamera);
+            // --- MODIFIED: Listeners ---
+            ui.scannerResultsContainer.addEventListener('mousedown', (e) => {
+                // Simple grab cursor logic
+                ui.scannerResultsContainer.style.cursor = 'grabbing';
+            });
+            ui.scannerResultsContainer.addEventListener('mouseup', () => {
+                ui.scannerResultsContainer.style.cursor = 'grab';
+            });
+            ui.scannerResultsContainer.addEventListener('mouseleave', () => {
+                ui.scannerResultsContainer.style.cursor = 'grab';
+            });
+
+
+            ui.startCameraOverlayBtn.addEventListener('click', startAiCamera); // Listener for new button
             ui.stopFoodCameraBtn.addEventListener('click', manualStopAiCamera);
             ui.captureFoodPhotoBtn.addEventListener('click', captureAiPhoto);
             ui.uploadPhotoInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files));
 
-            // NEW: Listener for removing items from the local log
             ui.scannedLogDisplay.addEventListener('click', (e) => {
                 const removeBtn = e.target.closest('.remove-log-btn');
                 if (removeBtn) {
                     const logId = parseInt(removeBtn.dataset.logId);
                     if (isNaN(logId)) return;
-
-                    const dayLog = getTodaysLog();
-                    const logIndex = dayLog.entries.findIndex(entry => entry.logId === logId);
-                    
-                    if (logIndex > -1) {
-                        dayLog.entries.splice(logIndex, 1);
-                        saveScannerLog();
-                        renderScannerLog();
-
-                        // --- NEW: Find and update carousel button ---
-                        const carouselLogButton = ui.scannerResultsContainer.querySelector(`.ai-log-button[data-log-id="${logId}"]`);
-                        if (carouselLogButton) {
-                            carouselLogButton.innerHTML = '<i data-lucide="check" class="w-4 h-4 pointer-events-none"></i>';
-                            carouselLogButton.title = 'Log this';
-                            carouselLogButton.classList.remove('btn-secondary');
-                            carouselLogButton.classList.add('btn-primary');
-                            carouselLogButton.isLogged = false;
-                            carouselLogButton.logId = null;
-                            carouselLogButton.dataset.logId = "null";
-                            lucide.createIcons({ root: carouselLogButton });
-                        }
-                        // --- END: Find and update carousel button ---
-                    }
+                    // --- MODIFIED: Use deleteLogItem ---
+                    deleteLogItem(logId, 'list');
                 }
             });
 
-            // NEW: Event listener for Log All button
-            ui.logAllBtn.addEventListener('click', () => {
-                // Find all un-logged buttons
-                const logButtons = ui.scannerResultsContainer.querySelectorAll('.ai-log-button.btn-primary');
-                let loggedCount = 0;
-                logButtons.forEach(btn => {
-                    btn.click(); // This will trigger the individual log logic and state change
-                    loggedCount++;
-                });
-            }); 
-            
-            // REMOVED: Close item details modal event listener
-            // ui.closeItemDetailsModalBtn.addEventListener('click', () => { ... });
+            // MODIFIED: logAllBtn -> flipCameraBtn
+            ui.flipCameraBtn.addEventListener('click', flipCamera); 
 
-            // NEW: Camera observer
-            const cameraObserver = new IntersectionObserver((entries) => {
-                const entry = entries[0];
-                // Only act if the live camera card is *supposed* to be visible
-                if (!ui.liveCameraContainer.classList.contains('hidden')) {
-                    if (entry.isIntersecting && entry.intersectionRatio > 0.9) {
-                        // Scrolled *to* the camera. If it's not running, start it.
-                        if (!foodCameraStream) {
-                            startAiCamera();
-                        }
-                    } else if (!entry.isIntersecting && foodCameraStream) {
-                        // Scrolled *away* from the camera. If it's running, stop it.
-                        autoStopAiCamera();
-                    }
+            // --- ADDED: Undo Button Listener ---
+            ui.undoToastBtn.addEventListener('click', () => {
+                if (lastAction && typeof lastAction.onUndo === 'function') {
+                    lastAction.onUndo();
                 }
-            }, { threshold: [0.1, 0.9] }); // Fire at 10% and 90% visibility
+                hideUndo();
+            });
+            
+            // --- ADDED: Scanned Log Modal Listeners ---
+            ui.scannedLogPopupBtn.addEventListener('click', () => {
+                renderScannerLog(); // Ensure list is up-to-date
+                showModal(ui.scannedLogModal);
+            });
+            ui.closeScannedLogModalBtn.addEventListener('click', () => hideModal(ui.scannedLogModal));
+            ui.scannedLogModalOkBtn.addEventListener('click', () => hideModal(ui.scannedLogModal));
 
-            cameraObserver.observe(ui.liveCameraContainer);
+
+            // REMOVED: Camera Observer
                 
-            // --- INITIAL LOAD ---
             loadScannerLog();
             renderScannerLog();
-            setupCarousel('ai-scanner-results-container', 'ai-scanner-prev', 'ai-scanner-next');
-            lucide.createIcons();
             
+            // Initial setup
+            // REMOVED: updateCarouselPositions(); 
             startAiCamera(); // Start camera on load
-        });
+        }
+
+        // Initialize layout and page logic on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initializeLayout);
     </script>
 </body>
 </html>
