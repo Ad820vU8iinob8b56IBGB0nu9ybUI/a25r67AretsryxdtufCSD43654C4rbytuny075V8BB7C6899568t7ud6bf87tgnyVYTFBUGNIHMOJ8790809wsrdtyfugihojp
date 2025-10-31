@@ -1207,7 +1207,70 @@
             
             function updateChartRangeButtons() { /* ...unchanged... */ document.querySelectorAll('.chart-range-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.range === activeChartRange); }); }
             function fullRenderAllCharts() { /* ...unchanged... */ if (!isDataLoaded) return; renderProgressChart(activeChartRange); renderSleepProgressChart(activeChartRange); renderNutritionProgressChart(activeChartRange); renderWorkoutProgressChart(activeChartRange); }
-            function fullRender() { /* ...unchanged... */ if (!isDataLoaded) return; populateProfileForm(); generateCaloriePlan(); calculateAndRenderAnalytics(); fullRenderAllCharts(); }
+
+            function renderDetailedAnalytics() {
+                if (!isDataLoaded || !userProfile.weightHistory || userProfile.weightHistory.length < 2) {
+                    ui.detailedAnalyticsOutput.innerHTML = '<p class="text-secondary-text">Log data consistently to see detailed analytics.</p>';
+                    return;
+                }
+
+                let html = '<div class="space-y-6">';
+
+                // Monthly summaries
+                const monthlyData = {};
+                userProfile.weightHistory.forEach(entry => {
+                    const date = new Date(entry.date.replace(/-/g, '/'));
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = [];
+                    }
+                    monthlyData[monthKey].push(entry);
+                });
+
+                html += '<h4 class="font-semibold mb-3">Monthly Summary</h4>';
+                html += '<div class="space-y-2 text-sm">';
+                Object.entries(monthlyData).sort().reverse().forEach(([month, entries]) => {
+                    const monthName = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    const firstEntry = entries[0];
+                    const lastEntry = entries[entries.length - 1];
+                    const monthlyChange = lastEntry.weight - firstEntry.weight;
+                    const changeColor = monthlyChange < 0 ? '#34d399' : (monthlyChange === 0 ? '#60a5fa' : '#ef4444');
+                    html += `
+                        <div class="flex justify-between items-center p-2 bg-opacity-50 rounded border border-border-color">
+                            <span>${monthName}</span>
+                            <span style="color: ${changeColor}; font-weight: 600;">
+                                ${monthlyChange > 0 ? '+' : ''}${monthlyChange.toFixed(1)} kg
+                            </span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                // Trend analysis
+                html += '<h4 class="font-semibold mt-6 mb-3">Trend Analysis</h4>';
+                const weeklyAvg = calculateWeeklyAverage(userProfile.weightHistory, 4);
+                const monthlyTrend = calculateWeeklyAverage(userProfile.weightHistory, 12) * 4.33; // Convert to monthly
+                html += `
+                    <div class="space-y-2 text-sm">
+                        <div><span>4-week average:</span> <strong>${weeklyAvg.toFixed(2)} kg/week</strong></div>
+                        <div><span>12-week average:</span> <strong>${(monthlyTrend / 4.33).toFixed(2)} kg/week</strong></div>
+                        <div><span>Total entries:</span> <strong>${userProfile.weightHistory.length}</strong></div>
+                    </div>
+                `;
+
+                html += '</div>';
+                ui.detailedAnalyticsOutput.innerHTML = html;
+            }
+
+            function fullRender() {
+                /* Calculate analytics once at the beginning */
+                if (!isDataLoaded) return;
+                populateProfileForm();
+                generateCaloriePlan();
+                calculateAndRenderAnalytics();
+                renderDetailedAnalytics();
+                fullRenderAllCharts();
+            }
 
             // --- EVENT LISTENERS (UPDATED) ---
             function setupEventListeners() {
