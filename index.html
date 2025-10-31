@@ -69,6 +69,7 @@
             justify-content: center;
             z-index: 1000;
         }
+        /* MODIFIED: This is no longer used for the check-in modal, but kept for prompt-modal */
         .modal-content {
             position: relative;
             z-index: 1001;
@@ -190,6 +191,33 @@
             color: var(--accent-hover);
         }
         /* --- END: Styles for Undo Toast --- */
+
+        /* --- ADDED: Styles for Feedback Toast --- */
+        #feedback-toast {
+            position: fixed;
+            bottom: 5rem; /* 80px */
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+            background-color: var(--card-bg);
+            color: var(--primary-text); /* NOT green */
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem; /* 12px 20px */
+            border-radius: 0.75rem; /* 12px, more rounded */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the text */
+            z-index: 100;
+            width: calc(100% - 2rem); /* 90% width on mobile */
+            max-width: 320px;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+        }
+        #feedback-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        /* --- END: Styles for Feedback Toast --- */
 
         /* --- ADDED: Styles for rearranging quick actions --- */
         /* This class is for non-draggable items like the settings button */
@@ -366,49 +394,50 @@
                 <!-- REMOVED: Settings Button from grid -->
 
                 <!-- CHANGED: Replaced simple button with swipe-enabled button -->
-                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                    <button id="quick-log-water-btn" data-action-id="water" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden h-20 sm:h-24 quick-action-item" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
-                    <!-- Swipe backgrounds -->
-                    <div id="water-swipe-actions" class="swipe-actions">
-                            <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center">
-                                <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
-                            </div>
-                            <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center">
-                                <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
-                            </div>
-                            <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center">
-                            <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                        <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                        <button id="quick-log-water-btn" data-action-id="water" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden h-20 sm:h-24 quick-action-item" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
+                        <!-- Swipe backgrounds -->
+                        <div id="water-swipe-actions" class="swipe-actions">
+                                <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center">
+                                    <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                                </div>
+                                <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center">
+                                    <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                                </div>
+                                <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center">
+                                    <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                                </div>
                         </div>
-                    </div>
-                    <!-- ADDED: Re-added water fill span -->
-                    <span id="water-fill"></span>
-                    <!-- This is the part that moves -->
-                    <!-- MODIFIED: Added !bg-transparent to keep fill visible -->
-                    <div id="water-swipe-content" class="swipe-content relative w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 !p-2 sm:!p-4 !bg-transparent">
-                        <!-- REPLACED SVG with original lucide icon -->
-                        <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
-                        <span class="text-xs sm:text-sm">Log Water</span>
-                    </div>
-                </button>
+                        <!-- ADDED: Re-added water fill span -->
+                        <span id="water-fill"></span>
+                        <!-- This is the part that moves -->
+                        <!-- MODIFIED: Added !bg-transparent to keep fill visible -->
+                        <div id="water-swipe-content" class="swipe-content relative w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 !p-2 sm:!p-4 !bg-transparent">
+                            <!-- REPLACED SVG with original lucide icon -->
+                            <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
+                            <!-- MODIFIED: Added ID to this span -->
+                            <span id="water-log-text" class="text-xs sm:text-sm">Log Water</span>
+                        </div>
+                    </button>
 
                 <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                    <a href="assets/nutrition/scan-combined.html" data-action-id="scan" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                        <i data-lucide="scan-line" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                        <span class="text-xs sm:text-sm">Scan Food</span>
-                    </a>
-                    
-                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                    <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" data-action-id="macro" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                        <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                        <span class="text-xs sm:text-sm">Macro Swap</span>
-                    </a>
-                    
-                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
-                    <button id="quick-log-weight-btn" data-action-id="weight" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
-                        <!-- CHANGE 3: Replaced icon -->
-                        <i data-lucide="gauge" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                        <span class="text-xs sm:text-sm">Log Weight</span>
-                    </button>
+                        <a href="assets/nutrition/scan-combined.html" data-action-id="scan" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                            <i data-lucide="scan-line" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            <span class="text-xs sm:text-sm">Scan Food</span>
+                        </a>
+                        
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                        <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" data-action-id="macro" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                            <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            <span class="text-xs sm:text-sm">Macro Swap</span>
+                        </a>
+                        
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                        <button id="quick-log-weight-btn" data-action-id="weight" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                            <!-- CHANGE 3: Replaced icon -->
+                            <i data-lucide="gauge" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            <span class="text-xs sm:text-sm">Log Weight</span>
+                        </button>
                 </div>
                 <!-- CHANGED: Removed quick action feedback p tag -->
             </div>
@@ -417,30 +446,29 @@
             
              <div class="content-card">
                 <h3 class="text-2xl font-bold mb-4">Weekly Progress (Weight & Calories)</h3>
-                 <div class="h-64">
-                    <canvas id="weekly-progress-chart"></canvas>
-                </div>
+                    <div class="h-64">
+                        <canvas id="weekly-progress-chart"></canvas>
+                    </div>
             </div>
         </main>
     </div>
 
     <!-- ADDED: Check-in Modal -->
+    <!-- MODIFIED: Removed modal-content wrapper -->
     <div id="check-in-modal-overlay" class="modal-overlay">
-        <div id="check-in-modal-content" class="modal-content">
-            <!-- This is the content from the old "daily-check-in-card" -->
-            <div class="content-card !mb-0"> <!-- !mb-0 to prevent double margin -->
-                <button id="check-in-modal-close-btn" class="modal-close-btn">&times;</button>
-                <h3 class="text-2xl font-semibold mb-4">Daily Check-in</h3>
-                <p class="text-sm text-secondary-text mb-4">Log your weight for today.</p>
-                <form id="check-in-form" class="flex flex-col gap-4">
-                    <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
-                    <button type="submit" id="check-in-btn" class="btn btn-primary w-full">
-                        <span class="btn-text">Check In</span>
-                        <div class="loader hidden"></div>
-                    </button>
-                </form>
-                <div id="check-in-feedback" class="mt-4 text-sm h-5 text-center"></div>
-            </div>
+        <!-- MODIFIED: Added 'relative' class for close button positioning -->
+        <div class="content-card !mb-0 relative w-[90%] max-w-[400px]"> <!-- !mb-0 to prevent double margin -->
+            <button id="check-in-modal-close-btn" class="modal-close-btn">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4">Daily Check-in</h3>
+            <p class="text-sm text-secondary-text mb-4">Log your weight for today.</p>
+            <form id="check-in-form" class="flex flex-col gap-4">
+                <input type="number" step="0.1" id="check-in-weight" placeholder="Current weight (kg)" class="form-input w-full" required>
+                <button type="submit" id="check-in-btn" class="btn btn-primary w-full">
+                    <span class="btn-text">Check In</span>
+                    <div class="loader hidden"></div>
+                </button>
+            </form>
+            <!-- REMOVED: check-in-feedback div -->
         </div>
     </div>
     <!-- END: Check-in Modal -->
@@ -476,7 +504,7 @@
 
     <!-- ADDED: Prompt Modal (for water) -->
     <div id="prompt-modal" class="modal-overlay" style="z-index: 1010;">
-        <div class="modal-content">
+        <div class="content-card modal-content"> <!-- Added content-card for styling -->
             <h2 id="prompt-modal-title" class="text-2xl font-bold mb-4">Input</h2>
             <p id="prompt-modal-text" class="text-secondary-text mb-4"></p>
             <input type="number" id="prompt-modal-input" class="form-input w-full" min="0" step="1">
@@ -492,6 +520,11 @@
     <div id="undo-toast">
         <span id="undo-toast-text"></span>
         <button id="undo-toast-btn">Undo</button>
+    </div>
+
+    <!-- ADDED: Feedback Toast -->
+    <div id="feedback-toast">
+        <span id="feedback-toast-text"></span>
     </div>
 
 
@@ -553,6 +586,7 @@
             let promptCallback = null;
             let lastAction = null;
             let undoTimeout = null;
+            let feedbackTimeout = null; // ADDED: For feedback toast
             let lastWaterLogAmount = 0;
             let openModalCount = 0; // Track open modals
 
@@ -931,7 +965,8 @@
                 
                 // Load all data into the appData object
                 appData.allDailyLogs = JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs')) || {};
-                appData.userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [], weightHistory: [], waterServingSize: 250 }; // Added waterServingSize
+                // MODIFIED: Added default bedtime
+                appData.userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [], weightHistory: [], waterServingSize: 250, bedtime: "22:30" }; 
                 appData.workoutHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutHistory')) || [];
                 appData.workoutStatusHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutStatus')) || {};
                 appData.goals = JSON.parse(localStorage.getItem('fitTrackAI_goals')) || defaultGoals;
@@ -940,6 +975,7 @@
                 if (!appData.userProfile.sleepHistory) appData.userProfile.sleepHistory = [];
                 if (!appData.userProfile.weightHistory) appData.userProfile.weightHistory = [];
                 if (!appData.userProfile.waterServingSize) appData.userProfile.waterServingSize = 250;
+                if (!appData.userProfile.bedtime) appData.userProfile.bedtime = "22:30"; // ADDED
                 
                 // Ensure goals exist
                 if (!appData.goals.water) appData.goals.water = 2500;
@@ -966,9 +1002,6 @@
                 document.getElementById('summary-current-fat').textContent = totals.fat.toFixed(1);
                 document.getElementById('summary-goal-fat').textContent = appData.goals.fat.toFixed(0);
                 const macroSum = totals.protein + totals.carbs + totals.fat;
-                macroChart.data.datasets[0].data = macroSum > 0 ? [totals.protein, totals.carbs, totals.fat] : [1, 1, 1];
-                macroChart.data.datasets[0].borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
-                macroChart.update();
 
                 // ADDED: Update water fill percent
                 const dayLog = getDayLog(new Date());
@@ -979,6 +1012,18 @@
                 if (waterFillEl) {
                     waterFillEl.style.height = `${waterPercent}%`;
                 }
+
+                // ADDED: Update water log button text
+                const waterTextEl = document.getElementById('water-log-text');
+                if (waterTextEl) {
+                    const currentWater = dayLog.water || 0;
+                    const goalWater = appData.goals.water || 2500;
+                    waterTextEl.textContent = `${currentWater} ml`;
+                }
+
+                macroChart.data.datasets[0].data = macroSum > 0 ? [totals.protein, totals.carbs, totals.fat] : [1, 1, 1];
+                macroChart.data.datasets[0].borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+                macroChart.update();
             }
 
             // MODIFICATION 3: Updated renderWorkoutSummary
@@ -1002,18 +1047,63 @@
                     const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
                     const workoutForDay = (savedPlan.workouts || []).find(w => w.day === dayInfo.type);
                     const totalExercises = workoutForDay ? (workoutForDay.exercises || []).length : 0;
-                    const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
+                    const loggedExerciseNames = new Set(loggedExercises.map(ex => ex.name)); // CHANGED
+                    const exerciseCount = loggedExerciseNames.size; // CHANGED
                     const remaining = Math.max(0, totalExercises - exerciseCount);
 
                     if (loggedExercises.length > 0) {
-                        const firstExercise = loggedExercises[0].name;
                         const statusText = (status === 'full' || (totalExercises > 0 && remaining === 0)) ? 'Complete' : (status === 'partial' ? 'In Progress' : 'Logged');
-                        summaryHtml = `<p class="text-xl font-bold text-blue-400 mb-1">${dayInfo.type} (${statusText})</p><p class="text-base font-semibold text-primary-text">Logged ${exerciseCount} exercises.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">View full log</a>`;
+                        
+                        // --- START: MODIFIED LOGIC (Request 1) ---
+                        let nextExerciseName = "";
+                        if (status === 'full' || (totalExercises > 0 && remaining === 0)) {
+                             nextExerciseName = "Workout Complete!";
+                        } else if (workoutForDay && workoutForDay.exercises) {
+                            const plannedExercises = workoutForDay.exercises;
+                            for (const plannedEx of plannedExercises) {
+                                if (!loggedExerciseNames.has(plannedEx.name)) {
+                                    nextExerciseName = plannedEx.name;
+                                    break;
+                                }
+                            }
+                            if (!nextExerciseName) nextExerciseName = "Workout Complete!"; // All planned exercises are logged
+                        } else if (loggedExercises.length > 0) {
+                            // No plan, but exercises logged
+                            nextExerciseName = `Last: ${loggedExercises[loggedExercises.length - 1].name}`;
+                        } else {
+                            nextExerciseName = "No exercises logged.";
+                        }
+                        // --- END: MODIFIED LOGIC (Request 1) ---
+
+                        // --- START: MODIFIED LOGIC (Request 2) ---
+                        const linkText = totalExercises > 0 ? `${exerciseCount} / ${totalExercises} exercises` : 'View full log';
+                        // --- END: MODIFIED LOGIC (Request 2) ---
+
+                        // --- START: NEW DISPLAY LOGIC (User Request) ---
+                        let nextExerciseDisplayHtml = ``;
+                        if (nextExerciseName === "Workout Complete!") {
+                            nextExerciseDisplayHtml = `<p class="text-base font-semibold text-green-400 truncate" title="${nextExerciseName}">${nextExerciseName}</p>`;
+                        } else if (nextExerciseName === "No exercises logged.") {
+                            nextExerciseDisplayHtml = `<p class="text-base font-semibold text-secondary-text truncate">${nextExerciseName}</p>`;
+                        } else if (nextExerciseName.startsWith("Last:")) {
+                            nextExerciseDisplayHtml = `<p class="text-base font-semibold text-primary-text truncate" title="${nextExerciseName}">${nextExerciseName}</p>`;
+                        } else {
+                            nextExerciseDisplayHtml = `<p class="text-base font-semibold text-primary-text truncate" title="Next: ${nextExerciseName}">Next: ${nextExerciseName}</p>`;
+                        }
+                        // --- END: NEW DISPLAY LOGIC (User Request) ---
+
+                        // MODIFIED: summaryHtml to use new variables
+                        summaryHtml = `<p class="text-xl font-bold text-blue-400 mb-1">${dayInfo.type} (${statusText})</p>${nextExerciseDisplayHtml}<a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">${linkText}</a>`;
                         
                         workoutChart.data.datasets[0].data = [exerciseCount, remaining];
                         workoutChart.data.datasets[0].backgroundColor = [status === 'full' ? '#10b981' : '#3b82f6', 'var(--input-bg)'];
                     } else {
-                        summaryHtml = `<p class="text-base font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p class="text-sm">${totalExercises} exercises planned.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">Start your workout</a>`;
+                        // --- START: MODIFIED LOGIC (Request 2) ---
+                        const linkText = totalExercises > 0 ? `0 / ${totalExercises} exercises` : 'Start your workout';
+                        // --- END: MODIFIED LOGIC (Request 2) ---
+                        
+                        summaryHtml = `<p class="text-base font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p class="text-sm">${totalExercises} exercises planned.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">${linkText}</a>`;
+                        
                         // Update chart for not started
                         workoutChart.data.datasets[0].data = [0, Math.max(1, totalExercises)]; // Show at least 1 remaining
                         workoutChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)']; // Red for not started
@@ -1043,7 +1133,32 @@
                          sleepChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)'];
                     } else {
                         const qualityText = '★'.repeat(lastLog.quality) + '☆'.repeat(5 - lastLog.quality);
-                        summaryHtml = `<p class="text-2xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-base text-yellow-400 font-semibold mb-1">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">View details</a>`;
+
+                        // --- START: MODIFIED LOGIC (Request 3) ---
+                        const bedtimeStr = appData.userProfile.bedtime || "22:30";
+                        const [bedtimeHours, bedtimeMinutes] = bedtimeStr.split(':').map(Number);
+                        
+                        const now = new Date();
+                        const bedtime = new Date();
+                        bedtime.setHours(bedtimeHours, bedtimeMinutes, 0, 0);
+
+                        if (now > bedtime) { // If bedtime has passed for today, set it for tomorrow
+                            bedtime.setDate(bedtime.getDate() + 1);
+                        }
+
+                        const diffMs = bedtime - now;
+                        let linkText;
+                        if (diffMs < 0) {
+                            linkText = "Bedtime has passed!";
+                        } else {
+                            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                            linkText = `${diffHours}h ${diffMinutes}m till bedtime`;
+                        }
+                        // --- END: MODIFIED LOGIC (Request 3) ---
+
+                        summaryHtml = `<p class="text-2xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-base text-yellow-400 font-semibold mb-1">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">${linkText}</a>`;
+                        
                         // Update chart
                         const totalHours = totalMinutes / 60;
                         const remainingHours = Math.max(0, goalHours - totalHours);
@@ -1167,6 +1282,15 @@
                 draggedItem.classList.add('dragging'); // For opacity
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', draggedItem.dataset.actionId);
+            }
+            
+            function onDragEnd(e) {
+                if (draggedItem) {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+                }
+                // Clean up all drag-over classes
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
             }
 
             function onGridDragOver(e) {
@@ -1422,9 +1546,7 @@
                     checkInModalOverlay.classList.remove('hidden'); // Use hidden class
                     showModal(checkInModalOverlay);
                     // Reset form state
-                    const feedbackDiv = document.getElementById('check-in-feedback');
                     const weightInput = document.getElementById('check-in-weight');
-                    if(feedbackDiv) feedbackDiv.textContent = '';
                     if(weightInput) weightInput.value = '';
                 }
             }
@@ -1463,6 +1585,25 @@
                 hideUndo();
             });
             // --- END: UNDO TOAST LOGIC ---
+            
+            // --- START: FEEDBACK TOAST LOGIC (Request 4) ---
+            const feedbackToast = document.getElementById('feedback-toast');
+            const feedbackToastText = document.getElementById('feedback-toast-text');
+
+            function showFeedback(message, duration = 3000) {
+                if (!feedbackToast || !feedbackToastText) return;
+                clearTimeout(feedbackTimeout);
+                feedbackToastText.textContent = message;
+                feedbackToast.classList.add('show');
+                feedbackTimeout = setTimeout(hideFeedback, duration);
+            }
+
+            function hideFeedback() {
+                if (!feedbackToast) return;
+                feedbackToast.classList.remove('show');
+            }
+            // --- END: FEEDBACK TOAST LOGIC ---
+
 
             // --- NEW: Water Button Swipe Logic (from nutrition.html) ---
             const quickLogWaterBtn = document.getElementById('quick-log-water-btn');
@@ -1504,7 +1645,7 @@
                     }
                 } else {
                     if (!isSetTotal) {
-                         lastWaterLogAmount = 0;
+                        lastWaterLogAmount = 0;
                     }
                 }
             };
@@ -1622,6 +1763,7 @@
                                 } else {
                                     // Can't use showCustomAlert from here, need to add it or use a simple alert
                                     console.error("Invalid water goal.");
+                                    showFeedback("Invalid goal. Must be 1000-10000ml."); // ADDED
                                 }
                             });
                         }
@@ -1636,6 +1778,7 @@
                                     saveData();
                                 } else {
                                     console.error("Invalid glass size.");
+                                    showFeedback("Invalid size. Must be 1-2000ml."); // ADDED
                                 }
                             });
                             waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
@@ -1683,24 +1826,21 @@
                 });
             }
 
-            // --- MODIFIED: Check-in Form Listener ---
+            // --- MODIFIED: Check-in Form Listener (Request 4) ---
             const checkInForm = document.getElementById('check-in-form');
             if (checkInForm) {
                 checkInForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     
                     const btn = document.getElementById('check-in-btn');
-                    const feedbackDiv = document.getElementById('check-in-feedback');
+                    // REMOVED: feedbackDiv
                     const weightInput = document.getElementById('check-in-weight');
                     
                     const newWeight = parseFloat(weightInput.value);
 
                     if (!newWeight || newWeight <= 0) {
-                        if (feedbackDiv) {
-                            feedbackDiv.textContent = "Please enter a valid weight.";
-                            feedbackDiv.classList.add('text-red-400');
-                            feedbackDiv.classList.remove('text-green-400');
-                        }
+                        // MODIFIED: Use feedback toast
+                        showFeedback("Please enter a valid weight.");
                         return;
                     }
 
@@ -1733,11 +1873,8 @@
                     saveData();
 
                     // Give feedback
-                    if (feedbackDiv) {
-                        feedbackDiv.textContent = `Weight logged as ${newWeight} kg.`;
-                        feedbackDiv.classList.add('text-green-400');
-                        feedbackDiv.classList.remove('text-red-400');
-                    }
+                    // MODIFIED: Use feedback toast
+                    showFeedback(`Weight logged as ${newWeight} kg.`);
                     
                     // Reset button
                     if (btn) {
@@ -1745,9 +1882,9 @@
                             btn.disabled = false;
                             btn.querySelector('.btn-text').style.display = 'inline';
                             btn.querySelector('.loader').classList.add('hidden');
-                            if (feedbackDiv) feedbackDiv.textContent = '';
+                            // REMOVED: feedbackDiv text clear
                             closeCheckInModal();
-                        }, 2000);
+                        }, 1000); // MODIFIED: Shortened timeout
                     }
                     
                     // Re-render charts
