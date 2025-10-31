@@ -160,10 +160,14 @@
             <div id="log-meal-card" class="content-card order-2">
                 <h3 class="text-2xl font-bold mb-6">Log Your Meal</h3>
                 <form id="log-meal-form" class="space-y-4">
-                    <div>
+                    <div class="relative">
                         <label for="food-name-input" class="form-label">Food Name *</label>
                         <input type="text" id="food-name-input" list="favorite-foods-datalist" placeholder="e.g., Chicken Breast" class="form-input mt-1">
                         <datalist id="favorite-foods-datalist"></datalist>
+                        <!-- NEW: Inline dropdown for macro swap suggestions -->
+                        <div id="ai-swap-dropdown" class="ai-swap-dropdown hidden">
+                            <!-- Suggestions will be injected here -->
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
