@@ -426,8 +426,16 @@
             let lastAction = null;
             // --- END: Undo Toast State ---
 
+            // --- ADDED: Gesture Tracking Variables ---
+            let pointerStartX = 0;
+            let pointerStartY = 0;
+            let pointerCurrentX = 0;
+            let pointerCurrentY = 0;
+            let lastDoubleTapTime = 0;
+            let gestureActive = false;
+            // --- END: Gesture Tracking Variables ---
+
             const ui = {
-                uploadPhotoInput: document.getElementById('ai-upload-photo-input'),
                 scannerResultsContainer: document.getElementById('ai-scanner-results-container'),
                 foodScannerStatus: document.getElementById('ai-scanner-status'),
                 // REMOVED: foodScannerInitialOptions
@@ -435,15 +443,12 @@
                 // ADDED: cameraOverlay and startCameraOverlayBtn
                 cameraOverlay: document.getElementById('camera-overlay'),
                 startCameraOverlayBtn: document.getElementById('start-camera-overlay-btn'),
-                stopFoodCameraBtn: document.getElementById('stop-ai-camera-btn'),
                 captureFoodPhotoBtn: document.getElementById('capture-ai-photo-btn'),
                 foodCameraVideo: document.getElementById('ai-camera-video'),
                 foodCameraCanvas: document.getElementById('ai-camera-canvas'),
                 foodScannerCarouselWrapper: document.getElementById('ai-scanner-carousel-wrapper'),
                 // REMOVED foodScannerPrev and foodScannerNext from UI object
                 scannedLogDisplay: document.getElementById('scanned-log-display'),
-                // MODIFIED: logAllBtn -> flipCameraBtn
-                flipCameraBtn: document.getElementById('flip-camera-btn'),
                 // --- ADDED: Undo Toast UI ---
                 undoToast: document.getElementById('undo-toast'),
                 undoToastText: document.getElementById('undo-toast-text'),
@@ -452,7 +457,6 @@
                 photoPopup: document.getElementById('photo-popup'),
                 photoPopupImg: document.getElementById('photo-popup-img'),
                 // --- ADDED: Scanned Log Modal UI ---
-                scannedLogPopupBtn: document.getElementById('scanned-log-popup-btn'),
                 scannedLogModal: document.getElementById('scanned-log-modal'),
                 closeScannedLogModalBtn: document.getElementById('close-scanned-log-modal-btn'),
                 scannedLogModalOkBtn: document.getElementById('scanned-log-modal-ok-btn'),
