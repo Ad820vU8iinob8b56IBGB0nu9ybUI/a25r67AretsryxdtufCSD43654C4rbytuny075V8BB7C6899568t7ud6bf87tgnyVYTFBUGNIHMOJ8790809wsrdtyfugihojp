@@ -1942,10 +1942,10 @@
 
             // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.relative') || e.target.closest('.ai-swap-dropdown') === ui.aiSwapDropdown) {
-                    if (!ui.aiSwapDropdown.contains(e.target) && e.target !== ui.foodNameInput) {
-                        closeAiSwapDropdown();
-                    }
+                const isClickInsideDropdown = ui.aiSwapDropdown.contains(e.target);
+                const isClickOnInput = e.target === ui.foodNameInput;
+                if (!isClickInsideDropdown && !isClickOnInput) {
+                    closeAiSwapDropdown();
                 }
             });
 
