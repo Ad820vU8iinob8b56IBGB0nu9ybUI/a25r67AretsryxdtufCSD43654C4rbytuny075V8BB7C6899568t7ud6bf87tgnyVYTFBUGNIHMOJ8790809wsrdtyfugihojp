@@ -115,6 +115,93 @@
         .hidden {
             display: none;
         }
+
+        /* KPI Card Styling */
+        .kpi-card {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--secondary-text);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smart Insights Container */
+        .smart-insights {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .smart-insights p {
+            line-height: 1.6;
+        }
+
+        /* Chart Dataset Toggle Buttons */
+        .chart-dataset-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--card-bg);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .chart-dataset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .chart-dataset-btn.active {
+            background-color: var(--accent);
+            color: var(--background);
+            border-color: var(--accent);
+        }
+
+        /* Collapsible Details Section */
+        details {
+            margin-top: 1.5rem;
+        }
+
+        details summary {
+            cursor: pointer;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            user-select: none;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+
+        details summary:hover {
+            border-color: var(--accent);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        details[open] summary {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        details > div {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+            padding: 1.5rem;
+        }
     </style>
 </head>
 <body class="antialiased">
