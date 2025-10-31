@@ -675,7 +675,124 @@
             function getStartDate(range) { /* ...unchanged... */ const now = new Date(); if (range === '30d') { now.setDate(now.getDate() - 30); return now; } if (range === '90d') { now.setDate(now.getDate() - 90); return now; } if (range === '1y') { now.setFullYear(now.getFullYear() - 1); return now; } return null; }
             function filterHistory(history, range) { /* ...unchanged... */ const startDate = getStartDate(range); if (!startDate) return history; return history.filter(d => new Date(d.date.replace(/-/g, '/')) >= startDate); }
 
-            function renderProgressChart(timeRange = 'all') { /* ...unchanged logic... */ activeChartRange = timeRange; updateChartRangeButtons(); let weightData = filterHistory(userProfile.weightHistory, timeRange); let inbodyData = filterHistory(userProfile.inbodyHistory, timeRange); const allDates = new Set([...weightData.map(d => d.date), ...inbodyData.map(d => d.date)]); const sortedLabels = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b)); if (sortedLabels.length === 0) { progressChart.data = { labels: [], datasets: [] }; progressChart.update(); return; } const weightMap = new Map(weightData.map(d => [d.date, d.weight])); const smmMap = new Map(inbodyData.map(d => [d.date, d.smm])); const bfmMap = new Map(inbodyData.map(d => [d.date, d.bfm])); progressChart.data.labels = sortedLabels.map(date => new Date(date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); progressChart.data.datasets = [ { label: 'Weight (kg)', data: sortedLabels.map(date => weightMap.get(date) || null), borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 }, { label: 'SMM (kg)', data: sortedLabels.map(date => smmMap.get(date) || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 }, { label: 'BFM (kg)', data: sortedLabels.map(date => bfmMap.get(date) || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.2)', tension: 0.2, fill: false, spanGaps: true, pointRadius: 4 } ].filter(dataset => dataset.data.some(d => d !== null)); updateChartAppearance(); progressChart.update(); }
+            function renderProgressChart(timeRange = 'all') {
+                activeChartRange = timeRange;
+                updateChartRangeButtons();
+                let weightData = filterHistory(userProfile.weightHistory, timeRange);
+                let inbodyData = filterHistory(userProfile.inbodyHistory, timeRange);
+                const allDates = new Set([...weightData.map(d => d.date), ...inbodyData.map(d => d.date)]);
+                const sortedLabels = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
+                if (sortedLabels.length === 0) {
+                    progressChart.data = { labels: [], datasets: [] };
+                    progressChart.update();
+                    return;
+                }
+
+                const weightMap = new Map(weightData.map(d => [d.date, d.weight]));
+                const smmMap = new Map(inbodyData.map(d => [d.date, d.smm]));
+                const bfmMap = new Map(inbodyData.map(d => [d.date, d.bfm]));
+
+                progressChart.data.labels = sortedLabels.map(date =>
+                    new Date(date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                );
+
+                const datasets = [];
+
+                // Weight dataset
+                if (chartDatasetVisibility.weight) {
+                    datasets.push({
+                        label: 'Weight (kg)',
+                        data: sortedLabels.map(date => weightMap.get(date) || null),
+                        borderColor: '#60a5fa',
+                        backgroundColor: 'rgba(96, 165, 250, 0.2)',
+                        tension: 0.2,
+                        fill: false,
+                        spanGaps: true,
+                        pointRadius: 4
+                    });
+                }
+
+                // SMM dataset
+                if (chartDatasetVisibility.smm) {
+                    datasets.push({
+                        label: 'SMM (kg)',
+                        data: sortedLabels.map(date => smmMap.get(date) || null),
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                        tension: 0.2,
+                        fill: false,
+                        spanGaps: true,
+                        pointRadius: 4
+                    });
+                }
+
+                // BFM dataset
+                if (chartDatasetVisibility.bfm) {
+                    datasets.push({
+                        label: 'BFM (kg)',
+                        data: sortedLabels.map(date => bfmMap.get(date) || null),
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                        tension: 0.2,
+                        fill: false,
+                        spanGaps: true,
+                        pointRadius: 4
+                    });
+                }
+
+                // Target line
+                if (chartDatasetVisibility.target && userProfile.idealWeight) {
+                    datasets.push({
+                        label: `Target: ${userProfile.idealWeight}kg`,
+                        data: Array(sortedLabels.length).fill(userProfile.idealWeight),
+                        borderColor: '#60a5fa',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0,
+                        tension: 0
+                    });
+                }
+
+                progressChart.data.datasets = datasets;
+
+                // Add background zones as plugin
+                const goalWeight = userProfile.idealWeight || 70;
+                progressChart.options.plugins.chartAreaPlugin = {
+                    id: 'chartAreaPlugin',
+                    afterDatasetsDraw(chart) {
+                        if (!chartDatasetVisibility.target) return;
+                        const ctx = chart.ctx;
+                        const yAxis = chart.scales.y;
+                        if (!yAxis) return;
+
+                        const greenZoneMin = yAxis.getPixelForValue(goalWeight - 2);
+                        const greenZoneMax = yAxis.getPixelForValue(goalWeight + 2);
+                        const yellowZoneMin = yAxis.getPixelForValue(goalWeight - 4);
+                        const yellowZoneMax = yAxis.getPixelForValue(goalWeight + 4);
+
+                        // Red zone (bottom)
+                        ctx.fillStyle = 'rgba(239, 68, 68, 0.05)';
+                        ctx.fillRect(chart.chartArea.left, yellowZoneMax, chart.chartArea.width, chart.chartArea.height - (yellowZoneMax - chart.chartArea.top));
+
+                        // Yellow zone
+                        ctx.fillStyle = 'rgba(251, 191, 36, 0.05)';
+                        ctx.fillRect(chart.chartArea.left, greenZoneMax, chart.chartArea.width, yellowZoneMax - greenZoneMax);
+
+                        // Green zone
+                        ctx.fillStyle = 'rgba(52, 211, 153, 0.05)';
+                        ctx.fillRect(chart.chartArea.left, greenZoneMin, chart.chartArea.width, greenZoneMax - greenZoneMin);
+
+                        // Yellow zone (top)
+                        ctx.fillStyle = 'rgba(251, 191, 36, 0.05)';
+                        ctx.fillRect(chart.chartArea.left, chart.chartArea.top, chart.chartArea.width, greenZoneMin - chart.chartArea.top);
+                    }
+                };
+
+                updateChartAppearance();
+                progressChart.update();
+            }
             function renderSleepProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.sleepHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const durationData = sortedHistory.map(log => { if (!log.startTime || !log.endTime || !log.date) return null; const { durationInMinutes } = calculateSleepDuration(log.startTime, log.endTime, log.date); return (durationInMinutes / 60); }); const qualityData = sortedHistory.map(log => log.quality || null); sleepProgressChart.data = { labels, datasets: [ { label: 'Duration (hours)', data: durationData, backgroundColor: 'rgba(96, 165, 250, 0.7)', borderColor: '#60a5fa', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }, { label: 'Quality (stars)', data: qualityData, type: 'line', borderColor: '#f59e0b', backgroundColor: 'transparent', pointBackgroundColor: '#f59e0b', yAxisID: 'y2', tension: 0.4, borderWidth: 2, pointRadius: 5 } ] }; updateChartAppearance(); sleepProgressChart.update(); }
             function renderNutritionProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.nutritionHistory, timeRange); const sortedHistory = [...history].sort((a,b) => new Date(a.date) - new Date(b.date)); const labels = sortedHistory.map(log => new Date(log.date.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const calorieGoals = Array(labels.length).fill(goals.calories); const proteinGoals = Array(labels.length).fill(goals.protein); nutritionProgressChart.data = { labels, datasets: [ { label: 'Calories Consumed', data: sortedHistory.map(d => d.calories || null), borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 2 }, { label: 'Protein Consumed (g)', data: sortedHistory.map(d => d.protein || null), borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', tension: 0.2, fill: true, pointRadius: 3, order: 3 }, { label: 'Calorie Goal', data: calorieGoals, borderColor: 'rgba(251, 191, 36, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 1 }, { label: 'Protein Goal', data: proteinGoals, borderColor: 'rgba(52, 211, 153, 0.4)', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, order: 4 } ] }; updateChartAppearance(); nutritionProgressChart.update(); }
             function renderWorkoutProgressChart(timeRange = 'all') { /* ...unchanged logic... */ let history = filterHistory(userProfile.workoutHistory, timeRange); const volumeByDay = {}; history.forEach(log => { const dateKey = log.date; const sets = typeof log.sets === 'string' ? JSON.parse(log.sets) : log.sets; const logVolume = sets.flat().reduce((total, s) => total + (s.weight * s.reps), 0); if (!volumeByDay[dateKey]) { volumeByDay[dateKey] = 0; } volumeByDay[dateKey] += logVolume; }); const workoutsByWeek = {}; const volumeByWeek = {}; Object.keys(volumeByDay).forEach(dateStr => { const date = new Date(dateStr.replace(/-/g, '/')); const dayOfWeek = date.getDay(); const firstDayOfWeek = new Date(date); firstDayOfWeek.setDate(date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); const weekKey = firstDayOfWeek.toISOString().split('T')[0]; if (!workoutsByWeek[weekKey]) workoutsByWeek[weekKey] = 0; if (!volumeByWeek[weekKey]) volumeByWeek[weekKey] = 0; workoutsByWeek[weekKey]++; volumeByWeek[weekKey] += volumeByDay[dateStr]; }); const sortedWeeks = Object.keys(workoutsByWeek).sort(); const labels = sortedWeeks.map(weekKey => new Date(weekKey.replace(/-/g, '/')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })); const workoutCountData = sortedWeeks.map(weekKey => workoutsByWeek[weekKey]); const totalVolumeData = sortedWeeks.map(weekKey => volumeByWeek[weekKey] / 1000); workoutProgressChart.data = { labels, datasets: [ { label: 'Workouts Logged', data: workoutCountData, backgroundColor: 'rgba(239, 68, 68, 0.7)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 4, yAxisID: 'y', type: 'bar', order: 2 }, { label: 'Total Volume (MT/1000kg)', data: totalVolumeData, borderColor: '#fbbf24', backgroundColor: 'transparent', yAxisID: 'y', tension: 0.4, type: 'line', borderWidth: 2, pointRadius: 3, order: 1 } ] }; updateChartAppearance(); workoutProgressChart.update(); }
