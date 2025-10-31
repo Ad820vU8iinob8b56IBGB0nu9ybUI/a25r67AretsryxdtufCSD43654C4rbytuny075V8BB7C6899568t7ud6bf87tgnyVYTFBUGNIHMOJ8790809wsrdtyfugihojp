@@ -14,7 +14,36 @@
     <link rel="stylesheet" href="assets/styles.css">
     <!-- Page Specific Styles (if any) -->
     <style>
-        /* Add page-specific styles here if needed */
+        .progress-bar {
+            background: linear-gradient(to right, #60a5fa var(--progress-percent), var(--secondary-bg) var(--progress-percent));
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .milestone-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .badge-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .badge-item .badge-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -48,10 +77,15 @@
                 <section id="friends-panel" class="tab-panel active">
                     <div class="content-card">
                         <h2 class="text-2xl font-semibold mb-4">Friends</h2>
-                        <p class="text-secondary-text">Connect with friends and share your progress. (Coming Soon)</p>
-                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
-                            Friend List / Activity Feed Area
-                         </div>
+                        <p class="text-secondary-text mb-6">Connect with friends and share your progress.</p>
+
+                        <!-- Add Friend Button -->
+                        <button id="add-friend-btn" class="btn btn-primary w-full mb-6">Add Friend</button>
+
+                        <!-- Friends List -->
+                        <div id="friends-list" class="custom-scrollbar space-y-3" style="max-height: 500px; overflow-y: auto;">
+                            <div class="text-center text-secondary-text py-8">No friends yet. Add your first friend!</div>
+                        </div>
                     </div>
                 </section>
 
@@ -59,25 +93,125 @@
                 <section id="community-panel" class="tab-panel">
                     <div class="content-card">
                         <h2 class="text-2xl font-semibold mb-4">Community</h2>
-                        <p class="text-secondary-text">Join challenges and discussions. (Coming Soon)</p>
-                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
-                            Community Forums / Challenges Area
-                         </div>
+                        <p class="text-secondary-text mb-6">Join challenges and compete with the community.</p>
+
+                        <!-- Create Challenge Button -->
+                        <button id="create-challenge-btn" class="btn btn-primary w-full mb-6">Create Challenge</button>
+
+                        <!-- Challenges List -->
+                        <div id="challenges-list" class="custom-scrollbar space-y-3" style="max-height: 600px; overflow-y: auto;">
+                            <div class="text-center text-secondary-text py-8">No challenges yet. Create one to get started!</div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Achievements Panel -->
                 <section id="achievements-panel" class="tab-panel">
-                     <div class="content-card">
+                    <div class="content-card">
                         <h2 class="text-2xl font-semibold mb-4">Achievements</h2>
-                        <p class="text-secondary-text">Unlock badges and celebrate milestones. (Coming Soon)</p>
-                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
-                            Achievements / Badges Area
-                         </div>
+                        <p class="text-secondary-text mb-6">Unlock badges and celebrate your milestones.</p>
+
+                        <!-- Achievement Tabs -->
+                        <div class="segmented-control mb-6">
+                            <button id="milestones-subtab" class="tab-btn active" data-subtab="milestones">Milestones</button>
+                            <button id="badges-subtab" class="tab-btn" data-subtab="badges">Badges</button>
+                        </div>
+
+                        <!-- Milestones Sub-Tab -->
+                        <div id="milestones-content" class="custom-scrollbar space-y-4" style="max-height: 600px; overflow-y: auto;">
+                            <div class="text-center text-secondary-text py-8">Loading milestones...</div>
+                        </div>
+
+                        <!-- Badges Sub-Tab (hidden by default) -->
+                        <div id="badges-content" class="hidden">
+                            <div id="badges-grid" class="badge-grid">
+                                <div class="text-center text-secondary-text py-8 col-span-full">No badges unlocked yet</div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
         </main>
+    </div>
+
+    <!-- Add Friend Modal -->
+    <div id="add-friend-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Add Friend</h3>
+                <button class="close-modal" data-modal="add-friend-modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="add-friend-form" class="space-y-4">
+                <div>
+                    <label class="form-label">Friend Name *</label>
+                    <input type="text" id="friend-name" class="form-input" placeholder="Enter friend's name" required>
+                    <span id="friend-name-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label class="form-label">Email (optional)</label>
+                    <input type="email" id="friend-email" class="form-input" placeholder="Enter friend's email">
+                    <span id="friend-email-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="btn btn-primary flex-1">Add</button>
+                    <button type="button" class="btn btn-secondary flex-1 close-modal" data-modal="add-friend-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Challenge Modal -->
+    <div id="create-challenge-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Create New Challenge</h3>
+                <button class="close-modal" data-modal="create-challenge-modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="create-challenge-form" class="space-y-4">
+                <div>
+                    <label class="form-label">Challenge Name *</label>
+                    <input type="text" id="challenge-name" class="form-input" placeholder="Enter challenge name" required>
+                    <span id="challenge-name-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label class="form-label">Description *</label>
+                    <textarea id="challenge-description" class="form-input" placeholder="Describe your challenge" rows="3" required></textarea>
+                    <span id="challenge-description-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label class="form-label">Target *</label>
+                    <input type="text" id="challenge-target" class="form-input" placeholder="e.g., 50 workouts or 30 days" required>
+                    <span id="challenge-target-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div>
+                    <label class="form-label">Duration (days) *</label>
+                    <input type="number" id="challenge-duration" class="form-input" placeholder="Number of days" min="1" max="365" required>
+                    <span id="challenge-duration-error" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="btn btn-primary flex-1">Create</button>
+                    <button type="button" class="btn btn-secondary flex-1 close-modal" data-modal="create-challenge-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Footer Placeholder -->
@@ -127,31 +261,474 @@
         }
         // --- End Load Header and Footer ---
 
-        // --- Original script from social.html (wrapped, profile logic removed) ---
+        // --- SOCIAL PAGE IMPLEMENTATION ---
         function initializeSocialPage() {
              // --- UI ELEMENT DEFINITIONS ---
             const ui = {
                 tabs: document.querySelectorAll('.tab-btn'),
-                panels: document.querySelectorAll('.tab-panel')
+                panels: document.querySelectorAll('.tab-panel'),
+
+                // Friends elements
+                addFriendBtn: document.getElementById('add-friend-btn'),
+                addFriendModal: document.getElementById('add-friend-modal'),
+                addFriendForm: document.getElementById('add-friend-form'),
+                friendsList: document.getElementById('friends-list'),
+
+                // Community elements
+                createChallengeBtn: document.getElementById('create-challenge-btn'),
+                createChallengeModal: document.getElementById('create-challenge-modal'),
+                createChallengeForm: document.getElementById('create-challenge-form'),
+                challengesList: document.getElementById('challenges-list'),
+
+                // Achievements elements
+                milestonesSubtab: document.getElementById('milestones-subtab'),
+                badgesSubtab: document.getElementById('badges-subtab'),
+                milestonesContent: document.getElementById('milestones-content'),
+                badgesContent: document.getElementById('badges-content'),
+                badgesGrid: document.getElementById('badges-grid')
             };
+
+            // --- UTILITY FUNCTIONS ---
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            function formatTimestamp(date) {
+                const now = new Date();
+                const diff = now - new Date(date);
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (seconds < 60) return 'just now';
+                if (minutes < 60) return `${minutes}m ago`;
+                if (hours < 24) return `${hours}h ago`;
+                if (days < 7) return `${days}d ago`;
+
+                return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            function formatDate(iso) {
+                return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            function calculatePercentage(current, target) {
+                return Math.min(Math.round((current / target) * 100), 100);
+            }
+
+            // --- MODAL MANAGEMENT ---
+            function openModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            // Close modal when clicking backdrop
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                backdrop.addEventListener('click', (e) => {
+                    if (e.target === backdrop) {
+                        closeModal(backdrop.id);
+                    }
+                });
+            });
+
+            // Close modal with close button
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modalId = btn.dataset.modal;
+                    closeModal(modalId);
+                });
+            });
 
             // --- TABBING LOGIC ---
             function showTab(tabName) {
                 ui.panels.forEach(panel => { panel.classList.remove('active'); panel.style.display = 'none'; });
                 ui.tabs.forEach(tab => { tab.classList.remove('active'); });
-                const activePanel = document.getElementById(tabName + '-panel'); const activeTab = document.getElementById(tabName + '-tab');
+                const activePanel = document.getElementById(tabName + '-panel');
+                const activeTab = document.getElementById(tabName + '-tab');
                 if (activePanel) { activePanel.classList.add('active'); activePanel.style.display = 'block'; }
                 if (activeTab) { activeTab.classList.add('active'); }
+
+                // Initialize tab content when shown
+                if (tabName === 'friends') loadFriends();
+                if (tabName === 'community') loadChallenges();
+                if (tabName === 'achievements') loadAchievements();
+            }
+
+            // Sub-tab logic for achievements
+            function showSubTab(subtabName) {
+                if (subtabName === 'milestones') {
+                    ui.milestonesContent.classList.remove('hidden');
+                    ui.badgesContent.classList.add('hidden');
+                    ui.milestonesSubtab.classList.add('active');
+                    ui.badgesSubtab.classList.remove('active');
+                } else if (subtabName === 'badges') {
+                    ui.milestonesContent.classList.add('hidden');
+                    ui.badgesContent.classList.remove('hidden');
+                    ui.milestonesSubtab.classList.remove('active');
+                    ui.badgesSubtab.classList.add('active');
+                }
+            }
+
+            // --- FRIENDS FUNCTIONALITY ---
+            function loadFriends() {
+                const friends = JSON.parse(localStorage.getItem('fitTrackAI_friends')) || [];
+                renderFriendsList(friends);
+            }
+
+            function renderFriendsList(friends) {
+                if (friends.length === 0) {
+                    ui.friendsList.innerHTML = '<div class="text-center text-secondary-text py-8">No friends yet. Add your first friend!</div>';
+                    return;
+                }
+
+                ui.friendsList.innerHTML = friends.map(friend => `
+                    <div class="content-card hover:bg-hover-bg transition-colors">
+                        <div class="flex justify-between items-start gap-4">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-primary-text">${escapeHtml(friend.name)}</h4>
+                                <p class="text-secondary-text text-sm mt-1">Joined ${formatDate(friend.joinedDate)}</p>
+                                <p class="text-secondary-text text-sm">Last seen ${formatTimestamp(friend.lastActive)}</p>
+                                ${friend.email ? `<p class="text-secondary-text text-sm">${escapeHtml(friend.email)}</p>` : ''}
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="removeFriendHandler('${friend.id}')">Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function addFriend(name, email) {
+                // Validation
+                const errors = {};
+                if (!name || name.length < 2 || name.length > 50) {
+                    errors.name = 'Name must be between 2 and 50 characters';
+                }
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    errors.email = 'Please enter a valid email';
+                }
+
+                // Show errors
+                const nameError = document.getElementById('friend-name-error');
+                const emailError = document.getElementById('friend-email-error');
+
+                if (errors.name) {
+                    nameError.textContent = errors.name;
+                    nameError.classList.remove('hidden');
+                } else {
+                    nameError.classList.add('hidden');
+                }
+
+                if (errors.email) {
+                    emailError.textContent = errors.email;
+                    emailError.classList.remove('hidden');
+                } else {
+                    emailError.classList.add('hidden');
+                }
+
+                if (Object.keys(errors).length > 0) return;
+
+                const friends = JSON.parse(localStorage.getItem('fitTrackAI_friends')) || [];
+                const newFriend = {
+                    id: generateUUID(),
+                    name: name,
+                    email: email || '',
+                    joinedDate: new Date().toISOString(),
+                    lastActive: new Date().toISOString()
+                };
+
+                friends.push(newFriend);
+                localStorage.setItem('fitTrackAI_friends', JSON.stringify(friends));
+
+                // Reset form and close modal
+                ui.addFriendForm.reset();
+                closeModal('add-friend-modal');
+                loadFriends();
+            }
+
+            function removeFriend(friendId) {
+                if (!confirm('Are you sure you want to remove this friend?')) return;
+
+                let friends = JSON.parse(localStorage.getItem('fitTrackAI_friends')) || [];
+                friends = friends.filter(f => f.id !== friendId);
+                localStorage.setItem('fitTrackAI_friends', JSON.stringify(friends));
+                loadFriends();
+            }
+
+            // Global function for remove button
+            window.removeFriendHandler = removeFriend;
+
+            // --- COMMUNITY FUNCTIONALITY ---
+            function loadChallenges() {
+                const challenges = JSON.parse(localStorage.getItem('fitTrackAI_challenges')) || [];
+                renderChallengesList(challenges);
+            }
+
+            function renderChallengesList(challenges) {
+                if (challenges.length === 0) {
+                    ui.challengesList.innerHTML = '<div class="text-center text-secondary-text py-8">No challenges yet. Create one to get started!</div>';
+                    return;
+                }
+
+                const userChallenges = JSON.parse(localStorage.getItem('fitTrackAI_userChallenges')) || [];
+
+                ui.challengesList.innerHTML = challenges.map(challenge => {
+                    const hasJoined = userChallenges.includes(challenge.id);
+                    const participantCount = getParticipantCount(challenge.id);
+
+                    return `
+                        <div class="content-card">
+                            <div class="flex justify-between items-start gap-4 mb-3">
+                                <div>
+                                    <h4 class="font-semibold text-primary-text text-lg">${escapeHtml(challenge.name)}</h4>
+                                    <div class="mt-2">
+                                        <span class="inline-block px-2 py-1 rounded text-sm font-semibold
+                                            ${challenge.status === 'active' ? 'bg-blue-500 text-white' :
+                                              challenge.status === 'completed' ? 'bg-gray-500 text-white' :
+                                              'bg-gray-400 text-white'}">
+                                            ${challenge.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-secondary-text text-sm mb-3 line-clamp-2">${escapeHtml(challenge.description)}</p>
+
+                            <div class="space-y-2 text-sm text-secondary-text mb-4">
+                                <p>Created by ${challenge.creator || 'Anonymous'}</p>
+                                <p>Target: ${escapeHtml(challenge.target)}</p>
+                                <p>Duration: ${challenge.duration} days</p>
+                                <p>👥 ${participantCount} joined</p>
+                            </div>
+
+                            <button class="btn ${hasJoined ? 'btn-secondary' : 'btn-primary'} w-full"
+                                onclick="toggleChallengeHandler('${challenge.id}')">
+                                ${hasJoined ? 'Leave Challenge' : 'Join Challenge'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function createChallenge(name, description, target, duration) {
+                // Validation
+                const errors = {};
+                if (!name || name.length < 5 || name.length > 100) {
+                    errors.name = 'Name must be between 5 and 100 characters';
+                }
+                if (!description || description.length < 10 || description.length > 500) {
+                    errors.description = 'Description must be between 10 and 500 characters';
+                }
+                if (!target) {
+                    errors.target = 'Target is required';
+                }
+                if (!duration || duration < 1 || duration > 365) {
+                    errors.duration = 'Duration must be between 1 and 365 days';
+                }
+
+                // Show errors
+                document.getElementById('challenge-name-error').textContent = errors.name || '';
+                document.getElementById('challenge-name-error').classList.toggle('hidden', !errors.name);
+                document.getElementById('challenge-description-error').textContent = errors.description || '';
+                document.getElementById('challenge-description-error').classList.toggle('hidden', !errors.description);
+                document.getElementById('challenge-target-error').textContent = errors.target || '';
+                document.getElementById('challenge-target-error').classList.toggle('hidden', !errors.target);
+                document.getElementById('challenge-duration-error').textContent = errors.duration || '';
+                document.getElementById('challenge-duration-error').classList.toggle('hidden', !errors.duration);
+
+                if (Object.keys(errors).length > 0) return;
+
+                const challenges = JSON.parse(localStorage.getItem('fitTrackAI_challenges')) || [];
+                const newChallenge = {
+                    id: generateUUID(),
+                    name: name,
+                    description: description,
+                    creator: 'Current User',
+                    createdDate: new Date().toISOString(),
+                    duration: parseInt(duration),
+                    target: target,
+                    participantCount: 1,
+                    status: 'active'
+                };
+
+                challenges.push(newChallenge);
+                localStorage.setItem('fitTrackAI_challenges', JSON.stringify(challenges));
+
+                // Add creator as participant
+                let userChallenges = JSON.parse(localStorage.getItem('fitTrackAI_userChallenges')) || [];
+                if (!userChallenges.includes(newChallenge.id)) {
+                    userChallenges.push(newChallenge.id);
+                    localStorage.setItem('fitTrackAI_userChallenges', JSON.stringify(userChallenges));
+                }
+
+                // Reset form and close modal
+                ui.createChallengeForm.reset();
+                closeModal('create-challenge-modal');
+                loadChallenges();
+            }
+
+            function getParticipantCount(challengeId) {
+                const userChallenges = JSON.parse(localStorage.getItem('fitTrackAI_userChallenges')) || [];
+                return userChallenges.filter(id => id === challengeId).length || 1; // At least 1 (creator)
+            }
+
+            function toggleChallenge(challengeId) {
+                let userChallenges = JSON.parse(localStorage.getItem('fitTrackAI_userChallenges')) || [];
+
+                if (userChallenges.includes(challengeId)) {
+                    userChallenges = userChallenges.filter(id => id !== challengeId);
+                } else {
+                    userChallenges.push(challengeId);
+                }
+
+                localStorage.setItem('fitTrackAI_userChallenges', JSON.stringify(userChallenges));
+                loadChallenges();
+            }
+
+            window.toggleChallengeHandler = toggleChallenge;
+
+            // --- ACHIEVEMENTS FUNCTIONALITY ---
+            const defaultMilestones = [
+                { id: generateUUID(), name: 'First Workout', threshold: 1, icon: '💪', type: 'workouts' },
+                { id: generateUUID(), name: 'Week Warrior', threshold: 7, icon: '🔥', type: 'workouts' },
+                { id: generateUUID(), name: 'Month Master', threshold: 30, icon: '🏆', type: 'workouts' },
+                { id: generateUUID(), name: '100 Strong', threshold: 100, icon: '💯', type: 'workouts' },
+                { id: generateUUID(), name: 'Year of Gains', threshold: 365, icon: '⭐', type: 'workouts' },
+                { id: generateUUID(), name: '10-Day Streak', threshold: 10, icon: '📈', type: 'streaks' },
+                { id: generateUUID(), name: 'Rest & Recovery', threshold: 1, icon: '😴', type: 'rest' }
+            ];
+
+            function loadAchievements() {
+                let achievements = JSON.parse(localStorage.getItem('fitTrackAI_achievements')) || [];
+
+                // Seed with defaults if empty
+                if (achievements.length === 0) {
+                    achievements = defaultMilestones.map(m => ({
+                        ...m,
+                        current: 0,
+                        unlocked: false,
+                        unlockedDate: null
+                    }));
+                    localStorage.setItem('fitTrackAI_achievements', JSON.stringify(achievements));
+                }
+
+                renderMilestones(achievements);
+                renderBadges(achievements);
+            }
+
+            function renderMilestones(achievements) {
+                // Sort: unlocked first, then by progress
+                const sorted = achievements.sort((a, b) => {
+                    if (a.unlocked !== b.unlocked) return b.unlocked ? 1 : -1;
+                    return calculatePercentage(b.current, b.threshold) - calculatePercentage(a.current, a.threshold);
+                });
+
+                ui.milestonesContent.innerHTML = sorted.map(achievement => {
+                    const percentage = calculatePercentage(achievement.current, achievement.threshold);
+                    return `
+                        <div class="content-card">
+                            <div class="flex gap-4 items-start">
+                                <div style="font-size: 2rem; flex-shrink: 0;">${achievement.icon}</div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-primary-text">${escapeHtml(achievement.name)}</h4>
+                                    <p class="text-secondary-text text-sm mb-2">${escapeHtml(achievement.description || '')}</p>
+
+                                    <div class="progress-bar" style="--progress-percent: ${percentage}%;">
+                                        <span class="text-xs text-primary-text font-semibold">${achievement.current}/${achievement.threshold}</span>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        ${achievement.unlocked
+                                            ? `<span class="text-sm" style="color: var(--success-color);">✓ Unlocked ${formatDate(achievement.unlockedDate)}</span>`
+                                            : `<span class="text-secondary-text text-sm;">🔒 ${achievement.current}/${achievement.threshold}</span>`
+                                        }
+                                    </div>
+                                    <p class="text-secondary-text text-xs mt-2">Unlock when you reach ${achievement.threshold} ${achievement.type}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function renderBadges(achievements) {
+                const unlockedBadges = achievements.filter(a => a.unlocked);
+
+                if (unlockedBadges.length === 0) {
+                    ui.badgesGrid.innerHTML = '<div class="text-center text-secondary-text py-8 col-span-full">No badges unlocked yet</div>';
+                    return;
+                }
+
+                ui.badgesGrid.innerHTML = unlockedBadges.map(badge => `
+                    <div class="badge-item">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <h4 class="font-semibold text-sm text-primary-text">${escapeHtml(badge.name)}</h4>
+                        <p class="text-xs text-secondary-text mt-1">${formatDate(badge.unlockedDate)}</p>
+                    </div>
+                `).join('');
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
             }
 
             // --- EVENT LISTENERS ---
-            ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
+            ui.tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.currentTarget.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+
+            // Friends modal listeners
+            ui.addFriendBtn.addEventListener('click', () => openModal('add-friend-modal'));
+            ui.addFriendForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('friend-name').value.trim();
+                const email = document.getElementById('friend-email').value.trim();
+                addFriend(name, email);
+            });
+
+            // Community modal listeners
+            ui.createChallengeBtn.addEventListener('click', () => openModal('create-challenge-modal'));
+            ui.createChallengeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('challenge-name').value.trim();
+                const description = document.getElementById('challenge-description').value.trim();
+                const target = document.getElementById('challenge-target').value.trim();
+                const duration = document.getElementById('challenge-duration').value.trim();
+                createChallenge(name, description, target, duration);
+            });
+
+            // Achievement sub-tabs
+            ui.milestonesSubtab.addEventListener('click', () => showSubTab('milestones'));
+            ui.badgesSubtab.addEventListener('click', () => showSubTab('badges'));
 
             // --- INITIALIZATION ---
             showTab('friends'); // Show friends tab by default
-            // Lucide icons are now rendered in initializeLayout
         }
-        // --- End Original script ---
+        // --- End Social Page Implementation ---
 
         // Initialize layout and page logic on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', initializeLayout);
