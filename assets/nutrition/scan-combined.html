@@ -1209,9 +1209,7 @@
 
 
             ui.startCameraOverlayBtn.addEventListener('click', startAiCamera); // Listener for new button
-            ui.stopFoodCameraBtn.addEventListener('click', manualStopAiCamera);
             ui.captureFoodPhotoBtn.addEventListener('click', captureAiPhoto);
-            ui.uploadPhotoInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files));
 
             ui.scannedLogDisplay.addEventListener('click', (e) => {
                 const removeBtn = e.target.closest('.remove-log-btn');
@@ -1223,9 +1221,6 @@
                 }
             });
 
-            // MODIFIED: logAllBtn -> flipCameraBtn
-            ui.flipCameraBtn.addEventListener('click', flipCamera); 
-
             // --- ADDED: Undo Button Listener ---
             ui.undoToastBtn.addEventListener('click', () => {
                 if (lastAction && typeof lastAction.onUndo === 'function') {
@@ -1233,14 +1228,15 @@
                 }
                 hideUndo();
             });
-            
-            // --- ADDED: Scanned Log Modal Listeners ---
-            ui.scannedLogPopupBtn.addEventListener('click', () => {
-                renderScannerLog(); // Ensure list is up-to-date
-                showModal(ui.scannedLogModal);
-            });
-            ui.closeScannedLogModalBtn.addEventListener('click', () => hideModal(ui.scannedLogModal));
-            ui.scannedLogModalOkBtn.addEventListener('click', () => hideModal(ui.scannedLogModal));
+
+            // --- ADDED: Camera Gesture Listeners ---
+            ui.liveCameraContainer.addEventListener('pointerdown', handleCameraPointerDown, false);
+            ui.liveCameraContainer.addEventListener('pointermove', handleCameraPointerMove, { passive: false });
+            ui.liveCameraContainer.addEventListener('pointerup', handleCameraPointerUp, false);
+
+            // --- ADDED: Food Log Modal Close Listener ---
+            ui.closeScannedLogModalBtn.addEventListener('click', () => hideFoodLogPanel());
+            ui.scannedLogModalOkBtn.addEventListener('click', () => hideFoodLogPanel());
 
 
             // REMOVED: Camera Observer
