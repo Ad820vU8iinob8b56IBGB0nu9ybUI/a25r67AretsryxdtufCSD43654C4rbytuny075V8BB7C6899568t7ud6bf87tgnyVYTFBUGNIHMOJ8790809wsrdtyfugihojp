@@ -1881,6 +1881,81 @@
                 }
             });
 
+            // --- NEW: Dropdown and Keyboard Support for Macro Swap ---
+
+            // Function to display dropdown with suggestions
+            async function showAiSwapDropdown(foodName) {
+                if (!foodName) {
+                    ui.aiSwapDropdown.classList.add('hidden');
+                    return;
+                }
+
+                ui.aiSwapDropdown.innerHTML = '<div class="loader mx-auto" style="padding: 1rem;"></div>';
+                ui.aiSwapDropdown.classList.remove('hidden');
+
+                try {
+                    const swaps = await getAiMacroSwaps(foodName);
+                    if (swaps && swaps.length > 0) {
+                        ui.aiSwapDropdown.innerHTML = swaps.map(swap => `
+                            <div class="ai-swap-dropdown-item" data-food-name="${swap.name}">
+                                <div class="ai-swap-dropdown-item-name">${swap.name}</div>
+                                <div class="ai-swap-dropdown-item-reason">${swap.reason}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        ui.aiSwapDropdown.innerHTML = '<div style="padding: 1rem; color: var(--secondary-text); text-align: center;">No suggestions found</div>';
+                    }
+                } catch (error) {
+                    console.error("Dropdown Error:", error);
+                    ui.aiSwapDropdown.innerHTML = '<div style="padding: 1rem; color: #ff6b6b; text-align: center;">Error loading suggestions</div>';
+                }
+            }
+
+            // Function to close dropdown
+            function closeAiSwapDropdown() {
+                ui.aiSwapDropdown.classList.add('hidden');
+            }
+
+            // Keyboard support: Enter key on food input
+            ui.foodNameInput.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const foodName = capitalizeWords(ui.foodNameInput.value.trim());
+                    if (foodName) {
+                        await showAiSwapDropdown(foodName);
+                    }
+                }
+            });
+
+            // Dropdown item click handler
+            ui.aiSwapDropdown.addEventListener('click', (e) => {
+                const item = e.target.closest('.ai-swap-dropdown-item');
+                if (item) {
+                    const foodName = item.dataset.foodName;
+                    if (foodName) {
+                        ui.foodNameInput.value = foodName;
+                        // Keep dropdown open so user can select more if they want
+                        // Dropdown will close when clicking outside
+                    }
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.relative') || e.target.closest('.ai-swap-dropdown') === ui.aiSwapDropdown) {
+                    if (!ui.aiSwapDropdown.contains(e.target) && e.target !== ui.foodNameInput) {
+                        closeAiSwapDropdown();
+                    }
+                }
+            });
+
+            // Close dropdown on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAiSwapDropdown();
+                }
+            });
+
             const handleEditLogItem = (index) => {
                  const item = getCurrentDayLogEntries()[index];
                  if(!item) return;
