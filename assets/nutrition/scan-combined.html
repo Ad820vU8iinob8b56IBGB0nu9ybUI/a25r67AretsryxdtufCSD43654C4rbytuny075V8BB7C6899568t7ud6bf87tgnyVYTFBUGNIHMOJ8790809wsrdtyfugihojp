@@ -185,6 +185,59 @@
             transform: scale(0.9);
         }
 
+        /* --- ADDED: Slide-in/Slide-out Animations --- */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+
+        .slide-out-right {
+            animation: slideOutRight 0.3s ease-out forwards;
+        }
+
+        /* Modal backdrop transparent overlay */
+        .modal-backdrop {
+            background-color: transparent;
+        }
+
+        /* Panel styling */
+        #scanned-log-modal {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 100vw;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        @media (min-width: 768px) {
+            #scanned-log-modal {
+                width: 50vw;
+            }
+        }
+        /* --- END: Slide-in/Slide-out Animations --- */
+
         /* --- REMOVED: Camera Overlay Styles --- */
         /* Tailwind classes will handle this now */
         /* --- END: Camera Overlay Styles --- */
