@@ -171,11 +171,17 @@
 
                     <div class="content-card">
                         <h2 class="text-2xl font-semibold mb-4">Body Composition Progress</h2>
-                        <div class="flex justify-center gap-2 mb-4">
+                        <div class="flex justify-center gap-2 mb-4 flex-wrap">
                             <button id="chart-range-30d" class="chart-range-btn" data-range="30d">30D</button>
                             <button id="chart-range-90d" class="chart-range-btn" data-range="90d">90D</button>
                             <button id="chart-range-1y" class="chart-range-btn" data-range="1y">1Y</button>
                             <button id="chart-range-all" class="chart-range-btn active" data-range="all">All Time</button>
+                        </div>
+                        <div class="flex justify-center gap-2 mb-4 flex-wrap">
+                            <button id="chart-toggle-weight" class="chart-dataset-btn active" data-dataset="weight">Weight</button>
+                            <button id="chart-toggle-smm" class="chart-dataset-btn" data-dataset="smm">SMM</button>
+                            <button id="chart-toggle-bfm" class="chart-dataset-btn" data-dataset="bfm">Body Fat</button>
+                            <button id="chart-toggle-target" class="chart-dataset-btn" data-dataset="target">Show Target</button>
                         </div>
                         <div class="w-full h-96 flex items-center justify-center"><canvas id="progress-chart"></canvas></div>
                     </div>
