@@ -848,7 +848,131 @@
                 updateGoalSpecificUI(); 
             }
             function generateCaloriePlan() { /* ...unchanged... */ if (!isDataLoaded) return; if(!goals.calories || goals.calories === 0 || !userProfile.tdee) { ui.caloriePlanOutput.innerHTML = '<p class="text-secondary-text">Please fill out your profile stats to generate a plan.</p>'; return; } const { tdee } = userProfile; let planHtml = `<p class="mb-4">Your estimated maintenance calories are <strong class="text-xl text-blue-400">${Math.round(tdee)} kcal</strong>. Based on your goal, here is your **AI Adaptive Plan**:</p>`; planHtml += `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Target Calories</p><p class="font-bold text-2xl text-white">${Math.round(goals.calories)}</p></div><div><p class="text-sm text-secondary-text">Protein</p><p class="font-bold text-2xl text-white">${Math.round(goals.protein)}g</p></div><div><p class="text-sm text-secondary-text">Carbs</p><p class="font-bold text-2xl text-white">${Math.round(goals.carbs)}g</p></div><div><p class="text-sm text-secondary-text">Fat</p><p class="font-bold text-2xl text-white">${Math.round(goals.fat)}g</p></div></div>`; planHtml += `<p class="text-xs text-secondary-text mt-4 text-center">This plan will adapt based on your daily check-ins to ensure consistent progress.</p>`; ui.caloriePlanOutput.innerHTML = planHtml; }
-            function calculateAndRenderAnalytics() { /* ...unchanged logic... */ if (!isDataLoaded) return; const { weightHistory, inbodyHistory, weight, bfm } = userProfile; let statsHtml = '<p class="text-secondary-text text-center">Not enough data to calculate stats. Keep logging!</p>'; let insightsHtml = '<li>Log your **weight and height** to fully utilize the goal calculator.</li>'; if (weightHistory && weightHistory.length >= 2) { const firstWeightEntry = weightHistory[0]; const lastWeightEntry = weightHistory[weightHistory.length - 1]; const totalWeightChange = lastWeightEntry.weight - firstWeightEntry.weight; const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28); const recentWeightData = weightHistory.filter(d => new Date(d.date.replace(/-/g, '/')) >= fourWeeksAgo); let weeklyWeightChange = 0; if (recentWeightData.length >= 2) { const firstRecent = recentWeightData[0]; const lastRecent = recentWeightData[recentWeightData.length - 1]; const daysBetween = (new Date(lastRecent.date.replace(/-/g, '/')) - new Date(firstRecent.date.replace(/-/g, '/'))) / (1000 * 60 * 60 * 24); if (daysBetween > 0) { const totalRecentChange = lastRecent.weight - firstRecent.weight; weeklyWeightChange = (totalRecentChange / daysBetween) * 7; } } let currentBfPercent = 0; if (weight && bfm) { currentBfPercent = (bfm / weight) * 100; } statsHtml = `<div class="grid grid-cols-2 gap-4 text-center"><div><p class="text-sm text-secondary-text">Total Weight Change</p><p class="font-bold text-2xl ${totalWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalWeightChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Avg. Weekly Change</p><p class="font-bold text-2xl ${weeklyWeightChange >= 0 ? 'text-red-400' : 'text-green-400'}">${weeklyWeightChange.toFixed(2)} kg</p></div>${currentBfPercent > 0 ? `<div><p class="text-sm text-secondary-text">Current Body Fat %</p><p class="font-bold text-2xl text-blue-400">${currentBfPercent.toFixed(1)}%</p></div>` : ''}<div><p class="text-sm text-secondary-text">Total Check-ins</p><p class="font-bold text-2xl">${weightHistory.length}</p></div>`; insightsHtml = `<li>Your **average weekly weight change** over the last 4 weeks is **${weeklyWeightChange.toFixed(2)} kg**. ${weeklyWeightChange > 0 ? 'Consider reducing calorie intake slightly to accelerate fat loss.' : 'Great work maintaining or losing weight.'}</li><li>You've logged your weight **${recentWeightData.length} times** in the last 28 days. Keep this **consistency**!</li>`; } if (inbodyHistory && inbodyHistory.length >= 2) { const firstInBody = inbodyHistory[0]; const lastInBody = inbodyHistory[inbodyHistory.length - 1]; const totalSmmChange = lastInBody.smm - firstInBody.smm; const totalBfmChange = lastInBody.bfm - firstInBody.bfm; statsHtml = statsHtml.replace('</div>', ''); statsHtml += `<div><p class="text-sm text-secondary-text">Total SMM Change</p><p class="font-bold text-2xl ${totalSmmChange >= 0 ? 'text-green-400' : 'text-red-400'}">${totalSmmChange.toFixed(1)} kg</p></div><div><p class="text-sm text-secondary-text">Total BFM Change</p><p class="font-bold text-2xl ${totalBfmChange >= 0 ? 'text-red-400' : 'text-green-400'}">${totalBfmChange.toFixed(1)} kg</p></div></div>`; insightsHtml += `<li>Your Skeletal Muscle Mass (SMM) has changed by **${totalSmmChange.toFixed(1)} kg**. ${totalSmmChange > 0 ? 'This indicates successful muscle preservation or growth! 💪' : 'Focus on protein intake to prevent muscle loss.'}</li><li>Your Body Fat Mass (BFM) has changed by **${totalBfmChange.toFixed(1)} kg**. ${totalBfmChange < 0 ? 'Excellent fat loss progress!' : 'If gaining, ensure your activity level is accurate.'}</li>`; } else if (statsHtml.includes('grid')) { statsHtml += `</div>`; } ui.keyStatsOutput.innerHTML = statsHtml; ui.progressInsightsOutput.innerHTML = insightsHtml; }
+            function calculateAndRenderAnalytics() {
+                if (!isDataLoaded) return;
+                const { weightHistory, inbodyHistory, weight, bfm, idealWeight, goal } = userProfile;
+
+                // Calculate analytics once
+                const weeklyAvg = calculateWeeklyAverage(weightHistory, 4);
+                const trendDir = calculateTrendDirection(weightHistory, 7);
+                const goalWeight = idealWeight || 70;
+
+                let statsHtml = '<p class="text-secondary-text text-center">Not enough data to calculate stats. Keep logging!</p>';
+                let insightsHtml = '';
+
+                if (weightHistory && weightHistory.length >= 2) {
+                    const firstEntry = weightHistory[0];
+                    const lastEntry = weightHistory[weightHistory.length - 1];
+                    const totalChange = lastEntry.weight - firstEntry.weight;
+
+                    // Determine if weight loss goal
+                    const isLossGoal = goal === 'lose';
+
+                    // Calculate status colors and predictions
+                    const weightStatus = getStatusColor(weight, goalWeight, isLossGoal);
+                    const weeksToGoal = predictWeeksToGoal(weight, goalWeight, weeklyAvg);
+
+                    // Build KPI cards with colors and trends
+                    const statusIcon = (color) => {
+                        if (color === '#34d399') return '✅';
+                        if (color === '#fbbf24') return '⚠️';
+                        if (color === '#ef4444') return '❌';
+                        return '📊';
+                    };
+
+                    statsHtml = `<div class="grid grid-cols-2 gap-4">`;
+
+                    // Total Weight Change
+                    const changeColor = totalChange < 0 ? '#34d399' : (totalChange === 0 ? '#60a5fa' : '#ef4444');
+                    statsHtml += `
+                        <div class="kpi-card" style="border-left: 3px solid ${changeColor}">
+                            <p class="text-xs text-secondary-text">Total Weight Change</p>
+                            <p class="font-bold text-xl" style="color: ${changeColor}">
+                                ${totalChange.toFixed(1)} kg ${trendDir}
+                            </p>
+                            <p class="text-xs text-secondary-text mt-1">Target: ${goalWeight}kg (${Math.round(((goalWeight - weight) / goalWeight) * 100)}% remaining)</p>
+                        </div>
+                    `;
+
+                    // Weekly Average
+                    statsHtml += `
+                        <div class="kpi-card" style="border-left: 3px solid ${changeColor}">
+                            <p class="text-xs text-secondary-text">Avg. Weekly</p>
+                            <p class="font-bold text-xl" style="color: ${changeColor}">
+                                ${weeklyAvg.toFixed(2)} kg/week
+                            </p>
+                            <p class="text-xs text-secondary-text mt-1">
+                                ${weeklyAvg < -0.3 ? '✅ On pace' : weeklyAvg >= -0.2 ? '⚠️ Watch' : '❌ Off pace'}
+                            </p>
+                        </div>
+                    `;
+
+                    // Current Weight vs Goal
+                    statsHtml += `
+                        <div class="kpi-card" style="border-left: 3px solid ${weightStatus}">
+                            <p class="text-xs text-secondary-text">Current Weight</p>
+                            <p class="font-bold text-xl" style="color: ${weightStatus}">
+                                ${weight.toFixed(1)} kg
+                            </p>
+                            <p class="text-xs text-secondary-text mt-1">${Math.round(((goalWeight - weight) / Math.abs(goalWeight)) * 100)}% to goal (${goalWeight}kg)</p>
+                        </div>
+                    `;
+
+                    // Weeks to Goal
+                    const weeksColor = weeksToGoal === '—' || weeksToGoal === 'Off pace' ? '#fbbf24' : '#34d399';
+                    statsHtml += `
+                        <div class="kpi-card" style="border-left: 3px solid ${weeksColor}">
+                            <p class="text-xs text-secondary-text">Time to Goal</p>
+                            <p class="font-bold text-xl" style="color: ${weeksColor}">
+                                ${weeksToGoal} weeks
+                            </p>
+                            <p class="text-xs text-secondary-text mt-1">At current pace</p>
+                        </div>
+                    `;
+
+                    // Body Fat % if available
+                    if (weight && bfm) {
+                        const bfPercent = (bfm / weight) * 100;
+                        statsHtml += `
+                            <div class="kpi-card" style="border-left: 3px solid #60a5fa">
+                                <p class="text-xs text-secondary-text">Body Fat %</p>
+                                <p class="font-bold text-xl" style="color: #60a5fa">
+                                    ${bfPercent.toFixed(1)}%
+                                </p>
+                                <p class="text-xs text-secondary-text mt-1">Healthy range: 10-20%</p>
+                            </div>
+                        `;
+                    }
+
+                    // Check-in Consistency
+                    const last7Days = weightHistory.slice(-7).length;
+                    const consistencyColor = last7Days >= 6 ? '#34d399' : (last7Days >= 4 ? '#fbbf24' : '#ef4444');
+                    statsHtml += `
+                        <div class="kpi-card" style="border-left: 3px solid ${consistencyColor}">
+                            <p class="text-xs text-secondary-text">Weekly Streak</p>
+                            <p class="font-bold text-xl" style="color: ${consistencyColor}">
+                                ${last7Days}/7 days
+                            </p>
+                            <p class="text-xs text-secondary-text mt-1">Total: ${weightHistory.length} entries</p>
+                        </div>
+                    `;
+
+                    statsHtml += `</div>`;
+                }
+
+                // Generate smart insights
+                const insights = generateSmartInsights(userProfile, weightHistory, inbodyHistory);
+                insightsHtml = `<div class="smart-insights">`;
+                insights.forEach(insight => {
+                    const textColor = insight.includes('❌') || insight.includes('⚠️') ? '#ef4444' :
+                                     insight.includes('✅') || insight.includes('🎉') ? '#34d399' : '#fbbf24';
+                    insightsHtml += `<p style="color: ${textColor}; margin-bottom: 0.5rem; font-size: 0.9rem;">${insight}</p>`;
+                });
+                insightsHtml += `</div>`;
+
+                ui.keyStatsOutput.innerHTML = statsHtml;
+                ui.progressInsightsOutput.innerHTML = insightsHtml;
+            }
             async function calculateAndSaveGoals(showFeedback = true, localOnly = false) { /* ...unchanged calculation logic, calls saveData() at the end unless localOnly... */ const btn = ui.profileForm.querySelector('button[type="submit"]'); if (btn && showFeedback) { btn.disabled = true; btn.querySelector('.btn-text').style.display = 'none'; btn.querySelector('.loader').classList.remove('hidden'); btn.querySelector('.btn-text').textContent = "Calculating..."; } if (!localOnly) { userProfile.age = parseInt(ui.profileForm.age.value); userProfile.gender = ui.profileForm.gender.value; userProfile.height = parseInt(ui.profileForm.height.value); userProfile.smm = parseFloat(ui.profileForm.smm.value) || null; userProfile.bfm = parseFloat(ui.profileForm.bfm.value) || null; userProfile.activityLevel = parseFloat(ui.profileForm['activity-level'].value); userProfile.goal = ui.profileForm['user-goal'].value; userProfile.recompDeficit = parseInt(document.getElementById('recomp-deficit-input').value) || 500; } userProfile.weight = parseFloat(ui.profileForm.weight.value); let bmr; const manualBMR = parseFloat(ui.bmrInput.value); if (manualBMR > 0) { bmr = manualBMR; } else { if (userProfile.gender === 'male') { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5; } else { bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161; } ui.bmrInput.placeholder = Math.round(bmr); if (!localOnly) ui.bmrInput.value = ''; } userProfile.bmr = bmr; const bmi = userProfile.weight / ((userProfile.height / 100) ** 2); userProfile.bmi = bmi; ui.bmiInput.value = bmi.toFixed(1); const tdee = bmr * userProfile.activityLevel; userProfile.tdee = tdee; let calorieTarget = tdee; if(userProfile.goal === 'lose') calorieTarget -= 500; if(userProfile.goal === 'gain') calorieTarget += 300; if(userProfile.goal === 'recomposition') calorieTarget = tdee - userProfile.recompDeficit; goals.calories = Math.round(calorieTarget); goals.protein = Math.round(userProfile.weight * 2.2); goals.fat = Math.round(userProfile.weight * 0.8); goals.carbs = Math.round((goals.calories - (goals.protein * 4 + goals.fat * 9)) / 4); if (goals.carbs < 0) { goals.carbs = 0; goals.fat = Math.round((goals.calories - (goals.protein * 4)) / 9); } if (!localOnly) { saveData(); } if (btn) { btn.disabled = false; if (showFeedback) { btn.querySelector('.btn-text').textContent = "Saved!"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; setTimeout(() => { if (btn) btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; }, 2000); } else { btn.querySelector('.btn-text').textContent = "Save & Calculate Goals"; btn.querySelector('.loader').classList.add('hidden'); btn.querySelector('.btn-text').style.display = 'inline'; } } if (localOnly) fullRender(); }
             
             function updateGoalSpecificUI() { 
