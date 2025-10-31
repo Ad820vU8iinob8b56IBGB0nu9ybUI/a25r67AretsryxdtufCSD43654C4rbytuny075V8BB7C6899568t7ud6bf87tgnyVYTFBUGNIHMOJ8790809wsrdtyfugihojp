@@ -1178,6 +1178,18 @@
                 
                 ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
                 const rangeButtons = [ui.chartRange30d, ui.chartRange90d, ui.chartRange1y, ui.chartRangeAll]; rangeButtons.forEach(btn => { btn.addEventListener('click', () => { const range = btn.dataset.range; activeChartRange = range; fullRenderAllCharts(); }); });
+
+                // Chart dataset toggle listeners
+                const datasetToggleButtons = document.querySelectorAll('.chart-dataset-btn');
+                datasetToggleButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const dataset = btn.dataset.dataset;
+                        chartDatasetVisibility[dataset] = !chartDatasetVisibility[dataset];
+                        btn.classList.toggle('active');
+                        renderProgressChart(activeChartRange);
+                    });
+                });
+
                 ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
                 if(ui.checkInWeightInput) { ui.checkInWeightInput.addEventListener('focus', () => { if (userProfile.weightHistory.length > 0) { const latestWeight = userProfile.weightHistory[userProfile.weightHistory.length - 1].weight; ui.checkInWeightInput.value = latestWeight.toFixed(1); } }); }
             }
