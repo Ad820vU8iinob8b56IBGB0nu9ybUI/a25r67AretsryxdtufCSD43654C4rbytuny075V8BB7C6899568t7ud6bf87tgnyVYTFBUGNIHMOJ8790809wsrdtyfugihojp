@@ -209,10 +209,10 @@
 
                     <!-- Sticky Footer / Action Bar (Non-scrolling) -->
                     <div class="flex-shrink-0 border-t border-gray-800 pt-4"> <!-- Added top border -->
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button type="button" id="add-ingredient-btn" class="btn btn-secondary w-full !py-1 !text-sm" disabled><i data-lucide="plus"></i>Add Ingredient</button>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <button type="button" id="add-ingredient-btn" class="btn btn-secondary w-full !py-1 !text-sm" disabled><i data-lucide="plus" class="w-4 h-4"></i> Add</button>
+                            <button type="button" id="recipe-scan-btn-footer" class="btn btn-secondary w-full !py-1 !text-sm"><i data-lucide="scan-line" class="w-4 h-4"></i> Scan</button>
                             <button type="submit" form="compound-food-form" id="save-recipe-btn" class="btn btn-primary w-full !py-1 !text-sm">Save Recipe</button>
-                            <!-- Removed the "Save & Log" specific wording for standalone -->
                         </div>
                     </div>
                 </div>
@@ -252,8 +252,7 @@
         <div class="flex justify-between items-center gap-2">
             <div class="flex-shrink-0" style="width: 1.5rem; height: 1.5rem;"></div> <!-- Spacer -->
             <div class="flex-grow flex justify-center items-center gap-2">
-                <!-- Scan button kept for potential future use, but functionality might be limited in standalone -->
-                <button type="button" class="recipe-scan-btn btn btn-secondary !p-2 flex-shrink-0" title="Scan Ingredient"><i data-lucide="scan-line" class="w-4 h-4 pointer-events-none"></i></button>
+                <!-- Scan button removed from here -->
                 <button type="button" class="remove-ingredient-btn btn btn-secondary !p-2 flex-shrink-0" title="Remove Ingredient"><i data-lucide="x" class="w-4 h-4 pointer-events-none"></i></button>
                 <button type="button" class="find-macros-ai-btn btn btn-secondary !p-2 flex-shrink-0" title="Find Macros with AI">
                     <i data-lucide="sparkles" class="w-4 h-4 pointer-events-none lucide-icon"></i>
@@ -355,6 +354,7 @@
                 recipeCarouselPrev: document.getElementById('recipe-prev-ingredient'),
                 recipeCarouselNext: document.getElementById('recipe-next-ingredient'),
                 saveRecipeBtn: document.getElementById('save-recipe-btn'),
+                recipeScanBtnFooter: document.getElementById('recipe-scan-btn-footer'), // Added footer scan button
                 // Alert Modal Elements
                 alertModal: document.getElementById('alert-modal'),
                 alertModalTitle: document.getElementById('alert-modal-title'),
@@ -383,7 +383,7 @@
 
             // --- GEMINI API ---
             const getApiUrl = (model, action = 'generateContent') => {
-                 const apiKey = "AIzaSyDY48xF1byvU05kS9qKvN8iyrIR3hheP8w"; // FIX: Removed hardcoded API key
+                 const apiKey = "AIzaSyA8-WLMo2U2Km-FN2r_fYk8OUfxyZ7dJoM"; // Leave empty for Canvas environment
                  // Construct the correct API URL structure
                  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
@@ -452,13 +452,54 @@
             }
 
             // --- COMPOUND FOOD FUNCTIONS ---
-            function addIngredientRow() {
+            
+            // *** MODIFIED FUNCTION SIGNATURE ***
+            function addIngredientRow(ingredient = null) {
                 const newRowFragment = ui.ingredientTemplate.content.cloneNode(true);
                 const newRow = newRowFragment.firstElementChild;
                 const ingredientNumber = ui.ingredientListContainer.querySelectorAll('.ingredient-row').length + 1;
                 newRow.querySelector('.ingredient-number').textContent = ingredientNumber;
                 const uniqueIdSuffix = `_row_${ingredientNumber}`;
                 newRow.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => { const label = input.closest('div').querySelector('label'); if (label) { const idName = Array.from(input.classList).find(c => c.startsWith('ingredient-')); if (idName) { const newId = `${idName}${uniqueIdSuffix}`; input.id = newId; label.setAttribute('for', newId); } } });
+                
+                // --- START: ADDED FOR RECIPE IMPORT ---
+                if (ingredient) {
+                    const nameInput = newRow.querySelector('.ingredient-name');
+                    if (nameInput) nameInput.value = ingredient.name || '';
+                    
+                    const quantityInput = newRow.querySelector('.ingredient-quantity');
+                    const gramsInput = newRow.querySelector('.ingredient-grams');
+
+                    if (quantityInput && gramsInput) {
+                        const amountStr = ingredient.amount || '1';
+                        const amountMatch = amountStr.match(/(\d+(\.\d+)?)/); // Get first number
+                        const unitMatch = amountStr.match(/[a-zA-Z]+/); // Get units
+                        
+                        if (unitMatch && (unitMatch[0].toLowerCase() === 'g' || unitMatch[0].toLowerCase() === 'grams') && amountMatch) {
+                            // It's a gram amount
+                            quantityInput.value = 1;
+                            gramsInput.value = parseFloat(amountMatch[0]);
+                        } else if (amountMatch) {
+                            // It's a quantity (like 1 cup, 2 eggs)
+                            quantityInput.value = parseFloat(amountMatch[0]);
+                            // We don't know the grams, so we leave it blank for AI
+                        } else {
+                            // Default to 1
+                            quantityInput.value = 1;
+                        }
+                    }
+
+                    // We don't have full macros, so we'll trigger AI search
+                    const aiBtn = newRow.querySelector('.find-macros-ai-btn');
+                    if (aiBtn && nameInput && nameInput.value) {
+                        // Use setTimeout to avoid triggering all at once
+                        setTimeout(() => {
+                            aiBtn.click();
+                        }, 500 * ingredientNumber); // Stagger AI requests
+                    }
+                }
+                // --- END: ADDED FOR RECIPE IMPORT ---
+                
                 ui.ingredientListContainer.appendChild(newRow);
                 lucide.createIcons({ nodes: [newRow] });
                 updateIngredientNumbers();
@@ -466,6 +507,7 @@
                 validateLastRow();
                 setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient');
             }
+
 
             function validateLastRow() {
                 const hasRecipeName = ui.recipeNameInput.value.trim() !== '';
@@ -621,6 +663,49 @@
                 }
             }
 
+            // --- *** NEW FUNCTION *** ---
+            // --- ADDED TO LOAD IMPORTED RECIPE ---
+            function loadImportedRecipe() {
+                try {
+                    const recipeToImportJSON = localStorage.getItem('fitTrackAI_recipeToImport');
+                    if (recipeToImportJSON) {
+                        const recipeData = JSON.parse(recipeToImportJSON);
+                        
+                        // 1. Set the recipe name
+                        if (recipeData.mealName) {
+                            ui.recipeNameInput.value = recipeData.mealName;
+                            // Trigger input event to unlock ingredient list
+                            ui.recipeNameInput.dispatchEvent(new Event('input')); 
+                        }
+
+                        // 2. Populate ingredients
+                        if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+                            // DO NOT remove the first row, as it hasn't been added yet.
+                            
+                            recipeData.ingredients.forEach(ingredient => {
+                                addIngredientRow(ingredient); // Pass ingredient data
+                            });
+                        } else {
+                            addIngredientRow(); // Add one empty row if no ingredients
+                        }
+                        
+                        // 3. Clear the item from localStorage
+                        localStorage.removeItem('fitTrackAI_recipeToImport');
+                        
+                        // 4. Update totals and validate (will be called by addIngredientRow, but good to run again)
+                        updateRecipeTotals();
+                        validateLastRow();
+                        
+                        return true; // <-- Return true on success
+                    }
+                } catch (e) {
+                    console.error("Error loading imported recipe:", e);
+                    localStorage.removeItem('fitTrackAI_recipeToImport'); // Clear corrupted item
+                }
+                return false; // <-- Return false if nothing was loaded
+            }
+
+
             // --- EVENT LISTENERS ---
             // The close button is now an <a> tag, so no click listener needed for it.
             
@@ -630,7 +715,9 @@
                 else { ui.ingredientListContainer.classList.add('section-disabled'); ui.addIngredientBtn.disabled = true; }
             });
 
-            ui.addIngredientBtn.addEventListener('click', addIngredientRow);
+            ui.addIngredientBtn.addEventListener('click', () => {
+                 addIngredientRow(null); // Pass null explicitly
+            });
 
             // Save button listener
             ui.saveRecipeBtn.addEventListener('click', (e) => {
@@ -662,13 +749,24 @@
                     const recipeName = ui.recipeNameInput.value.trim();
                     const ingredientData = { name: row.querySelector('.ingredient-name').value.trim(), quantity: row.querySelector('.ingredient-quantity').value.trim(), grams: row.querySelector('.ingredient-grams').value.trim(), calories: row.querySelector('.ingredient-calories').value.trim(), protein: row.querySelector('.ingredient-protein').value.trim(), carbs: row.querySelector('.ingredient-carbs').value.trim(), fat: row.querySelector('.ingredient-fat').value.trim(), sugar: row.querySelector('.ingredient-sugar').value.trim(), sodium: row.querySelector('.ingredient-sodium').value.trim(), potassium: row.querySelector('.ingredient-potassium').value.trim() };
                     if (!ingredientData.name) { return; }
-                    if (ingredientAbortController) { ingredientAbortController.abort(); } ingredientAbortController = new AbortController();
+                    
+                    // if (ingredientAbortController) { ingredientAbortController.abort(); } // <-- BUG FIX: REMOVED THIS LINE
+                    const currentController = new AbortController(); // Create local instance
+                    ingredientAbortController = currentController; // Assign to global for other aborts
+
                     row.dataset.loading = 'true'; aiBtn.disabled = true; loader.classList.remove('hidden'); icon.classList.add('hidden');
                     try {
-                        const data = await fetchIngredientMacros(recipeName, ingredientData, ingredientAbortController.signal);
-                        if (ingredientAbortController.signal.aborted) return;
-                        row.querySelector('.ingredient-grams').value = data.grams.toFixed(0); row.querySelector('.ingredient-calories').value = data.calories.toFixed(0); row.querySelector('.ingredient-protein').value = data.protein.toFixed(1); row.querySelector('.ingredient-carbs').value = data.carbs.toFixed(1); row.querySelector('.ingredient-fat').value = data.fat.toFixed(1);
-                        row.querySelector('.ingredient-sugar').value = data.sugar.toFixed(1); row.querySelector('.ingredient-sodium').value = data.sodium.toFixed(0); row.querySelector('.ingredient-potassium').value = data.potassium.toFixed(0);
+                        const data = await fetchIngredientMacros(recipeName, ingredientData, currentController.signal); // Pass local signal
+                        if (currentController.signal.aborted) return; // Check local controller
+
+                        row.querySelector('.ingredient-grams').value = data.grams.toFixed(0); 
+                        row.querySelector('.ingredient-calories').value = data.calories.toFixed(0); 
+                        row.querySelector('.ingredient-protein').value = data.protein.toFixed(1); 
+                        row.querySelector('.ingredient-carbs').value = data.carbs.toFixed(1); 
+                        row.querySelector('.ingredient-fat').value = data.fat.toFixed(1);
+                        row.querySelector('.ingredient-sugar').value = data.sugar.toFixed(1); 
+                        row.querySelector('.ingredient-sodium').value = data.sodium.toFixed(0); 
+                        row.querySelector('.ingredient-potassium').value = data.potassium.toFixed(0);
                         updateRecipeTotals();
                     } catch (error) {
                         // Display API errors to the user
@@ -686,27 +784,30 @@
                          }
                     }
                     finally {
-                        // Ensure button state is reset only if not aborted
-                        if (!ingredientAbortController || !ingredientAbortController.signal.aborted) {
+                        // Only reset if the *global* controller is *still this one*
+                        if (ingredientAbortController === currentController) {
+                            ingredientAbortController = null;
+                        }
+                        // And only reset the button if this specific fetch (local controller) was not aborted
+                        if (!currentController.signal.aborted) {
                             if(aiBtn) aiBtn.disabled = false;
                             if(loader) loader.classList.add('hidden');
                             if(icon) icon.classList.remove('hidden');
                             if(row) delete row.dataset.loading;
                         }
-                        ingredientAbortController = null; // Clear controller once done or aborted
+                        // ingredientAbortController = null; // This was the old bug
                     }
                 }
 
                  if (scanBtn && row) {
-                    showCustomAlert("Scan Not Supported", "Scanning ingredients requires the main nutrition page integration. This page is standalone.");
-                    // In a real scenario, you might try to open the ai-scanner-popup.html and pass context back.
-                    // For now, it's disabled in the standalone recipe builder.
+                    // This logic is now removed as the button is gone from the template
                 }
             });
 
             ui.ingredientListContainer.addEventListener('input', (e) => {
                 if (e.target.type === 'number' && parseFloat(e.target.value) < 0) e.target.value = '';
-                updateRecipeTotals(); validateLastRow();
+                updateRecipeTotals();
+                validateLastRow();
                 const row = e.target.closest('.ingredient-row');
                 if (row && ingredientAbortController && row.dataset.loading) { ingredientAbortController.abort(); }
             });
@@ -714,13 +815,35 @@
             // Alert modal OK button
              ui.alertModalOkBtn.addEventListener('click', () => hideModal(ui.alertModal));
 
+            // --- NEW: Footer Scan Button Listener ---
+            if (ui.recipeScanBtnFooter) {
+                ui.recipeScanBtnFooter.addEventListener('click', () => {
+                    // This button would ideally open a scanner and add a new row.
+                    // For now, it shows an alert as scanning is complex.
+                    showCustomAlert("Scan Not Supported", "Scanning ingredients to add a new row is not yet implemented.");
+                });
+            }
+
             // --- INITIALIZATION ---
-            // lucide.createIcons(); // Moved to initializeLayout
-            addIngredientRow(); // Add the first empty row on load
+            
+            // --- *** MODIFIED INITIALIZATION *** ---
+            let recipeLoaded = loadImportedRecipe(); // Try to load imported recipe
+            
+            if (!recipeLoaded) {
+                addIngredientRow(null); // Add the first empty row ONLY if no recipe was loaded
+            }
+            // --- *** END MODIFIED INITIALIZATION *** ---
+
             setupCarousel('ingredient-list-container', 'recipe-prev-ingredient', 'recipe-next-ingredient'); // Setup carousel
-            ui.recipeNameInput.focus(); // Focus recipe name input
-            // Update totals initially (should be all 0)
+            
+            // Focus input only if a recipe wasn't loaded
+            if (!recipeLoaded) {
+                ui.recipeNameInput.focus();
+            }
+            
+            // Update totals initially
             updateRecipeTotals();
+            validateLastRow(); // Validate based on what was loaded
         }
 
         // Initialize layout and page logic on DOMContentLoaded
