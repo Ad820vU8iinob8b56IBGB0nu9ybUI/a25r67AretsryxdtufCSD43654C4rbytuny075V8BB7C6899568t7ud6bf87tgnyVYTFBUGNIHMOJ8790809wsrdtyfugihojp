@@ -64,7 +64,7 @@
             bottom: 0;
             background-color: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
-            display: flex;
+            display: none; /* Changed from flex to none */
             align-items: center;
             justify-content: center;
             z-index: 1000;
@@ -101,6 +101,135 @@
             display: none;
         }
         /* --- END: Styles for the check-in modal --- */
+
+        /* --- ADDED: Styles for water button swipe --- */
+        .swipe-item { position: relative; overflow: hidden; user-select: none; }
+        .swipe-actions { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; }
+        .swipe-action-container { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .swipe-action-container.left { justify-content: flex-start; background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%)); } /* Edit */
+        .swipe-action-container.right { justify-content: flex-end; background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%)); } /* Delete */
+        .swipe-actions .action { height: 100%; display: flex; align-items: center; justify-content: center; color: white; padding: 0 1.5rem; }
+        
+        /* MODIFIED: Added z-index: 2 */
+        .swipe-content { position: relative; z-index: 2; background-color: var(--input-bg); /* Use input-bg for base */ touch-action: pan-y; cursor: pointer; transition: background-color 0.2s ease; }
+        .swipe-content.swiping { transition: none; }
+        .swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        /* Water Button Specific Styles */
+        #quick-log-water-btn { position: relative; overflow: hidden; touch-action: none; background-color: var(--input-bg); } /* Ensure base bg */
+        
+        /* ADDED: Styles for the water fill background */
+        #water-fill { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            width: 100%; 
+            background-color: #3b82f6; 
+            height: 0%; 
+            transition: height 0.3s ease-out; 
+            z-index: 1; 
+        }
+        
+        /* REMOVED: This rule is no longer needed as z-index is on .swipe-content */
+        /* #quick-log-water-btn > div > i, #quick-log-water-btn > div > span { position: relative; z-index: 2; } */
+        
+        #water-swipe-content.swiping { transition: none; }
+        #water-swipe-content.returning { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #quick-log-water-btn:hover:not(:disabled) #water-swipe-content { background-color: var(--border-color); }
+        /* Specific swipe backgrounds for water button */
+        #water-swipe-bg-top { position: absolute; opacity: 0; background: linear-gradient(to bottom, hsl(262, 83%, 60%), hsl(262, 83%, 70%)); height: 0; transition: height 0.3s ease, opacity 0.3s ease; top: 0; left: 0; right: 0; bottom: auto; display: flex; align-items: center; justify-content: center; }
+        #water-swipe-bg-left { background: linear-gradient(to right, hsl(145, 63%, 49%), hsl(145, 63%, 59%)); }
+        #water-swipe-bg-right { background: linear-gradient(to left, hsl(0, 82%, 61%), hsl(0, 72%, 51%)); }
+        /* --- END: Styles for water button swipe --- */
+
+        /* --- MODIFIED: Styles for Undo Toast --- */
+        #undo-toast {
+            position: fixed;
+            /* MODIFIED: Moved up to avoid footer nav */
+            bottom: 5rem; /* 80px */
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+            /* MODIFIED: Use CSS variables for theme consistency */
+            background-color: var(--card-bg);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem; /* 12px 20px */
+            border-radius: 0.75rem; /* 12px, more rounded */
+            /* MODIFIED: Slicker shadow */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* To push button to the right */
+            gap: 1.5rem; /* 24px */
+            z-index: 100;
+            width: calc(100% - 2rem); /* 90% width on mobile */
+            max-width: 320px;
+            /* MODIFIED: Smoother transition */
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+        }
+        #undo-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        #undo-toast-btn {
+            font-weight: 600;
+            /* MODIFIED: Use accent color */
+            color: var(--accent);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            transition: color 0.2s ease;
+        }
+        #undo-toast-btn:hover {
+            color: var(--accent-hover);
+        }
+        /* --- END: Styles for Undo Toast --- */
+
+        /* --- ADDED: Styles for rearranging quick actions --- */
+        /* This class is for non-draggable items like the settings button */
+        .quick-action-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        /* This class is for the items that can be dragged */
+        [data-action-id].rearrange-mode {
+            cursor: grab;
+            animation: jiggle 0.3s infinite;
+        }
+        [data-action-id].rearrange-mode:active {
+            cursor: grabbing;
+            animation: none;
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 50;
+        }
+        [data-action-id].drag-over {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+        
+        @keyframes jiggle {
+            0% { transform: rotate(-1deg); }
+            50% { transform: rotate(1deg); }
+            100% { transform: rotate(-1deg); }
+        }
+        /* --- END: Styles for rearranging --- */
+
+        /* --- ADDED: Styles for Rearrange Modal --- */
+        /* REMOVED: .rearrange-item styles, no longer needed in modal */
+
+        /* ADDED: Style for dragging item */
+        [data-action-id].dragging {
+            opacity: 0.5;
+            z-index: 100;
+        }
+        /* --- END: Styles for Rearrange Modal --- */
+
     </style>
 </head>
 <body class="antialiased">
@@ -131,22 +260,33 @@
                 <!-- START: New Carousel Container -->
                 <!-- This single carousel item replaces the original three cards -->
                 <!-- It spans 2 columns on medium screens and 3 on large screens to fill the row -->
-                <div id="summary-carousel-container" class="md:col-span-2 lg:col-span-3 content-card relative overflow-hidden min-h-[210px] !p-0">
+                <!-- CHANGE 1: Made carousel shorter. You can edit min-h-[140px] (line 204) to adjust height. -->
+                <div id="summary-carousel-container" class="md:col-span-2 lg:col-span-3 content-card relative overflow-hidden min-h-[140px] !p-0">
                     
+                    <!-- ADDED: Carousel Header for Title and Dots -->
+                    <div class="flex justify-between items-center p-4 md:p-6">
+                        <h3 id="carousel-title" class="text-xl font-bold"></h3> 
+                        <!-- MODIFIED: Moved dots container here and removed absolute/positioning classes -->
+                        <div id="carousel-dots-container" class="flex gap-2 z-10">
+                            <!-- Dots will be added by JS -->
+                        </div>
+                    </div>
+
                     <!-- Carousel Track -->
                     <div id="summary-carousel-track" class="flex h-full">
                         
                         <!-- Slide 1: Nutrition -->
-                        <div class="carousel-slide">
+                        <div class="carousel-slide" data-title="Nutrition">
                             <!-- Make the slide itself the link -->
-                            <a href="nutrition.html" class="block h-full p-6 md:p-8 clickable-card-slide">
-                                <h3 class="text-2xl font-bold mb-4">Nutrition at a Glance</h3>
-                                <div class="flex items-center gap-6">
-                                    <div class="w-24 h-24 flex-shrink-0">
+                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
+                            <a href="nutrition.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                                <!-- MODIFIED: Removed <h3> -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-20 h-20 flex-shrink-0">
                                         <!-- This canvas MUST be initialized after the page loads -->
                                         <canvas id="macro-chart-summary"></canvas>
                                     </div>
-                                    <div class="w-full grid grid-cols-1 gap-y-2 text-sm">
+                                    <div class="w-full grid grid-cols-1 gap-y-1 text-sm">
                                         <div class="flex justify-between items-baseline"><span class="text-secondary-text">Calories:</span> <span class="font-semibold"><span id="summary-current-calories">0</span> / <span id="summary-goal-calories">2000</span></span></div>
                                         <div class="flex justify-between items-baseline"><span class="text-secondary-text">Protein:</span> <span class="font-semibold"><span id="summary-current-protein">0</span> / <span id="summary-goal-protein">150</span> g</span></div>
                                         <div class="flex justify-between items-baseline"><span class="text-secondary-text">Carbs:</span> <span class="font-semibold"><span id="summary-current-carbs">0</span> / <span id="summary-goal-carbs">225</span> g</span></div>
@@ -157,12 +297,13 @@
                         </div>
                         
                         <!-- Slide 2: Workout -->
-                        <div class="carousel-slide">
-                            <a href="workouts.html" class="block h-full p-6 md:p-8 clickable-card-slide">
-                                <h3 class="text-2xl font-bold mb-4">Today's Workout</h3>
+                        <div class="carousel-slide" data-title="Today's Workout">
+                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
+                            <a href="workouts.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                                <!-- MODIFIED: Removed <h3> -->
                                 <!-- MODIFICATION 3: Added flex structure and canvas -->
-                                <div class="flex items-center gap-6">
-                                    <div class="w-24 h-24 flex-shrink-0">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-20 h-20 flex-shrink-0">
                                         <!-- MODIFIED: Re-added canvas for progress chart -->
                                         <canvas id="workout-chart-summary"></canvas>
                                     </div>
@@ -175,12 +316,13 @@
                         </div>
                         
                         <!-- Slide 3: Sleep -->
-                        <div class="carousel-slide">
-                            <a href="sleep.html" class="block h-full p-6 md:p-8 clickable-card-slide">
-                                <h3 class="text-2xl font-bold mb-4">Last Night's Sleep</h3>
+                        <div class="carousel-slide" data-title="Last Night's Sleep">
+                            <!-- MODIFIED: Removed padding from <a>, added padding for content area (no top) -->
+                            <a href="sleep.html" class="block h-full px-4 md:px-6 pb-4 md:pb-6 clickable-card-slide">
+                                <!-- MODIFIED: Removed <h3> -->
                                 <!-- MODIFICATION 3: Added flex structure and canvas -->
-                                <div class="flex items-center gap-6">
-                                    <div class="w-24 h-24 flex-shrink-0">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-20 h-20 flex-shrink-0">
                                         <!-- MODIFIED: Re-added canvas for progress chart -->
                                         <canvas id="sleep-chart-summary"></canvas>
                                     </div>
@@ -193,44 +335,82 @@
                         </div>
 
                     </div>
-
-                    <!-- Desktop Buttons (Hidden on mobile) - REMOVED -->
                     
                     <!-- Mobile Dots (NOW SHOWN ON ALL SIZES) -->
-                    <div id="carousel-dots-container" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    <!-- MODIFIED: This is now moved into the new header above the track -->
+                    <!-- <div id="carousel-dots-container" class="absolute top-4 right-4 flex gap-2 z-10"> -->
                         <!-- Dots will be added by JS -->
-                    </div>
+                    <!-- </div> -->
                 </div>
                 <!-- END: New Carousel Container -->
 
             </div>
 
             <!-- NEW: Quick Actions Card -->
-            <div id="quick-actions-card" class="content-card">
-                <h3 class="text-2xl font-semibold mb-4">Quick Actions</h3>
-                <!-- MODIFICATION 2: Changed to grid-cols-4 for all screens -->
-                <div class="grid grid-cols-4 gap-4">
-                    <button id="quick-log-water-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
-                        <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        <div id="quick-actions-card" class="content-card relative"> <!-- MODIFIED: Added relative positioning -->
+            
+            <!-- MODIFIED: Wrapped title and new settings btn in a flex container -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-semibold">Quick Actions</h3>
+                <!-- MODIFIED: Moved settings button here and changed styling -->
+                <button id="quick-actions-settings-btn" class="absolute top-4 right-4 text-secondary-text hover:text-primary-text rounded-lg !p-2 transition-colors" title="Rearrange Actions">
+                    <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <!-- MODIFIED: Changed text to be screen-reader only -->
+                    <span class="sr-only">Settings</span>
+                </button>
+            </div>
+
+            <!-- MODIFIED: Added quick-action-grid class for targeting -->
+            <div class="grid grid-cols-4 gap-2 sm:gap-4 quick-action-grid">
+                
+                <!-- REMOVED: Settings Button from grid -->
+
+                <!-- CHANGED: Replaced simple button with swipe-enabled button -->
+                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                    <button id="quick-log-water-btn" data-action-id="water" class="btn btn-secondary !p-0 !p-0 sm:!p-0 !relative !overflow-hidden h-20 sm:h-24 quick-action-item" title="Log Water (Tap, Swipe Up/Down, Swipe Left/Right)">
+                    <!-- Swipe backgrounds -->
+                    <div id="water-swipe-actions" class="swipe-actions">
+                            <div id="water-swipe-bg-top" class="swipe-action-container !items-center !justify-center">
+                                <div class="action !h-auto py-3 !justify-center"><i data-lucide="target" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                            </div>
+                            <div id="water-swipe-bg-left" class="swipe-action-container left !justify-center">
+                                <div class="action"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                            </div>
+                            <div id="water-swipe-bg-right" class="swipe-action-container right !justify-center">
+                            <div class="action"><i data-lucide="minus" class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none"></i></div>
+                        </div>
+                    </div>
+                    <!-- ADDED: Re-added water fill span -->
+                    <span id="water-fill"></span>
+                    <!-- This is the part that moves -->
+                    <!-- MODIFIED: Added !bg-transparent to keep fill visible -->
+                    <div id="water-swipe-content" class="swipe-content relative w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 !p-2 sm:!p-4 !bg-transparent">
+                        <!-- REPLACED SVG with original lucide icon -->
+                        <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
                         <span class="text-xs sm:text-sm">Log Water</span>
-                    </button>
-                    <a href="assets/nutrition/scan-combined.html" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
+                    </div>
+                </button>
+
+                <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                    <a href="assets/nutrition/scan-combined.html" data-action-id="scan" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
                         <i data-lucide="scan-line" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Scan Food</span>
                     </a>
-                    <!-- **** MODIFIED THIS LINE **** -->
-                    <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
+                    
+                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                    <a href="assets/nutrition/ai-macro-swap.html" id="quick-macro-swap-btn" data-action-id="macro" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
                         <i data-lucide="replace" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Macro Swap</span>
                     </a>
-                    <!-- ADDED: New button for logging weight -->
-                    <button id="quick-log-weight-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
-                        <!-- MODIFICATION 1: Changed icon to 'scale' -->
-                        <i data-lucide="scale" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    
+                    <!-- MODIFIED: Added data-action-id and quick-action-item class -->
+                    <button id="quick-log-weight-btn" data-action-id="weight" class="btn btn-secondary !p-2 sm:!p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 h-20 sm:h-24 text-center quick-action-item">
+                        <!-- CHANGE 3: Replaced icon -->
+                        <i data-lucide="gauge" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Log Weight</span>
                     </button>
                 </div>
-                <p id="quick-action-feedback" class="text-sm h-5 text-center mt-4 text-green-400"></p>
+                <!-- CHANGED: Removed quick action feedback p tag -->
             </div>
 
             <!-- Daily Check-in Card (REMOVED - Now a modal) -->
@@ -245,7 +425,7 @@
     </div>
 
     <!-- ADDED: Check-in Modal -->
-    <div id="check-in-modal-overlay" class="modal-overlay hidden">
+    <div id="check-in-modal-overlay" class="modal-overlay">
         <div id="check-in-modal-content" class="modal-content">
             <!-- This is the content from the old "daily-check-in-card" -->
             <div class="content-card !mb-0"> <!-- !mb-0 to prevent double margin -->
@@ -267,6 +447,53 @@
 
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
+
+    <!-- ADDED: Rearrange Modal -->
+    <div id="rearrange-modal-overlay" class="modal-overlay" style="z-index: 1010;">
+        <!-- MODIFIED: Removed modal-content wrapper, added positioning classes to content-card -->
+        <div class="content-card !mb-0 relative w-[90%] max-w-[400px]">
+            <button id="rearrange-modal-close-btn" class="modal-close-btn">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4">Quick Actions Settings</h3>
+            <p class="text-sm text-secondary-text mb-6">What would you like to do?</p>
+            
+            <!-- MODIFIED: Replaced list with buttons -->
+            <div class="flex flex-col gap-4">
+                <button id="rearrange-modal-rearrange-btn" class="btn btn-secondary w-full">
+                    <i data-lucide="move" class="w-5 h-5 mr-2"></i>
+                    Rearrange Buttons
+                </button>
+                <button id="rearrange-modal-edit-btn" class="btn btn-secondary w-full">
+                    <i data-lucide="sliders-horizontal" class="w-5 h-5 mr-2"></i>
+                    Edit Buttons (Future)
+                </button>
+            </div>
+
+            <!-- REMOVED: rearrange-list-container -->
+            <!-- REMOVED: rearrange-modal-done-btn -->
+        </div>
+    </div>
+    <!-- END: Rearrange Modal -->
+
+    <!-- ADDED: Prompt Modal (for water) -->
+    <div id="prompt-modal" class="modal-overlay" style="z-index: 1010;">
+        <div class="modal-content">
+            <h2 id="prompt-modal-title" class="text-2xl font-bold mb-4">Input</h2>
+            <p id="prompt-modal-text" class="text-secondary-text mb-4"></p>
+            <input type="number" id="prompt-modal-input" class="form-input w-full" min="0" step="1">
+            <div class="flex gap-4 mt-6">
+                <button id="prompt-modal-cancel-btn" class="btn btn-secondary w-full">Cancel</button>
+                <button id="prompt-modal-ok-btn" class="btn btn-primary w-full">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADDED: Undo Toast -->
+    <!-- MODIFIED: Removed Tailwind classes, will be styled in <style> -->
+    <div id="undo-toast">
+        <span id="undo-toast-text"></span>
+        <button id="undo-toast-btn">Undo</button>
+    </div>
+
 
     <!-- Script to load Header/Footer and Page Logic -->
     <script>
@@ -321,6 +548,17 @@
             
             // MODIFICATION: Re-added chart variables
             let macroChart, weeklyProgressChart, workoutChart, sleepChart;
+
+            // ADDED: State for water button and modals
+            let promptCallback = null;
+            let lastAction = null;
+            let undoTimeout = null;
+            let lastWaterLogAmount = 0;
+            let openModalCount = 0; // Track open modals
+
+            // ADDED: State for rearranging quick actions
+            let isRearrangeMode = false; // This is now unused, but harmless
+            let draggedItem = null; // This will be reused for the modal
 
 
             // --- CHART.JS SETUP ---
@@ -440,9 +678,10 @@
                 const container = document.getElementById('summary-carousel-container');
                 const track = document.getElementById('summary-carousel-track');
                 const dotsContainer = document.getElementById('carousel-dots-container');
+                const carouselTitle = document.getElementById('carousel-title'); // NEW
 
-                if (!container || !track || !dotsContainer) {
-                    console.error('Carousel elements not found!');
+                if (!container || !track || !dotsContainer || !carouselTitle) { // MODIFIED
+                    console.error('Carousel elements not found!', {container, track, dotsContainer, carouselTitle});
                     return;
                 }
 
@@ -485,16 +724,29 @@
                 function updateDots(index) {
                     // index is the *current* track index (e.g., 0 to 4)
                     let dotIndex = index - 1; // 1 -> 0, 2 -> 1, 3 -> 2
+                    let title = ''; // NEW
                     
                     if (index === 0) { // On last clone
                         dotIndex = totalSlides - 1; // Highlight last dot
+                        title = originalSlides[totalSlides - 1].dataset.title; // NEW
                     } else if (index === totalSlides + 1) { // On first clone
                         dotIndex = 0; // Highlight first dot
+                        title = originalSlides[0].dataset.title; // NEW
+                    } else {
+                        // NEW: Get title from the *original* slide, not the clone
+                        if (originalSlides[dotIndex]) {
+                            title = originalSlides[dotIndex].dataset.title;
+                        }
                     }
                     
                     dots.forEach((dot, i) => {
                         dot.classList.toggle('active', i === dotIndex);
                     });
+
+                    // NEW: Update title
+                    if (carouselTitle) {
+                        carouselTitle.textContent = title;
+                    }
                 }
 
                 function goToSlide(index, isProgrammatic = false, isInitial = false) {
@@ -675,11 +927,11 @@
 
             function loadData() {
                 const todayKey = dateToKey(new Date());
-                const defaultGoals = { calories: 2000, protein: 150, carbs: 225, fat: 60 };
+                const defaultGoals = { calories: 2000, protein: 150, carbs: 225, fat: 60, water: 2500 }; // Added water goal
                 
                 // Load all data into the appData object
                 appData.allDailyLogs = JSON.parse(localStorage.getItem('fitTrackAI_allDailyLogs')) || {};
-                appData.userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [], weightHistory: [] };
+                appData.userProfile = JSON.parse(localStorage.getItem('fitTrackAI_userProfile')) || { sleepHistory: [], weightHistory: [], waterServingSize: 250 }; // Added waterServingSize
                 appData.workoutHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutHistory')) || [];
                 appData.workoutStatusHistory = JSON.parse(localStorage.getItem('fitTrackAI_workoutStatus')) || {};
                 appData.goals = JSON.parse(localStorage.getItem('fitTrackAI_goals')) || defaultGoals;
@@ -687,6 +939,11 @@
                 // Ensure arrays exist on userProfile
                 if (!appData.userProfile.sleepHistory) appData.userProfile.sleepHistory = [];
                 if (!appData.userProfile.weightHistory) appData.userProfile.weightHistory = [];
+                if (!appData.userProfile.waterServingSize) appData.userProfile.waterServingSize = 250;
+                
+                // Ensure goals exist
+                if (!appData.goals.water) appData.goals.water = 2500;
+
 
                 // **** FIX ****
                 // Use the new getDayLog function to correctly initialize today's log
@@ -712,6 +969,16 @@
                 macroChart.data.datasets[0].data = macroSum > 0 ? [totals.protein, totals.carbs, totals.fat] : [1, 1, 1];
                 macroChart.data.datasets[0].borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
                 macroChart.update();
+
+                // ADDED: Update water fill percent
+                const dayLog = getDayLog(new Date());
+                const waterPercent = Math.min(100, (dayLog.water / (appData.goals.water || 1)) * 100);
+                
+                // MODIFIED: Animate background fill span instead of SVG
+                const waterFillEl = document.getElementById('water-fill');
+                if (waterFillEl) {
+                    waterFillEl.style.height = `${waterPercent}%`;
+                }
             }
 
             // MODIFICATION 3: Updated renderWorkoutSummary
@@ -727,7 +994,7 @@
                 workoutChart.data.datasets[0].borderColor = cardBg;
 
                 if (dayInfo.type === 'Rest') {
-                    summaryHtml = `<p class="text-3xl font-bold text-green-400 mb-2">Rest Day</p><p class="text-lg font-semibold text-primary-text">Recovery is key!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full plan</a>`;
+                    summaryHtml = `<p class="text-xl font-bold text-green-400 mb-1">Rest Day</p><p class="text-base font-semibold text-primary-text">Recovery is key!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">View full plan</a>`;
                     // Update chart for Rest
                     workoutChart.data.datasets[0].data = [1, 0];
                     workoutChart.data.datasets[0].backgroundColor = ['#10b981', 'var(--input-bg)'];
@@ -741,12 +1008,12 @@
                     if (loggedExercises.length > 0) {
                         const firstExercise = loggedExercises[0].name;
                         const statusText = (status === 'full' || (totalExercises > 0 && remaining === 0)) ? 'Complete' : (status === 'partial' ? 'In Progress' : 'Logged');
-                        summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
+                        summaryHtml = `<p class="text-xl font-bold text-blue-400 mb-1">${dayInfo.type} (${statusText})</p><p class="text-base font-semibold text-primary-text">Logged ${exerciseCount} exercises.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">View full log</a>`;
                         
                         workoutChart.data.datasets[0].data = [exerciseCount, remaining];
                         workoutChart.data.datasets[0].backgroundColor = [status === 'full' ? '#10b981' : '#3b82f6', 'var(--input-bg)'];
                     } else {
-                        summaryHtml = `<p class="text-lg font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p>${totalExercises} exercises planned.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Start your workout</a>`;
+                        summaryHtml = `<p class="text-base font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p class="text-sm">${totalExercises} exercises planned.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">Start your workout</a>`;
                         // Update chart for not started
                         workoutChart.data.datasets[0].data = [0, Math.max(1, totalExercises)]; // Show at least 1 remaining
                         workoutChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)']; // Red for not started
@@ -770,13 +1037,13 @@
                     const { durationHours, durationMinutes } = calculateDuration(lastLog.startTime, lastLog.endTime, lastLog.date);
                     const totalMinutes = durationHours * 60 + durationMinutes;
                     if (totalMinutes <= 0) {
-                         summaryHtml = `<p>No recent valid sleep data.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                         summaryHtml = `<p>No recent valid sleep data.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">Log your sleep</a>`;
                          // Update chart
                          sleepChart.data.datasets[0].data = [0, goalHours];
                          sleepChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)'];
                     } else {
                         const qualityText = '★'.repeat(lastLog.quality) + '☆'.repeat(5 - lastLog.quality);
-                        summaryHtml = `<p class="text-3xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-lg text-yellow-400 font-semibold mb-2">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View details</a>`;
+                        summaryHtml = `<p class="text-2xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-base text-yellow-400 font-semibold mb-1">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">View details</a>`;
                         // Update chart
                         const totalHours = totalMinutes / 60;
                         const remainingHours = Math.max(0, goalHours - totalHours);
@@ -784,7 +1051,7 @@
                         sleepChart.data.datasets[0].backgroundColor = ['#f59e0b', 'var(--input-bg)'];
                     }
                 } else {
-                    summaryHtml = `<p>No sleep data available.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                    summaryHtml = `<p>No sleep data available.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-2 inline-block text-sm">Log your sleep</a>`;
                     // Update chart
                     sleepChart.data.datasets[0].data = [0, goalHours];
                     sleepChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)'];
@@ -818,6 +1085,282 @@
                 weeklyProgressChart.update();
             }
 
+            // --- START: Quick Action Rearrange Functions ---
+            
+            // REMOVED: quickActionDetails object is no longer needed here
+
+            // Function to save the order of quick actions
+            function saveQuickActionOrder(newOrder) {
+                localStorage.setItem('fitTrackAI_quickActionOrder', JSON.stringify(newOrder));
+            }
+
+            // Function to load the saved order
+            function loadQuickActionOrder() {
+                const savedOrder = localStorage.getItem('fitTrackAI_quickActionOrder');
+                if (savedOrder) {
+                    return JSON.parse(savedOrder);
+                }
+                // Default order if nothing is saved
+                return ['water', 'scan', 'macro', 'weight'];
+            }
+
+            // Function to apply the saved order to the DOM
+            function renderQuickActionOrder() {
+                const grid = document.querySelector('.quick-action-grid');
+                if (!grid) return;
+
+                const order = loadQuickActionOrder();
+                const items = new Map();
+                // Find all action items and map them by their ID
+                grid.childNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.dataset.actionId) {
+                        items.set(node.dataset.actionId, node);
+                    }
+                });
+
+                // Re-append items to the grid in the correct order
+                order.forEach(id => {
+                    const item = items.get(id);
+                    if (item) {
+                        grid.appendChild(item);
+                    }
+                });
+            }
+
+            // --- MODIFIED: Drag/Drop logic is now for the MODAL list ---
+            
+            // REMOVED: All onModalDrag... functions (onModalDragStart, onModalDragOver, etc.)
+
+            // --- ADDED: Helper function for drag-and-drop ---
+            function getDragAfterElement(container, x) {
+                const draggableElements = [...container.querySelectorAll('.quick-action-item[data-action-id]:not(.dragging)')];
+
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    // Find the horizontal center of the child
+                    const offset = x - box.left - box.width / 2;
+                    
+                    // We want the element that is *just after* our cursor.
+                    // So we look for the one with the smallest negative offset.
+                    // This means `child` is to the right of the cursor, and it's the closest one.
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+
+            // --- ADDED: Drag/Drop functions for main page grid ---
+            function onDragStart(e) {
+                // MODIFIED: Use closest() to get the button, as e.target might be an icon/span
+                const item = e.target.closest('.quick-action-item[data-action-id]');
+                
+                // Don't allow drag on non-draggable items
+                if (!item || !item.classList.contains('rearrange-mode')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                draggedItem = item; // Use the found item
+                draggedItem.classList.add('dragging'); // For opacity
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', draggedItem.dataset.actionId);
+            }
+
+            function onGridDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                // Clear all previous drag-over visuals
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                
+                // Find the element we should insert before
+                const afterElement = getDragAfterElement(grid, e.clientX);
+                
+                if (afterElement == null) {
+                    // We are at the end (or grid is empty)
+                    grid.appendChild(draggedItem);
+                } else {
+                    // We are before an element
+                    grid.insertBefore(draggedItem, afterElement);
+                    // Add a visual indicator to the element we are about to displace
+                    afterElement.classList.add('drag-over');
+                }
+            }
+
+            function onGridDragLeave(e) {
+                const target = e.target.closest('.quick-action-item[data-action-id]');
+                if (target) {
+                    target.classList.remove('drag-over');
+                }
+            }
+            
+            function onGridDrop(e) {
+                e.preventDefault();
+                // Clean up all drag-over classes
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            }
+
+            // --- ADDED: Touch handlers for mobile D&D ---
+            function onTouchStart(e) {
+                const item = e.target.closest('.quick-action-item[data-action-id]');
+                if (!item || !item.classList.contains('rearrange-mode')) {
+                    return;
+                }
+                // e.preventDefault(); // Allow default "grab"
+                draggedItem = item;
+                draggedItem.classList.add('dragging');
+            }
+
+            function onTouchMove(e) {
+                if (!draggedItem) return;
+                e.preventDefault(); // Prevent page scroll while dragging
+                
+                const x = e.touches[0].clientX;
+                
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                const afterElement = getDragAfterElement(grid, x);
+                
+                if (afterElement == null) {
+                    grid.appendChild(draggedItem);
+                } else {
+                    grid.insertBefore(draggedItem, afterElement);
+                    afterElement.classList.add('drag-over');
+                }
+            }
+
+            function onTouchEnd(e) {
+                if (!draggedItem) return;
+                
+                // Use onDragEnd logic to clean up
+                onDragEnd(e); 
+            }
+            // --- END: Touch handlers ---
+
+
+            // --- MODIFIED: toggleRearrangeMode function ---
+            const settingsBtn = document.getElementById('quick-actions-settings-btn');
+            const grid = document.querySelector('.quick-action-grid');
+            const draggableItems = () => grid.querySelectorAll('.quick-action-item[data-action-id]');
+
+            function toggleRearrangeMode() {
+                isRearrangeMode = !isRearrangeMode;
+                
+                if (isRearrangeMode) {
+                    // --- ENTERING REARRANGE MODE ---
+                    settingsBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5 sm:w-6 sm:h-6"></i><span class="sr-only">Done</span>';
+                    
+                    draggableItems().forEach(item => {
+                        item.classList.add('rearrange-mode');
+                        item.draggable = true;
+                        
+                        // Add drag listeners
+                        item.addEventListener('dragstart', onDragStart);
+                        item.addEventListener('dragleave', onGridDragLeave);
+                        item.addEventListener('dragend', onDragEnd);
+
+                        // ADDED: Add touch listeners
+                        item.addEventListener('touchstart', onTouchStart, { passive: true }); // passive:true to allow default grab
+                        item.addEventListener('touchend', onTouchEnd);
+                    });
+                    
+                    // Add drop listener to the grid
+                    grid.addEventListener('drop', onGridDrop);
+                    grid.addEventListener('dragover', onGridDragOver); // Need this on the grid too
+                    
+                    // ADDED: Add touch listener to the grid
+                    grid.addEventListener('touchmove', onTouchMove, { passive: false }); // passive:false to prevent scroll
+                    
+                } else {
+                    // --- EXITING REARRANGE MODE ---
+                    settingsBtn.innerHTML = '<i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i><span class="sr-only">Settings</span>';
+                    
+                    const newOrder = [];
+                    draggableItems().forEach(item => {
+                        item.classList.remove('rearrange-mode');
+                        item.draggable = false;
+                        
+                        // Save the new order
+                        newOrder.push(item.dataset.actionId);
+                        
+                        // Remove drag listeners
+                        item.removeEventListener('dragstart', onDragStart);
+                        item.removeEventListener('dragleave', onGridDragLeave);
+                        item.removeEventListener('dragend', onDragEnd);
+
+                        // ADDED: Remove touch listeners
+                        item.removeEventListener('touchstart', onTouchStart);
+                        item.removeEventListener('touchend', onTouchEnd);
+                    });
+
+                    // Remove drop listener from the grid
+                    grid.removeEventListener('drop', onGridDrop);
+                    grid.removeEventListener('dragover', onGridDragOver);
+                    
+                    // ADDED: Remove touch listener from grid
+                    grid.removeEventListener('touchmove', onTouchMove);
+                    
+                    saveQuickActionOrder(newOrder);
+                }
+                
+                lucide.createIcons();
+            }
+
+
+            // --- ADDED: Functions to control the new Rearrange Modal ---
+            const rearrangeModal = document.getElementById('rearrange-modal-overlay');
+            const rearrangeModalCloseBtn = document.getElementById('rearrange-modal-close-btn');
+            // REMOVED: rearrangeModalDoneBtn
+            // REMOVED: rearrangeListContainer
+
+            function openRearrangeModal() {
+                // MODIFIED: No longer populates a list
+                // 1. Render icons
+                lucide.createIcons();
+                
+                // 2. Show modal
+                showModal(rearrangeModal);
+            }
+
+            function closeRearrangeModal() {
+                hideModal(rearrangeModal);
+                // REMOVED: rearrangeListContainer.innerHTML = '';
+            }
+
+            // Add Listeners for the new modal
+            rearrangeModalCloseBtn.addEventListener('click', closeRearrangeModal);
+            rearrangeModal.addEventListener('click', (e) => {
+                if (e.target === rearrangeModal) {
+                    closeRearrangeModal();
+                }
+            });
+
+            // MODIFIED: This listener is gone
+            // rearrangeModalDoneBtn.addEventListener('click', () => { ... });
+
+            // ADDED: Listeners for new modal buttons
+            const rearrangeBtn = document.getElementById('rearrange-modal-rearrange-btn');
+            if (rearrangeBtn) {
+                rearrangeBtn.addEventListener('click', () => {
+                    closeRearrangeModal();
+                    toggleRearrangeMode(); // Enable jiggle mode
+                });
+            }
+
+            const editBtn = document.getElementById('rearrange-modal-edit-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    // Functionality for "Edit" is not defined, so just close
+                    closeRearrangeModal();
+                    // You could open another modal here, e.g., to hide/show buttons
+                    console.log("Edit button clicked - no action defined yet.");
+                });
+            }
+
+            // --- END: Rearrange Modal Functions ---
+
             function fullRender() {
                 // MODIFICATION 3: Added updateChartThemeColors
                 updateChartThemeColors();
@@ -826,6 +1369,7 @@
                 renderWorkoutSummary();
                 renderSleepSummary();
                 renderWeeklyProgressChart();
+                renderQuickActionOrder(); // ADDED: Apply the saved button order
                 lucide.createIcons(); // Re-run lucide after rendering summaries
             }
 
@@ -839,14 +1383,44 @@
             setupSummaryCarousel();
             // ************ END FIX ************
 
-            // --- START: MODAL LOGIC ---
-            const quickLogWeightBtn = document.getElementById('quick-log-weight-btn');
+            // --- START: MODAL LOGIC (SHARED) ---
             const checkInModalOverlay = document.getElementById('check-in-modal-overlay');
             const checkInModalCloseBtn = document.getElementById('check-in-modal-close-btn');
+            const promptModal = document.getElementById('prompt-modal');
+            const promptModalTitle = document.getElementById('prompt-modal-title');
+            const promptModalText = document.getElementById('prompt-modal-text');
+            const promptModalInput = document.getElementById('prompt-modal-input');
+            const promptModalCancelBtn = document.getElementById('prompt-modal-cancel-btn');
+            const promptModalOkBtn = document.getElementById('prompt-modal-ok-btn');
+
+            function showModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'flex';
+                openModalCount++;
+            }
+
+            function hideModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'none';
+                openModalCount--;
+                if (openModalCount < 0) openModalCount = 0;
+            }
+
+            function showPromptModal(title, text, defaultValue, onConfirm) {
+                if (!promptModal) return;
+                promptModalTitle.textContent = title;
+                promptModalText.textContent = text;
+                promptModalInput.value = defaultValue;
+                promptCallback = onConfirm;
+                showModal(promptModal);
+                promptModalInput.focus();
+                promptModalInput.select();
+            }
 
             function openCheckInModal() {
                 if (checkInModalOverlay) {
-                    checkInModalOverlay.classList.remove('hidden');
+                    checkInModalOverlay.classList.remove('hidden'); // Use hidden class
+                    showModal(checkInModalOverlay);
                     // Reset form state
                     const feedbackDiv = document.getElementById('check-in-feedback');
                     const weightInput = document.getElementById('check-in-weight');
@@ -857,46 +1431,256 @@
 
             function closeCheckInModal() {
                 if (checkInModalOverlay) {
-                    checkInModalOverlay.classList.add('hidden');
+                    checkInModalOverlay.classList.add('hidden'); // Use hidden class
+                    hideModal(checkInModalOverlay);
+                }
+            }
+            // --- END: MODAL LOGIC (SHARED) ---
+
+
+            // --- START: UNDO TOAST LOGIC ---
+            const undoToast = document.getElementById('undo-toast');
+            const undoToastText = document.getElementById('undo-toast-text');
+            const undoToastBtn = document.getElementById('undo-toast-btn');
+
+            function showUndo(message, onUndo) {
+                clearTimeout(undoTimeout);
+                lastAction = { onUndo: onUndo };
+                undoToastText.textContent = message;
+                undoToast.classList.add('show');
+                undoTimeout = setTimeout(hideUndo, 5000);
+            }
+
+            function hideUndo() {
+                lastAction = null;
+                undoToast.classList.remove('show');
+            }
+
+            undoToastBtn.addEventListener('click', () => {
+                if (lastAction && typeof lastAction.onUndo === 'function') {
+                    lastAction.onUndo();
+                }
+                hideUndo();
+            });
+            // --- END: UNDO TOAST LOGIC ---
+
+            // --- NEW: Water Button Swipe Logic (from nutrition.html) ---
+            const quickLogWaterBtn = document.getElementById('quick-log-water-btn');
+            const waterSwipeContent = document.getElementById('water-swipe-content');
+            const waterSwipeBgLeft = document.getElementById('water-swipe-bg-left');
+            const waterSwipeBgRight = document.getElementById('water-swipe-bg-right');
+            const waterSwipeBgTop = document.getElementById('water-swipe-bg-top');
+
+            let waterPointerStart = { x: 0, y: 0 };
+            let waterPointerDelta = { x: 0, y: 0 };
+            let isWaterSwiping = false;
+            let waterCurrentX = 0;
+
+            function getPointerCoordinates(e) {
+                return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
+            }
+
+            function updateWater(amount, isSetTotal = false) {
+                const dayLog = getDayLog(new Date());
+                const originalWater = dayLog.water || 0;
+                let newWater;
+                if (isSetTotal) {
+                    newWater = Math.max(0, amount);
+                } else {
+                    newWater = Math.max(0, originalWater + amount);
+                    lastWaterLogAmount = amount;
+                }
+                if (newWater !== originalWater) {
+                    dayLog.water = newWater;
+                    saveData();
+                    fullRender(); // Use fullRender to update all summaries
+                    if (!isSetTotal && lastWaterLogAmount !== 0) {
+                         showUndo(`Water updated to ${newWater}ml`, () => {
+                             const dayLog = getDayLog(new Date());
+                             dayLog.water = originalWater;
+                             saveData();
+                             fullRender();
+                         });
+                    }
+                } else {
+                    if (!isSetTotal) {
+                         lastWaterLogAmount = 0;
+                    }
+                }
+            };
+            
+            function onWaterPointerDown(e) {
+                // Don't swipe if in rearrange mode
+                if (isRearrangeMode) return;
+
+                // --- FIX: Prevent ghost click ---
+                // Only preventDefault for touchstart. Mouse clicks need default behavior (like focus).
+                if (e.type === 'touchstart') {
+                    e.preventDefault(); 
+                }
+                // --- End Fix ---
+                
+                const coords = getPointerCoordinates(e);
+                waterPointerStart.x = coords.x;
+                waterPointerStart.y = coords.y;
+                waterPointerDelta = { x: 0, y: 0 };
+                isWaterSwiping = false;
+                waterCurrentX = 0;
+                waterSwipeContent.classList.add('swiping');
+                waterSwipeContent.style.transform = '';
+                document.addEventListener('mousemove', onWaterPointerMove);
+                document.addEventListener('mouseup', onWaterPointerUp);
+                document.addEventListener('touchmove', onWaterPointerMove, { passive: false });
+                document.addEventListener('touchend', onWaterPointerUp);
+            }
+
+            function onWaterPointerMove(e) {
+                // Don't swipe if in rearrange mode
+                if (isRearrangeMode) return;
+                
+                const coords = getPointerCoordinates(e);
+                waterPointerDelta.x = coords.x - waterPointerStart.x;
+                waterPointerDelta.y = coords.y - waterPointerStart.y;
+                if (!isWaterSwiping && (Math.abs(waterPointerDelta.x) > 10 || Math.abs(waterPointerDelta.y) > 10)) {
+                    isWaterSwiping = true;
+                }
+                if (isWaterSwiping) {
+                    if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x) && Math.abs(waterPointerDelta.y) > 10) {
+                        if (e.cancelable) e.preventDefault();
+                    }
+                    if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
+                        // VERTICAL SWIPE
+                        waterCurrentX = 0;
+                        waterSwipeContent.style.transform = 'translateX(0px)';
+                        waterSwipeBgLeft.style.opacity = '0';
+                        waterSwipeBgRight.style.opacity = '0'; 
+
+                        if (waterPointerDelta.y > 0) { // Swiping Down
+                            waterSwipeBgTop.style.opacity = Math.min(1, waterPointerDelta.y / 80).toString();
+                            waterSwipeBgTop.style.height = `${waterPointerDelta.y}px`;
+                            waterSwipeContent.style.transform = `translateY(${waterPointerDelta.y}px)`;
+                        } else { // Swiping Up
+                            waterSwipeBgTop.style.opacity = '0';
+                            waterSwipeBgTop.style.height = '0';
+                            waterSwipeContent.style.transform = `translateY(0px)`;
+                        }
+                    } else {
+                        // HORIZONTAL SWIPE
+                        waterSwipeBgTop.style.opacity = '0';
+                        waterSwipeBgTop.style.height = '0';
+                        waterSwipeContent.style.transform = `translateY(0px)`;
+
+                        waterCurrentX = waterPointerDelta.x;
+                        waterSwipeContent.style.transform = `translateX(${waterCurrentX}px)`;
+                        if (waterCurrentX < 0) { // Swiping Left
+                            waterSwipeBgLeft.style.opacity = Math.min(1, Math.abs(waterCurrentX) / 80).toString();
+                            waterSwipeBgRight.style.opacity = '0';
+                        } else { // Swiping Right
+                            waterSwipeBgRight.style.opacity = Math.min(1, waterCurrentX / 80).toString();
+                            waterSwipeBgLeft.style.opacity = '0';
+                        }
+                    }
                 }
             }
 
+            function onWaterPointerUp(e) {
+                // Don't swipe if in rearrange mode
+                if (isRearrangeMode) return;
+
+                document.removeEventListener('mousemove', onWaterPointerMove);
+                document.removeEventListener('mouseup', onWaterPointerUp);
+                document.removeEventListener('touchmove', onWaterPointerMove);
+                document.removeEventListener('touchend', onWaterPointerUp);
+                
+                waterSwipeContent.classList.add('returning');
+                waterSwipeContent.classList.remove('swiping');
+                waterSwipeBgLeft.style.opacity = '0';
+                waterSwipeBgRight.style.opacity = '0';
+                waterSwipeBgTop.style.opacity = '0';
+                waterSwipeBgTop.style.height = '0';
+
+                const totalDistance = Math.sqrt(waterPointerDelta.x**2 + waterPointerDelta.y**2);
+                const swipeThreshold = 30;
+                const horizontalSwipeThreshold = waterSwipeContent.offsetWidth * 0.35;
+
+                if (!isWaterSwiping && totalDistance < 10) {
+                    const defaultSize = appData.userProfile.waterServingSize || 250;
+                    updateWater(defaultSize);
+                    waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                } else if (isWaterSwiping) {
+                    if (Math.abs(waterPointerDelta.y) > Math.abs(waterPointerDelta.x)) {
+                        waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                        if (waterPointerDelta.y > swipeThreshold) {
+                            // Swipe Down: Set Daily Goal
+                            showPromptModal("Set Water Goal", "Enter your new daily water goal (ml):", appData.goals.water, (newGoalStr) => {
+                                if (newGoalStr === null) return;
+                                const newGoal = parseInt(newGoalStr);
+                                if (!isNaN(newGoal) && newGoal >= 1000 && newGoal <= 10000) {
+                                    appData.goals.water = newGoal;
+                                    saveData();
+                                    fullRender();
+                                } else {
+                                    // Can't use showCustomAlert from here, need to add it or use a simple alert
+                                    console.error("Invalid water goal.");
+                                }
+                            });
+                        }
+                    } else {
+                        if (waterCurrentX < -horizontalSwipeThreshold) {
+                            // Swipe Left: Set Glass Size
+                            showPromptModal("Set Glass Size", "Enter your default water glass size (ml):", appData.userProfile.waterServingSize || 250, (newSizeStr) => {
+                                if (newSizeStr === null) return;
+                                const newSize = parseInt(newSizeStr);
+                                if (!isNaN(newSize) && newSize > 0 && newSize < 2000) {
+                                    appData.userProfile.waterServingSize = newSize;
+                                    saveData();
+                                } else {
+                                    console.error("Invalid glass size.");
+                                }
+                            });
+                            waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                        } else if (waterCurrentX > horizontalSwipeThreshold) {
+                            // Swipe Right: Remove Water
+                            const defaultSize = appData.userProfile.waterServingSize || 250;
+                            updateWater(-defaultSize);
+                            waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                        } else {
+                            waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                        }
+                    }
+                } else {
+                    waterSwipeContent.style.transform = 'translateX(0) translateY(0)';
+                }
+                setTimeout(() => {
+                    if (waterSwipeContent) {
+                        waterSwipeContent.classList.remove('returning');
+                        waterSwipeContent.style.transform = '';
+                    }
+                }, 300);
+                isWaterSwiping = false;
+                waterPointerDelta = { x: 0, y: 0 };
+                waterCurrentX = 0;
+            }
+            // --- END: Water Button Logic ---
+
+
+            // --- Check-in Form Modal ---
+            const quickLogWeightBtn = document.getElementById('quick-log-weight-btn');
             if (quickLogWeightBtn) {
-                quickLogWeightBtn.addEventListener('click', openCheckInModal);
+                quickLogWeightBtn.addEventListener('click', () => {
+                    if (isRearrangeMode) return; // ADDED THIS CHECK
+                    openCheckInModal();
+                });
             }
             if (checkInModalCloseBtn) {
                 checkInModalCloseBtn.addEventListener('click', closeCheckInModal);
             }
             if (checkInModalOverlay) {
                 checkInModalOverlay.addEventListener('click', (e) => {
-                    // Close only if clicking the overlay itself, not the content
                     if (e.target === checkInModalOverlay) {
                         closeCheckInModal();
                     }
                 });
-            }
-            // --- END: MODAL LOGIC ---
-
-            // --- NEW: Quick Log Water Function ---
-            function logQuickWater() {
-                // Load data fresh just in case
-                loadData(); 
-                const defaultSize = appData.userProfile.waterServingSize || 250;
-                const dayLog = getDayLog(new Date());
-                const originalWater = dayLog.water || 0;
-                dayLog.water = originalWater + defaultSize;
-                
-                saveData(); // Save the updated log
-                fullRender(); // Re-render all summaries
-
-                // Show feedback
-                const feedbackDiv = document.getElementById('quick-action-feedback');
-                if(feedbackDiv) {
-                    feedbackDiv.textContent = `Logged ${defaultSize}ml water. Total: ${dayLog.water}ml.`;
-                    setTimeout(() => {
-                        if(feedbackDiv) feedbackDiv.textContent = '';
-                    }, 2500);
-                }
             }
 
             // --- MODIFIED: Check-in Form Listener ---
@@ -954,9 +1738,7 @@
                         feedbackDiv.classList.add('text-green-400');
                         feedbackDiv.classList.remove('text-red-400');
                     }
-                    // Don't clear weight input, user sees it before modal closes
-                    // weightInput.value = '';
-
+                    
                     // Reset button
                     if (btn) {
                         setTimeout(() => {
@@ -964,10 +1746,7 @@
                             btn.querySelector('.btn-text').style.display = 'inline';
                             btn.querySelector('.loader').classList.add('hidden');
                             if (feedbackDiv) feedbackDiv.textContent = '';
-
-                            // ADDED: Close the modal after success
                             closeCheckInModal();
-
                         }, 2000);
                     }
                     
@@ -977,11 +1756,51 @@
             }
             // --- END MODIFIED Check-in ---
 
-            // --- NEW: Quick Action Listeners ---
-            const quickLogWaterBtn = document.getElementById('quick-log-water-btn');
+            // --- Quick Action Listeners ---
             if (quickLogWaterBtn) {
-                quickLogWaterBtn.addEventListener('click', logQuickWater);
+                quickLogWaterBtn.addEventListener('mousedown', onWaterPointerDown);
+                // MODIFICATION: Set passive: false to allow e.preventDefault() and fix double-tap bug
+                quickLogWaterBtn.addEventListener('touchstart', onWaterPointerDown, { passive: false });
             }
+
+            // ADDED: Listener for grid to block links in rearrange mode
+            if (grid) {
+                grid.addEventListener('click', (e) => {
+                    if (isRearrangeMode && e.target.closest('a.quick-action-item')) {
+                        e.preventDefault();
+                    }
+                }, true); // MODIFIED: Use capture phase to intercept click reliably
+            }
+
+            // ADDED: Listener for Quick Actions Settings
+            // const settingsBtn = document.getElementById('quick-actions-settings-btn'); // Already defined
+            if (settingsBtn) {
+                // MODIFIED: Click listener now opens the modal OR toggles rearrange mode
+                settingsBtn.addEventListener('click', () => {
+                    if (isRearrangeMode) {
+                        toggleRearrangeMode(); // Exit rearrange mode
+                    } else {
+                        openRearrangeModal(); // Open modal to choose
+                    }
+                });
+            }
+
+            // --- Prompt Modal Listeners ---
+            promptModalCancelBtn.addEventListener('click', () => {
+                hideModal(promptModal);
+                if (typeof promptCallback === 'function') {
+                    promptCallback(null);
+                }
+                promptCallback = null;
+            });
+
+            promptModalOkBtn.addEventListener('click', () => {
+                hideModal(promptModal);
+                if (typeof promptCallback === 'function') {
+                    promptCallback(promptModalInput.value);
+                }
+                promptCallback = null;
+            });
 
 
             // Dynamic Update Listener
@@ -992,21 +1811,6 @@
                 }
             });
 
-            // Theme Change Listener
-            // MODIFICATION 3: Removed this second listener as the first one covers it by calling fullRender()
-            /*
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'fitTrackAI_theme') {
-                    updateChartThemeColors();
-                    renderWeeklyProgressChart();
-                    renderNutritionSummary();
-                }
-            });
-            */
-
-            // --- REMOVED: Dynamic Width Logic ---
-            // (This section was previously here, referencing the old card)
-
         }
         // --- End Original script ---
 
@@ -1015,5 +1819,3 @@
     </script>
 </body>
 </html>
-
-
