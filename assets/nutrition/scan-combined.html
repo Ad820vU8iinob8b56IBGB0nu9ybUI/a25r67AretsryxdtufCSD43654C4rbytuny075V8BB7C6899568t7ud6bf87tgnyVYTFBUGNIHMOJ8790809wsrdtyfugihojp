@@ -120,59 +120,18 @@
         }
         
         /* Scroll item for filmstrip */
+/* ... existing code ... -->
         .scroll-item {
-            flex: 0 0 7rem; /* w-28 */
-            width: 7rem; /* w-28 */
-            height: 7rem; /* h-28 */
-            scroll-snap-align: start; /* Snap to start */
-            white-space: normal;
+            scroll-snap-align: center;
+            flex: 0 0 auto;
+            transition: transform 0.3s ease-out;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
         }
         
-        /* Custom scrollbar for the scanned items list */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-text);
-        }
-        .custom-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: thin;  /* Firefox */
-            scrollbar-color: var(--border-color) transparent;
-        }
-
-        /* Photo Popup Styles */
-        #photo-popup {
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            transform: scale(0.9);
-            display: none; /* Hidden by default */
-            position: absolute;
-            top: 1rem; /* 4 */
-            left: 1rem; /* 4 */
-            z-index: 30; /* Above video, below buttons */
-            width: 6rem; /* w-24 */
-            height: 6rem; /* h-24 */
-            border-radius: 0.5rem; /* rounded-lg */
-            border-width: 2px;
-            border-color: #FFFFFF; /* border-white */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
-            overflow: hidden;
-            opacity: 0;
-        }
-        #photo-popup.show {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-        }
-        #photo-popup.hide {
-            opacity: 0;
+        /* Add a subtle "press" effect for carousel items */
+        .scroll-item:active {
             transform: scale(0.9);
         }
         
@@ -180,20 +139,56 @@
         #swipe-track {
             transition: transform 0.3s ease-in-out;
         }
-        
-        .tab-dot { 
-            transition: background-color 0.3s ease; 
-            width: 0.5rem; /* w-2 */
-            height: 0.5rem; /* h-2 */
-            border-radius: 9999px; /* rounded-full */
+
+        /* Styles for the swipe panel dots */
+        .tab-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--border-color); /* Default color */
+            transition: background-color 0.3s ease, transform 0.3s ease;
             cursor: pointer;
         }
-        .tab-dot.active { 
-            background-color: var(--accent); 
+        
+        .tab-dot.active {
+            background-color: var(--primary); /* Active color */
+            transform: scale(1.25);
         }
+        
         .tab-dot:not(.active) { 
             background-color: var(--border-color); 
         }
+
+        /* NEW: Collapsible Carousel Style */
+        .carousel-wrapper.collapsed {
+            display: none;
+        }
+
+        /* NEW: Photo Popup Styles (like before) */
+        #photo-popup {
+            display: none;
+            position: absolute;
+            top: 1rem; /* 16px */
+            left: 1rem; /* 16px */
+            width: 7rem; /* 112px */
+            height: 7rem; /* 112px */
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem; /* 8px */
+            overflow: hidden;
+            z-index: 30;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #photo-popup.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        #photo-popup.hide {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        /* END: Photo Popup Styles */
 
     </style>
 </head>
@@ -220,7 +215,13 @@
                 
                 <!-- Panel 1: Log -->
                 <div id="log-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 overflow-y-auto custom-scrollbar">
-                    <h2 class="text-2xl font-bold mb-4 flex-shrink-0">Today's Logged Items</h2>
+                    <div class="flex-shrink-0 mb-4 flex items-center justify-between">
+                        <h2 class="text-2xl font-bold">Today's Logged Items</h2>
+                        <!-- NEW: Button to go to Camera -->
+                        <button class="btn btn-secondary !p-2 go-to-camera-btn" data-index="1" title="Go to Camera">
+                            <i data-lucide="camera" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                     <div id="scanned-log-display" class="space-y-2 flex-grow">
                         <!-- Logged items will be rendered here -->
                         <p class="text-secondary-text">No items logged yet.</p>
@@ -237,7 +238,8 @@
                                 <img id="photo-popup-img" src="" alt="Scanned item" class="w-full h-full object-cover">
                             </div>
 
-                            <div id="camera-overlay" class="absolute inset-0 z-20 rounded-lg overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+                            <!-- MODIFIED: Animate from bottom (translate-y-full), smoother (duration-1000) -->
+                            <div id="camera-overlay" class="absolute inset-0 z-20 rounded-lg overflow-hidden transition-all duration-1000 opacity-0 pointer-events-none translate-y-full">
                                 <!-- MODIFIED: Changed to object-cover -->
                                 <canvas id="camera-overlay-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
                                 <div class="absolute top-0 left-0 w-full h-full bg-black/70 backdrop-blur-sm"></div>
@@ -246,7 +248,10 @@
                                 </div>
                             </div>
 
-                            <h2 class="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-lg font-bold text-white bg-black/30 px-4 py-1 rounded-full pointer-events-none">
+                            <!-- NEW: Gradient overlay for title -->
+                            <div class="absolute top-0 left-0 right-0 h-24 z-20" style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%); pointer-events: none;"></div>
+
+                            <h2 class="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-lg font-bold text-white pointer-events-none">
                                 AI Scanner
                             </h2>
                             
@@ -254,21 +259,22 @@
                             <video id="ai-camera-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
                             <canvas id="ai-camera-canvas" class="hidden"></canvas> 
                             
-                            <a href="javascript:history.back()" id="scanner-close-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 right-4 z-30" title="Close Scanner">
+                            <!-- MODIFIED: Changed to button, moved to left, removed href -->
+                            <button id="scanner-close-btn" class="btn-overlay !p-2 !rounded-full absolute top-4 left-4 z-30" title="Close Scanner">
                                 <i data-lucide="x" class="w-5 h-5"></i>
-                            </a>
+                            </button>
                             
                             <!-- REMOVED: scanned-log-popup-btn -->
 
-                            <button id="flip-camera-btn" class="btn btn-overlay !p-2 !rounded-full absolute bottom-3 left-3" title="Flip Camera">
+                            <!-- MODIFIED: Larger button (!p-3) -->
+                            <button id="flip-camera-btn" class="btn btn-overlay !p-3 !rounded-full absolute bottom-3 left-3" title="Flip Camera">
                                 <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                             </button>
 
                             <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-                                <button id="capture-ai-photo-btn" class="btn btn-overlay !p-2 !rounded-full" title="Capture Photo">
-                                    <i data-lucide="camera" class="w-5 h-5"></i>
-                                </button>
-                                <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-2 !rounded-full" title="Close Camera">
+                                <!-- REMOVED: capture-ai-photo-btn -->
+                                <!-- MODIFIED: Larger button (!p-4) -->
+                                <button id="stop-ai-camera-btn" class="btn btn-overlay btn-overlay-danger !p-4 !rounded-full" title="Close Camera">
                                     <i data-lucide="x" class="w-5 h-5"></i>
                                 </button>
                             </div>
@@ -277,25 +283,45 @@
 
                             <!-- NEW: Tab Indicators MOVED here -->
                             <div id="tab-indicators" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-                                <button class="tab-dot" data-index="0"></button>
-                                <button class="tab-dot active" data-index="1"></button>
-                                <button class="tab-dot" data-index="2"></button>
+                                <button class="tab-dot" data-index="0" aria-label="Go to Log panel"></button>
+                                <button class="tab-dot active" data-index="1" aria-label="Go to Camera panel"></button>
+                                <button class="tab-dot" data-index="2" aria-label="Go to Upload panel"></button>
                             </div>
                         </div>
                         
-                        <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper">
+                        <!-- NEW: Toggle button for carousel -->
+                        <button id="toggle-carousel-btn" class="btn btn-secondary w-full !py-2 !text-sm">
+                            <span class="flex items-center gap-2">
+                                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                                <span>Show Scanned Items</span>
+                            </span>
+                        </button>
+                        
+                        <!-- MODIFIED: Carousel wrapper is now collapsible -->
+                        <div id="ai-scanner-carousel-wrapper" class="carousel-wrapper collapsed">
                             <div id="ai-scanner-results-container" class="horizontal-scroll-container scanner-carousel !flex !flex-row !flex-nowrap">
                                 <!-- Scanned items will be prepended here by JS -->
                             </div>
+                            <!-- MOVED status text inside carousel -->
+                            <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem] mt-2 flex-shrink-0"></p>
                         </div>
                         
-                        <p id="ai-scanner-status" class="text-center text-secondary-text text-sm min-h-[1.25rem] mt-4 flex-shrink-0"></p>
+                        <!-- MOVED status text -->
                     </div>
                 </div>
 
                 <!-- Panel 3: Upload -->
                 <div id="upload-panel" class="w-full h-full flex-shrink-0 flex flex-col p-4 items-center justify-center overflow-y-auto custom-scrollbar">
-                    <h2 class="text-2xl font-bold mb-4 text-center">Upload Photo</h2>
+                    <!-- NEW: Header with button -->
+                    <div class="w-full max-w-sm mb-4">
+                        <div class="flex-shrink-0 flex items-center justify-between">
+                            <h2 class="text-2xl font-bold">Upload Photo</h2>
+                            <button class="btn btn-secondary !p-2 go-to-camera-btn" data-index="1" title="Go to Camera" aria-label="Go to Camera">
+                                <i data-lucide="camera" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <label for="ai-upload-photo-input" class="flex flex-col items-center justify-center w-full max-w-sm h-64 bg-input-bg border-2 border-border-color border-dashed rounded-lg cursor-pointer hover:bg-card-bg transition-colors">
                         <i data-lucide="upload-cloud" class="w-16 h-16 text-secondary-text mb-4"></i>
                         <p class="text-lg font-semibold">Click to upload</p>
@@ -397,6 +423,8 @@
             let isSwiping = false;
             let swipeStartX = 0;
             let swipeDeltaX = 0;
+            let swipeStartY = 0; // NEW for vertical swipe
+            let swipeDeltaY = 0; // NEW for vertical swipe
             // --- END: Swipe Panel State ---
 
             // --- REMOVED: Undo Toast State ---
@@ -409,7 +437,7 @@
                 cameraOverlay: document.getElementById('camera-overlay'),
                 startCameraOverlayBtn: document.getElementById('start-camera-overlay-btn'),
                 stopFoodCameraBtn: document.getElementById('stop-ai-camera-btn'),
-                captureFoodPhotoBtn: document.getElementById('capture-ai-photo-btn'),
+                // REMOVED: captureFoodPhotoBtn
                 foodCameraVideo: document.getElementById('ai-camera-video'),
                 foodCameraCanvas: document.getElementById('ai-camera-canvas'),
                 foodScannerCarouselWrapper: document.getElementById('ai-scanner-carousel-wrapper'),
@@ -423,11 +451,14 @@
                 swipeTrack: document.getElementById('swipe-track'),
                 tabIndicators: document.getElementById('tab-indicators'),
                 
+                // NEW: Carousel Toggle
+                toggleCarouselBtn: document.getElementById('toggle-carousel-btn'),
+                
                 // --- REMOVED: Modal UI ---
             };
 
             const getApiUrl = (model, action = 'generateContent') => {
-                const apiKey = "AIzaSyA8-WLMo2U2Km-FN2r_fYk8OUfxyZ7dJoM"; // Leave empty for Canvas environment
+                const apiKey = ""; // WARNING: Never expose API keys in client-side code for production. Use a backend proxy.
                 return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}?key=${apiKey}`;
             };
 
@@ -736,6 +767,10 @@
                             logScannedItemToMain(item, logButton);
                         }
                     };
+                    
+                    // NEW: Automatically log the item
+                    logScannedItemToMain(item, logButton);
+                    
                     // Update double-tap listener with correct logId
                     let lastTap = 0;
                     resultElement.addEventListener('click', (e) => {
@@ -772,7 +807,7 @@
                                 ui.photoPopup.style.display = 'none';
                             }
                         }, 300);
-                    }, 2000);
+                    }, 2500); // MODIFIED: Show for 2.5 seconds
                 }
             }
 
@@ -813,8 +848,8 @@
                         const servingMatch = String(product.serving_size).match(/(\d+(\.\d+)?)/);
                         if (servingMatch) { defaultGrams = parseFloat(servingMatch[0]); }
                     } else if (product.quantity) {
-                          const quantityMatch = String(product.quantity).match(/(\d+(\.\d+)?)/);
-                          if (quantityMatch) { defaultGrams = parseFloat(quantityMatch[0]); }
+                         const quantityMatch = String(product.quantity).match(/(\d+(\.\d+)?)/);
+                         if (quantityMatch) { defaultGrams = parseFloat(quantityMatch[0]); }
                     }
 
                     const productName = capitalizeWords(product.product_name) || 'Scanned Item';
@@ -862,6 +897,9 @@
 
             // --- MODIFIED: manualStopAiCamera ---
             function manualStopAiCamera() {
+                // NEW: If camera is already stopped, do nothing.
+                if (!foodCameraStream) return;
+
                 const video = ui.foodCameraVideo;
                 const overlayCanvas = document.getElementById('camera-overlay-canvas');
                 if (overlayCanvas && video.videoWidth > 0 && video.videoHeight > 0) {
@@ -880,7 +918,8 @@
                     foodCameraStream = null;
                 }
                 
-                ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                // MODIFIED: Animate from bottom (translate-y-full)
+                ui.cameraOverlay.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-full');
                 
                 ui.foodScannerStatus.textContent = 'Camera off. Tap to start.';
                 if (html5QrCode && html5QrCode.isScanning) {
@@ -892,7 +931,8 @@
                 // --- MODIFIED: startAiCamera ---
                 if (foodCameraStream) return; // Don't restart if already running
                 
-                ui.cameraOverlay.classList.add('opacity-0', 'pointer-events-none');
+                // MODIFIED: Reset animation state to bottom (translate-y-full)
+                ui.cameraOverlay.classList.add('opacity-0', 'pointer-events-none', 'translate-y-full');
                 ui.liveCameraContainer.classList.remove('hidden');
 
                 ui.foodScannerStatus.textContent = 'Starting camera...';
@@ -1043,7 +1083,7 @@
                      reader.onerror = () => {
                          const overlayContent = resultElement.querySelector('.item-overlay-content');
                          if (overlayContent) {
-                            updateCarouselItemUI(resultElement, { name: 'Error reading file' }, false);
+                             updateCarouselItemUI(resultElement, { name: 'Error reading file' }, false);
                          }
                      };
                      reader.readAsDataURL(file);
@@ -1083,16 +1123,16 @@
                 ui.scannerResultsContainer.style.cursor = 'grabbing';
             });
             ui.scannerResultsContainer.addEventListener('mouseup', () => {
-                ui.scannerResultsContainer.style.cursor = 'grab';
-            });
-            ui.scannerResultsContainer.addEventListener('mouseleave', () => {
-                ui.scannerResultsContainer.style.cursor = 'grab';
+                scannerResultsContainer.style.cursor = 'grab';
             });
 
             ui.startCameraOverlayBtn.addEventListener('click', startAiCamera);
             ui.stopFoodCameraBtn.addEventListener('click', manualStopAiCamera);
-            ui.captureFoodPhotoBtn.addEventListener('click', captureAiPhoto);
+            // REMOVED: captureFoodPhotoBtn listener
             ui.uploadPhotoInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files)); // Listener for new upload panel
+
+            // MODIFIED: Added click listener for scanner-close-btn
+            document.getElementById('scanner-close-btn').addEventListener('click', manualStopAiCamera);
 
             ui.scannedLogDisplay.addEventListener('click', (e) => {
                 const removeBtn = e.target.closest('.remove-log-btn');
@@ -1105,64 +1145,109 @@
 
             ui.flipCameraBtn.addEventListener('click', flipCamera); 
 
+            // NEW: Tap on video to capture photo
+            ui.liveCameraContainer.addEventListener('click', (e) => {
+                // Do not capture photo if an interactive element was clicked
+                // This includes buttons, links, and the tab dots
+                if (e.target.closest('button, a, .tab-dot')) {
+                    return;
+                }
+
+                // Do not capture if the camera isn't running
+                if (!foodCameraStream) {
+                    // We check *against* the overlay button, which has its own listener
+                    // If the click is on the overlay *but not* the button, start the camera
+                    if (ui.cameraOverlay.contains(e.target) && !e.target.closest('#start-camera-overlay-btn')) {
+                        startAiCamera();
+                    }
+                    return;
+                }
+                
+                // If we are here, camera is running and click was not on a button
+                // So, capture the photo
+                captureAiPhoto();
+            });
+
             // --- REMOVED: Undo Button Listener ---
             
             // --- REMOVED: Scanned Log Modal Listeners ---
 
-            // --- NEW: Swipe Panel Listeners ---
+            // --- MODIFIED: Swipe Panel Listeners ---
             ui.swipeContainer.addEventListener('touchstart', (e) => {
-                // Don't swipe if on filmstrip or log list
-                if (e.target.closest('.horizontal-scroll-container, .custom-scrollbar')) return;
+                // Don't swipe if on filmstrip
+                if (e.target.closest('.horizontal-scroll-container')) return;
+                
                 isSwiping = true;
                 swipeStartX = e.touches[0].clientX;
+                swipeStartY = e.touches[0].clientY; // NEW
                 swipeDeltaX = 0;
+                swipeDeltaY = 0; // NEW
                 ui.swipeTrack.style.transition = 'none';
             }, { passive: true });
 
             ui.swipeContainer.addEventListener('touchmove', (e) => {
                 if (!isSwiping) return;
-                if (e.target.closest('.horizontal-scroll-container, .custom-scrollbar')) {
+                
+                if (e.target.closest('.horizontal-scroll-container')) {
                     isSwiping = false; // Cancel swipe
                     return;
                 }
                 
                 swipeDeltaX = e.touches[0].clientX - swipeStartX;
-                // Only prevent default if we are actually swiping horizontally
-                if (Math.abs(swipeDeltaX) > 10) { 
-                    e.preventDefault();
+                swipeDeltaY = e.touches[0].clientY - swipeStartY; // NEW
+
+                // Check if horizontal or vertical swipe is dominant
+                if (Math.abs(swipeDeltaX) > Math.abs(swipeDeltaY)) {
+                    // Horizontal swipe is dominant
+                    if (Math.abs(swipeDeltaX) > 10) { 
+                        e.preventDefault(); // Prevent vertical scroll
+                    }
+                    // Apply horizontal transform
+                    ui.swipeTrack.style.transform = `translateX(calc(-${currentPanelIndex * 100}% + ${swipeDeltaX}px))`;
+                } else {
+                    // Vertical swipe is dominant
+                    if (Math.abs(swipeDeltaY) > 10) {
+                        e.preventDefault(); // Prevent horizontal swipe
+                    }
+                    // Don't move the track horizontally
                 }
-                ui.swipeTrack.style.transform = `translateX(calc(-${currentPanelIndex * 100}% + ${swipeDeltaX}px))`;
             }, { passive: false });
 
             ui.swipeContainer.addEventListener('touchend', () => {
                 if (!isSwiping) return;
                 isSwiping = false;
-                ui.swipeTrack.style.transition = 'transform 0.3s ease-in-out';
-                const swipeThreshold = 50; // 50px swipe threshold
+                
+                const horizontalSwipeThreshold = 50;
+                // REMOVED: verticalSwipeThreshold
+                
+                // REMOVED: Vertical swipe-down-to-close logic block
 
-                // --- MODIFIED SWIPE LOGIC ---
+                // If not a vertical swipe, proceed with horizontal logic
+                ui.swipeTrack.style.transition = 'transform 0.3s ease-in-out';
+                
+                // --- CORRECTED SWIPE LOGIC ---
                 if (currentPanelIndex === 1) { // On Camera (Center)
-                    if (swipeDeltaX < -swipeThreshold) {
+                    if (swipeDeltaX < -horizontalSwipeThreshold) {
                         goToPanel(2); // Swipe Left (R->L) -> Go to Upload (2)
-                    } else if (swipeDeltaX > swipeThreshold) {
+                    } else if (swipeDeltaX > horizontalSwipeThreshold) {
                         goToPanel(0); // Swipe Right (L->R) -> Go to Log (0)
                     } else {
                         goToPanel(1); // Snap back
                     }
                 } else if (currentPanelIndex === 0) { // On Log (Left)
-                    if (swipeDeltaX > swipeThreshold) { // User swiped Right (L->R)
+                    if (swipeDeltaX < -horizontalSwipeThreshold) { // User swiped Left (R->L)
                         goToPanel(1); // Go to Camera (1)
                     } else {
                         goToPanel(0); // Snap back
                     }
                 } else if (currentPanelIndex === 2) { // On Upload (Right)
-                    if (swipeDeltaX < -swipeThreshold) { // User swiped Left (R->L)
+                    if (swipeDeltaX > horizontalSwipeThreshold) { // User swiped Right (L->R)
                         goToPanel(1); // Go to Camera (1)
                     } else {
                         goToPanel(2); // Snap back
                     }
                 }
-                // --- END MODIFIED SWIPE LOGIC ---
+                // --- END CORRECTED SWIPE LOGIC ---
             });
             
             // --- NEW: Tab Dot Listeners ---
@@ -1172,6 +1257,36 @@
                     goToPanel(parseInt(dot.dataset.index));
                 }
             });
+            
+            // --- NEW: Go to Camera Button Listeners ---
+            document.querySelectorAll('.go-to-camera-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    goToPanel(parseInt(e.currentTarget.dataset.index));
+                });
+            });
+            
+            // --- NEW: Collapsible Carousel Listener ---
+            ui.toggleCarouselBtn.addEventListener('click', () => {
+                const wrapper = ui.foodScannerCarouselWrapper;
+                const icon = ui.toggleCarouselBtn.querySelector('i');
+                const text = ui.toggleCarouselBtn.querySelector('span > span');
+                
+                const isCollapsed = wrapper.classList.toggle('collapsed');
+                
+                if (isCollapsed) {
+                    icon.style.transform = 'rotate(0deg)';
+                    text.textContent = 'Show Scanned Items';
+                } else {
+                    icon.style.transform = 'rotate(180deg)';
+                    text.textContent = 'Hide Scanned Items';
+                    // Scroll to first item
+                    const firstItem = ui.scannerResultsContainer.querySelector('.scroll-item');
+                    if(firstItem) {
+                        firstItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }
+                }
+            });
+            
             
             // --- INITIALIZATION ---
             loadScannerLog(); // This now also renders the filmstrip
