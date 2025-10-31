@@ -160,9 +160,16 @@
                         <div class="carousel-slide">
                             <a href="workouts.html" class="block h-full p-6 md:p-8 clickable-card-slide">
                                 <h3 class="text-2xl font-bold mb-4">Today's Workout</h3>
-                                <div id="workout-summary" class="text-center text-secondary-text pt-4">
-                                    <p>No workout data available.</p>
-                                    <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log a workout</span>
+                                <!-- MODIFICATION 3: Added flex structure and canvas -->
+                                <div class="flex items-center gap-6">
+                                    <div class="w-24 h-24 flex-shrink-0">
+                                        <!-- MODIFIED: Re-added canvas for progress chart -->
+                                        <canvas id="workout-chart-summary"></canvas>
+                                    </div>
+                                    <div id="workout-summary" class="w-full text-left text-secondary-text"> <!-- Modified classes -->
+                                        <p>No workout data available.</p>
+                                        <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log a workout</span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
@@ -171,9 +178,16 @@
                         <div class="carousel-slide">
                             <a href="sleep.html" class="block h-full p-6 md:p-8 clickable-card-slide">
                                 <h3 class="text-2xl font-bold mb-4">Last Night's Sleep</h3>
-                                <div id="sleep-summary" class="text-center text-secondary-text pt-4">
-                                    <p>No sleep data available.</p>
-                                    <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</span>
+                                <!-- MODIFICATION 3: Added flex structure and canvas -->
+                                <div class="flex items-center gap-6">
+                                    <div class="w-24 h-24 flex-shrink-0">
+                                        <!-- MODIFIED: Re-added canvas for progress chart -->
+                                        <canvas id="sleep-chart-summary"></canvas>
+                                    </div>
+                                    <div id="sleep-summary" class="w-full text-left text-secondary-text"> <!-- Modified classes -->
+                                        <p>No sleep data available.</p>
+                                        <span class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
@@ -194,8 +208,8 @@
             <!-- NEW: Quick Actions Card -->
             <div id="quick-actions-card" class="content-card">
                 <h3 class="text-2xl font-semibold mb-4">Quick Actions</h3>
-                <!-- MODIFIED: Changed to 2 or 4 columns -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <!-- MODIFICATION 2: Changed to grid-cols-4 for all screens -->
+                <div class="grid grid-cols-4 gap-4">
                     <button id="quick-log-water-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
                         <i data-lucide="glass-water" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Log Water</span>
@@ -211,6 +225,7 @@
                     </a>
                     <!-- ADDED: New button for logging weight -->
                     <button id="quick-log-weight-btn" class="btn btn-secondary !p-3 sm:!p-4 flex flex-col items-center justify-center gap-2 h-24 sm:h-28 text-center">
+                        <!-- MODIFICATION 1: Changed icon to 'scale' -->
                         <i data-lucide="scale" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         <span class="text-xs sm:text-sm">Log Weight</span>
                     </button>
@@ -303,6 +318,10 @@
             let appData = {};
             let chartTextColor, chartGridColor;
             let carouselInterval = null; // For auto-cycling
+            
+            // MODIFICATION: Re-added chart variables
+            let macroChart, weeklyProgressChart, workoutChart, sleepChart;
+
 
             // --- CHART.JS SETUP ---
             function updateChartThemeColors() {
@@ -314,7 +333,7 @@
 
 
             const macroCtx = document.getElementById('macro-chart-summary').getContext('2d');
-            const macroChart = new Chart(macroCtx, {
+            macroChart = new Chart(macroCtx, { // MODIFIED: Assigned to state var
                 type: 'doughnut',
                 data: {
                     labels: ['Protein', 'Carbs', 'Fat'],
@@ -345,8 +364,57 @@
                 }
             });
 
+            // MODIFICATION: Re-added workout chart initialization
+            const workoutCtx = document.getElementById('workout-chart-summary').getContext('2d');
+            workoutChart = new Chart(workoutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [0, 1], // Default to 0 completed, 1 remaining
+                        backgroundColor: ['#ef4444', 'var(--input-bg)'], // Red and input-bg
+                        borderColor: 'var(--card-bg)',
+                        borderWidth: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false } // Disable tooltip for this simple chart
+                    }
+                }
+            });
+
+            // MODIFICATION: Re-added sleep chart initialization
+            const sleepCtx = document.getElementById('sleep-chart-summary').getContext('2d');
+            sleepChart = new Chart(sleepCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Slept', 'Goal Remaining'],
+                    datasets: [{
+                        data: [0, 8], // Default to 0 slept, 8 hours goal
+                        backgroundColor: ['#ef4444', 'var(--input-bg)'], // Red and input-bg
+                        borderColor: 'var(--card-bg)',
+                        borderWidth: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false } // Disable tooltip
+                    }
+                }
+            });
+
+
             const weeklyCtx = document.getElementById('weekly-progress-chart').getContext('2d');
-            const weeklyProgressChart = new Chart(weeklyCtx, {
+            weeklyProgressChart = new Chart(weeklyCtx, { // MODIFIED: Assigned to state var
                 type: 'line',
                 data: {
                     labels: [],
@@ -646,41 +714,83 @@
                 macroChart.update();
             }
 
+            // MODIFICATION 3: Updated renderWorkoutSummary
             function renderWorkoutSummary() {
                 const today = new Date(); today.setHours(0,0,0,0); const todayKey = dateToKey(today);
                 const dayInfo = getWorkoutDayType(today);
                 const loggedExercises = appData.workoutHistory.filter(log => dateToKey(new Date(log.date)) === todayKey);
                 const status = appData.workoutStatusHistory[todayKey];
                 let summaryHtml = '';
+                
+                // Chart background color
+                const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+                workoutChart.data.datasets[0].borderColor = cardBg;
+
                 if (dayInfo.type === 'Rest') {
                     summaryHtml = `<p class="text-3xl font-bold text-green-400 mb-2">Rest Day</p><p class="text-lg font-semibold text-primary-text">Recovery is key!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full plan</a>`;
-                } else if (loggedExercises.length > 0) {
-                        const firstExercise = loggedExercises[0].name;
-                        const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
-                        const statusText = status === 'full' ? 'Complete' : (status === 'started' ? 'In Progress' : 'Logged');
-                        summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises. Started with ${firstExercise}.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
+                    // Update chart for Rest
+                    workoutChart.data.datasets[0].data = [1, 0];
+                    workoutChart.data.datasets[0].backgroundColor = ['#10b981', 'var(--input-bg)'];
                 } else {
-                    summaryHtml = `<p class="text-lg font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p>Time to hit the gym!</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Start your workout</a>`;
+                    const savedPlan = JSON.parse(localStorage.getItem('fitTrackAI_workoutPlan') || '{}');
+                    const workoutForDay = (savedPlan.workouts || []).find(w => w.day === dayInfo.type);
+                    const totalExercises = workoutForDay ? (workoutForDay.exercises || []).length : 0;
+                    const exerciseCount = new Set(loggedExercises.map(ex => ex.name)).size;
+                    const remaining = Math.max(0, totalExercises - exerciseCount);
+
+                    if (loggedExercises.length > 0) {
+                        const firstExercise = loggedExercises[0].name;
+                        const statusText = (status === 'full' || (totalExercises > 0 && remaining === 0)) ? 'Complete' : (status === 'partial' ? 'In Progress' : 'Logged');
+                        summaryHtml = `<p class="text-3xl font-bold text-blue-400 mb-2">${dayInfo.type} (${statusText})</p><p class="text-lg font-semibold text-primary-text">Logged ${exerciseCount} exercises.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View full log</a>`;
+                        
+                        workoutChart.data.datasets[0].data = [exerciseCount, remaining];
+                        workoutChart.data.datasets[0].backgroundColor = [status === 'full' ? '#10b981' : '#3b82f6', 'var(--input-bg)'];
+                    } else {
+                        summaryHtml = `<p class="text-lg font-semibold text-primary-text">${dayInfo.type} Scheduled</p><p>${totalExercises} exercises planned.</p><a href="workouts.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Start your workout</a>`;
+                        // Update chart for not started
+                        workoutChart.data.datasets[0].data = [0, Math.max(1, totalExercises)]; // Show at least 1 remaining
+                        workoutChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)']; // Red for not started
+                    }
                 }
                 document.getElementById('workout-summary').innerHTML = summaryHtml;
+                workoutChart.update();
             }
 
+            // MODIFICATION 3: Updated renderSleepSummary
             function renderSleepSummary() {
                 const sleepHistory = (appData.userProfile.sleepHistory || []).sort((a,b) => new Date(b.date) - new Date(a.date));
                 const lastLog = sleepHistory[0]; let summaryHtml = '';
+                
+                // Chart background color
+                const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+                sleepChart.data.datasets[0].borderColor = cardBg;
+                const goalHours = 8; // Default 8 hour goal
+
                 if (lastLog) {
                     const { durationHours, durationMinutes } = calculateDuration(lastLog.startTime, lastLog.endTime, lastLog.date);
                     const totalMinutes = durationHours * 60 + durationMinutes;
                     if (totalMinutes <= 0) {
                          summaryHtml = `<p>No recent valid sleep data.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                         // Update chart
+                         sleepChart.data.datasets[0].data = [0, goalHours];
+                         sleepChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)'];
                     } else {
                         const qualityText = '★'.repeat(lastLog.quality) + '☆'.repeat(5 - lastLog.quality);
                         summaryHtml = `<p class="text-3xl font-bold text-primary-text">${durationHours}h ${durationMinutes}m</p><p class="text-lg text-yellow-400 font-semibold mb-2">${qualityText}</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">View details</a>`;
+                        // Update chart
+                        const totalHours = totalMinutes / 60;
+                        const remainingHours = Math.max(0, goalHours - totalHours);
+                        sleepChart.data.datasets[0].data = [totalHours, remainingHours];
+                        sleepChart.data.datasets[0].backgroundColor = ['#f59e0b', 'var(--input-bg)'];
                     }
                 } else {
                     summaryHtml = `<p>No sleep data available.</p><a href="sleep.html" class="text-accent hover:text-accent-hover mt-4 inline-block">Log your sleep</a>`;
+                    // Update chart
+                    sleepChart.data.datasets[0].data = [0, goalHours];
+                    sleepChart.data.datasets[0].backgroundColor = ['#ef4444', 'var(--input-bg)'];
                 }
                 document.getElementById('sleep-summary').innerHTML = summaryHtml;
+                sleepChart.update();
             }
 
             function renderWeeklyProgressChart() {
@@ -709,6 +819,8 @@
             }
 
             function fullRender() {
+                // MODIFICATION 3: Added updateChartThemeColors
+                updateChartThemeColors();
                 loadData();
                 renderNutritionSummary();
                 renderWorkoutSummary();
@@ -881,6 +993,8 @@
             });
 
             // Theme Change Listener
+            // MODIFICATION 3: Removed this second listener as the first one covers it by calling fullRender()
+            /*
             window.addEventListener('storage', (event) => {
                 if (event.key === 'fitTrackAI_theme') {
                     updateChartThemeColors();
@@ -888,6 +1002,7 @@
                     renderNutritionSummary();
                 }
             });
+            */
 
             // --- REMOVED: Dynamic Width Logic ---
             // (This section was previously here, referencing the old card)
@@ -900,3 +1015,5 @@
     </script>
 </body>
 </html>
+
+
