@@ -1106,9 +1106,95 @@
                 return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
             }
 
+            // --- ADDED: Camera Gesture Handler Functions ---
+            function handleCameraPointerDown(event) {
+                if (gestureActive) return;
+                const coords = getPointerCoordinates(event);
+                pointerStartX = coords.x;
+                pointerStartY = coords.y;
+                pointerCurrentX = coords.x;
+                pointerCurrentY = coords.y;
+            }
+
+            function handleCameraPointerMove(event) {
+                if (gestureActive) return;
+                const coords = getPointerCoordinates(event);
+                pointerCurrentX = coords.x;
+                pointerCurrentY = coords.y;
+                if (event.type.includes('touch')) {
+                    event.preventDefault();
+                }
+            }
+
+            function handleCameraPointerUp(event) {
+                if (gestureActive) return;
+
+                const deltaX = pointerCurrentX - pointerStartX;
+                const deltaY = pointerCurrentY - pointerStartY;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const currentTime = new Date().getTime();
+
+                // Double-tap detection
+                if (distance < 20) {
+                    if (currentTime - lastDoubleTapTime < 300) {
+                        gestureActive = true;
+                        flipCamera();
+                        setTimeout(() => { gestureActive = false; }, 500);
+                        lastDoubleTapTime = 0;
+                        return;
+                    }
+                    lastDoubleTapTime = currentTime;
+                } else {
+                    lastDoubleTapTime = 0;
+                }
+
+                // Swipe detection - threshold: 50px minimum
+                if (deltaY < -50 && Math.abs(deltaX) < Math.abs(deltaY)) {
+                    // Swipe UP - Close camera
+                    gestureActive = true;
+                    manualStopAiCamera();
+                    setTimeout(() => { gestureActive = false; }, 500);
+                } else if (deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Swipe RIGHT - Open food log panel
+                    gestureActive = true;
+                    showFoodLogPanel();
+                    setTimeout(() => { gestureActive = false; }, 500);
+                } else if (deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Swipe LEFT - Trigger upload
+                    gestureActive = true;
+                    // Create and trigger file input
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.multiple = true;
+                    fileInput.addEventListener('change', (e) => handleAiScanFiles(e.target.files));
+                    fileInput.click();
+                    setTimeout(() => { gestureActive = false; }, 500);
+                }
+            }
+
+            // --- ADDED: Food Log Panel Functions ---
+            function showFoodLogPanel() {
+                if (!ui.scannedLogModal) return;
+                renderScannerLog();
+                ui.scannedLogModal.classList.remove('slide-out-right');
+                ui.scannedLogModal.classList.add('slide-in-right');
+                ui.scannedLogModal.style.display = 'flex';
+            }
+
+            function hideFoodLogPanel() {
+                if (!ui.scannedLogModal) return;
+                ui.scannedLogModal.classList.remove('slide-in-right');
+                ui.scannedLogModal.classList.add('slide-out-right');
+                setTimeout(() => {
+                    ui.scannedLogModal.style.display = 'none';
+                }, 300);
+            }
+            // --- END: Camera Gesture Handler Functions ---
+
             // --- REMOVED: Carousel Drag Logic ---
             // Native scroll is now used for the filmstrip
-            
+
             // --- MODIFIED: Listeners ---
             ui.scannerResultsContainer.addEventListener('mousedown', (e) => {
                 // Simple grab cursor logic
