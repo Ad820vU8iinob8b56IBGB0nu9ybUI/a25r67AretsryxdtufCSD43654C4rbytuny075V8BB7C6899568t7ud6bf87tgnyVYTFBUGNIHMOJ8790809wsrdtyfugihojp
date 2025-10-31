@@ -218,7 +218,7 @@
             display: flex;
             align-items: center;
             justify-content: center; /* Center the text */
-            z-index: 100;
+            z-index: 1020; /* MODIFIED: Was 100, now 1020 to be on top of modals */
             width: calc(100% - 2rem); /* 90% width on mobile */
             max-width: 320px;
             transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
@@ -308,7 +308,7 @@
                     <!-- MODIFIED: Carousel Header for Title and Dots -->
                     <!-- Added absolute positioning and pointer-events logic -->
                     <div class="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 md:p-6 pointer-events-none">
-                        <h3 id="carousel-title" class="text-xl font-bold"></h3> 
+                        <h3 id="carousel-title" class="text-2xl font-bold"></h3> <!-- MODIFIED: Was text-xl -->
                         <!-- MODIFIED: Moved dots container here, removed z-10, added pointer-events-auto -->
                         <div id="carousel-dots-container" class="flex gap-2 pointer-events-auto">
                             <!-- Dots will be added by JS -->
@@ -394,7 +394,7 @@
             
             <!-- MODIFIED: Wrapped title and new settings btn in a flex container -->
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-semibold">Quick Actions</h3>
+                <h3 class="text-2xl font-bold">Quick Actions</h3> <!-- MODIFIED: Was font-semibold -->
                 <!-- MODIFIED: Moved settings button here and changed styling -->
                 <button id="quick-actions-settings-btn" class="absolute top-4 right-4 text-secondary-text hover:text-primary-text rounded-lg !p-2 transition-colors" title="Rearrange Actions">
                     <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
@@ -635,8 +635,8 @@
                     datasets: [{
                         data: [1, 1, 1],
                         backgroundColor: ['#3b82f6', '#10b981', '#ef4444'],
-                        borderColor: 'var(--card-bg)', // Use CSS var
-                        borderWidth: 5,
+                        borderColor: '#FFFFFF', // MODIFIED: Set to white/light gray
+                        borderWidth: 2, // MODIFIED: Was 0, now 2 for a fine outline
                     }]
                 },
                 options: {
@@ -645,16 +645,7 @@
                     cutout: '70%',
                     plugins: {
                         legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed !== null) label += context.parsed.toFixed(1) + 'g';
-                                    return label;
-                                }
-                            }
-                        }
+                        tooltip: { enabled: false } // MODIFIED: Disabled tooltips on click
                     }
                 }
             });
@@ -669,7 +660,7 @@
                         data: [0, 1], // Default to 0 completed, 1 remaining
                         backgroundColor: ['#ef4444', 'var(--input-bg)'], // Red and input-bg
                         borderColor: 'var(--card-bg)',
-                        borderWidth: 5,
+                        borderWidth: 0, // MODIFIED: Was 5
                     }]
                 },
                 options: {
@@ -693,7 +684,7 @@
                         data: [0, 8], // Default to 0 slept, 8 hours goal
                         backgroundColor: ['#ef4444', 'var(--input-bg)'], // Red and input-bg
                         borderColor: 'var(--card-bg)',
-                        borderWidth: 5,
+                        borderWidth: 0, // MODIFIED: Was 5
                     }]
                 },
                 options: {
