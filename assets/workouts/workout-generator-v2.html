@@ -1846,12 +1846,6 @@ Generate ONLY a valid JSON response with this exact structure:
             `).join('');
         }
 
-        function selectExerciseForConfig(el, exercise) {
-            selectedExercise = exercise;
-            document.getElementById('modalExerciseName').textContent = exercise.name;
-            document.getElementById('exerciseConfigModal').classList.add('active');
-        }
-
         function closeModal() {
             document.getElementById('exerciseConfigModal').classList.remove('active');
             selectedExercise = null;
