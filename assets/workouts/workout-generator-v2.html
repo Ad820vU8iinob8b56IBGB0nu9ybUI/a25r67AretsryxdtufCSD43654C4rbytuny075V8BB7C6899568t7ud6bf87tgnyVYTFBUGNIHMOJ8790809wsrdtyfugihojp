@@ -1924,7 +1924,80 @@ Generate ONLY a valid JSON response with this exact structure:
             currentMode = null;
             currentPage = 0;
             workoutDraft = { warmup: [], main: [], cooldown: [] };
+            localStorage.removeItem('fitTrackAI_generatedWorkout');
+            localStorage.removeItem('fitTrackAI_workoutStep1');
+            localStorage.removeItem('fitTrackAI_workoutStep2');
+            localStorage.removeItem('fitTrackAI_workoutStep3');
+            localStorage.removeItem('fitTrackAI_workoutStep4');
             goBackToMode();
+        }
+
+        // ============ PDF EXPORT ============
+        function downloadPDF() {
+            const workoutHTML = document.getElementById('resultsContainer').innerHTML;
+            const workoutName = document.getElementById('workoutName').textContent;
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${workoutName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #3B82F6; margin-bottom: 10px; }
+                        .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+                        .card-header { font-weight: bold; font-size: 1.2em; margin-bottom: 10px; color: #3B82F6; }
+                        .exercise-card { border-left: 4px solid #3B82F6; padding: 10px; margin-bottom: 10px; }
+                        .exercise-name { font-weight: bold; }
+                        .exercise-meta { font-size: 0.9em; color: #666; }
+                        @media print {
+                            body { color: black; background: white; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${workoutName}</h1>
+                    <p>${document.getElementById('workoutReasoning')?.textContent || ''}</p>
+                    <p><strong>Timeline:</strong> ${document.getElementById('workoutTimeline')?.textContent || ''}</p>
+                    ${workoutHTML}
+                    <hr>
+                    <p style="text-align: center; color: #999; font-size: 0.9em;">Generated with Workout Generator</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+        }
+
+        // ============ EXERCISE DETAILS ============
+        function selectExerciseForConfig(el, exercise) {
+            selectedExercise = exercise;
+            document.getElementById('modalExerciseName').textContent = exercise.name;
+
+            // Display form tips
+            let tipsHTML = '';
+            if (exercise.instructions && Array.isArray(exercise.instructions)) {
+                tipsHTML = '<div><strong>Instructions:</strong><ol style="margin-left: 1rem;">' +
+                    exercise.instructions.map(instr => `<li style="margin-bottom: 0.5rem;">${instr}</li>`).join('') +
+                    '</ol></div>';
+            }
+
+            const formTips = document.getElementById('formTipsContainer');
+            if (formTips) {
+                formTips.innerHTML = tipsHTML;
+            }
+
+            document.getElementById('exerciseConfigModal').classList.add('active');
+        }
+
+        // ============ HELPER FUNCTIONS ============
+        function getCurrentTimestamp() {
+            return new Date().toLocaleString();
+        }
+
+        function generateShareCode() {
+            return Math.random().toString(36).substring(2, 15).toUpperCase();
         }
     </script>
 </body>
