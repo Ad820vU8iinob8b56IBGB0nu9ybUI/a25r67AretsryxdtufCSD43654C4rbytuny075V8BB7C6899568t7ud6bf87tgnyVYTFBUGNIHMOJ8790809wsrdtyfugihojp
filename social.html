@@ -12,9 +12,33 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Link Shared CSS -->
     <link rel="stylesheet" href="assets/styles.css">
-    <!-- Page Specific Styles (if any) -->
+    <!-- Page Specific Styles -->
     <style>
-        /* Add page-specific styles here if needed */
+        /* Styles for the profile header stats */
+        .profile-stat {
+            @apply text-center;
+        }
+        .profile-stat-number {
+            @apply block font-bold text-lg text-primary-text;
+        }
+        .profile-stat-label {
+            @apply block text-sm text-secondary-text;
+        }
+
+        /* Styles for the post grid */
+        .post-grid {
+            @apply grid grid-cols-3 gap-1 sm:gap-2;
+        }
+        .post-item {
+            @apply aspect-square bg-input-bg w-full h-full rounded overflow-hidden relative transition-opacity hover:opacity-80;
+        }
+        .post-item img {
+            @apply w-full h-full object-cover;
+        }
+        /* Overlay for potential icons (like/comment count) */
+        .post-item-overlay {
+            @apply absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -32,20 +56,128 @@
         <div id="header-placeholder"></div>
 
         <!-- Main Content Area -->
-        <main>
-             <!-- Removed h1 -->
+        <main class="max-w-3xl mx-auto"> <!-- Centered main content -->
+            
+            <!-- Profile Header Card (Moved from settings.html) -->
+            <div class="content-card">
+                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                    <!-- Profile Picture -->
+                    <div class="flex-shrink-0 text-center">
+                        <img id="profile-picture-preview" src="https://placehold.co/128x128/111111/FFFFFF?text=User" alt="User" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto border-2 border-border-color object-cover">
+                        <input type="file" id="profile-picture-input" class="hidden" accept="image/*">
+                        <label for="profile-picture-input" class="cursor-pointer text-sm text-blue-400 hover:underline mt-2 inline-block">Change Picture</label>
+                    </div>
+                    
+                    <!-- Profile Info & Stats -->
+                    <div class="w-full space-y-4">
+                        <!-- Username & Edit Button -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <h2 id="user-username-display" class="text-2xl font-semibold text-center sm:text-left">Your Username</h2>
+                            <button id="edit-profile-btn" class="btn btn-secondary w-full sm:w-auto !py-1.5 !px-4 text-sm">Edit Profile</button>
+                        </div>
 
-            <!-- Segmented Control Navigation -->
-            <nav class="segmented-control mb-8">
-                <button id="friends-tab" class="tab-btn active" data-tab="friends">Friends</button>
-                <button id="community-tab" class="tab-btn" data-tab="community">Community</button>
-                <button id="achievements-tab" class="tab-btn" data-tab="achievements">Gains</button>
+                        <!-- Stats -->
+                        <div class="flex justify-around sm:justify-start sm:gap-8 pt-2">
+                            <div class="profile-stat">
+                                <span id="post-count" class="profile-stat-number">12</span>
+                                <span class="profile-stat-label">Posts</span>
+                            </div>
+                            <div class="profile-stat">
+                                <span id="friend-count" class="profile-stat-number">104</span>
+                                <span class="profile-stat-label">Friends</span>
+                            </div>
+                            <div class="profile-stat">
+                                <span id="gains-count" class="profile-stat-number">5</span>
+                                <span class="profile-stat-label">Gains</span>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div>
+                            <p id="user-bio-display" class="text-sm text-primary-text text-center sm:text-left">Your bio goes here. Click 'Edit Profile' to change it.</p>
+                        </div>
+
+                        <!-- Hidden Edit Form -->
+                        <form id="profile-edit-form" class="hidden space-y-4">
+                            <div>
+                                <label for="user-username" class="form-label">Username</label>
+                                <input type="text" id="user-username" class="form-input mt-1" placeholder="Your Username">
+                            </div>
+                            <div>
+                                <label for="user-bio" class="form-label">Bio</label>
+                                <textarea id="user-bio" rows="2" class="form-input mt-1" placeholder="A little about yourself..."></textarea>
+                            </div>
+                            <!-- Added height/weight/gender for completeness -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div> <label for="user-height" class="form-label">Height (cm)</label> <input type="number" id="user-height" class="form-input mt-1" placeholder="e.g., 175"> </div>
+                                <div> <label for="user-weight" class="form-label">Weight (kg)</label> <input type="number" step="0.1" id="user-weight" class="form-input mt-1" placeholder="e.g., 70.5"> </div>
+                                <div> <label for="user-gender" class="form-label">Gender</label> <select id="user-gender" class="form-select mt-1"> <option value="">Select...</option> <option value="male">Male</option> <option value="female">Female</option> <option value="other">Other</option> <option value="prefer_not_to_say">Prefer not to say</option> </select> </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <button id="save-profile-btn" type="button" class="btn btn-primary w-full sm:w-auto">
+                                    <span class="btn-text">Save</span>
+                                    <div class="loader hidden ml-2"></div>
+                                </button>
+                                <button id="cancel-edit-profile-btn" type="button" class="btn btn-secondary w-full sm:w-auto">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex border-b border-border-color mt-8">
+                <button id="posts-tab" class="tab-btn active" data-tab="posts">
+                    <i data-lucide="grid" class="w-4 h-4 mr-2"></i>Posts
+                </button>
+                <button id="friends-tab" class="tab-btn" data-tab="friends">
+                    <i data-lucide="users" class="w-4 h-4 mr-2"></i>Friends
+                </button>
+                <button id="gains-tab" class="tab-btn" data-tab="gains">
+                    <i data-lucide="award" class="w-4 h-4 mr-2"></i>Gains
+                </button>
             </nav>
 
             <!-- Tab Content Panels -->
-            <div>
-                <!-- Friends Panel -->
-                <section id="friends-panel" class="tab-panel active">
+            <div class="mt-8">
+                <!-- NEW: Posts Panel -->
+                <section id="posts-panel" class="tab-panel active">
+                    <div class="post-grid">
+                        <!-- Mockup posts -->
+                        <div class="post-item">
+                            <img src="https://placehold.co/300x300/111111/FFFFFF?text=Post+1" alt="User post">
+                            <div class="post-item-overlay">
+                                <i data-lucide="heart" class="w-4 h-4"></i> 15
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> 3
+                            </div>
+                        </div>
+                        <div class="post-item">
+                            <img src="https://placehold.co/300x300/111111/FFFFFF?text=Post+2" alt="User post">
+                            <div class="post-item-overlay">
+                                <i data-lucide="heart" class="w-4 h-4"></i> 28
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> 5
+                            </div>
+                        </div>
+                        <div class="post-item">
+                            <img src="https://placehold.co/300x300/111111/FFFFFF?text=Post+3" alt="User post">
+                            <div class="post-item-overlay">
+                                <i data-lucide="heart" class="w-4 h-4"></i> 12
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> 1
+                            </div>
+                        </div>
+                        <div class="post-item">
+                            <img src="https://placehold.co/300x300/111111/FFFFFF?text=Post+4" alt="User post">
+                            <div class="post-item-overlay">
+                                <i data-lucide="heart" class="w-4 h-4"></i> 45
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> 10
+                            </div>
+                        </div>
+                        <!-- Add more placeholder posts as needed -->
+                    </div>
+                </section>
+
+                <!-- Friends Panel (Old Content) -->
+                <section id="friends-panel" class="tab-panel">
                     <div class="content-card">
                         <h2 class="text-2xl font-semibold mb-4">Friends</h2>
                         <p class="text-secondary-text">Connect with friends and share your progress. (Coming Soon)</p>
@@ -55,21 +187,10 @@
                     </div>
                 </section>
 
-                <!-- Community Panel -->
-                <section id="community-panel" class="tab-panel">
-                    <div class="content-card">
-                        <h2 class="text-2xl font-semibold mb-4">Community</h2>
-                        <p class="text-secondary-text">Join challenges and discussions. (Coming Soon)</p>
-                         <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
-                            Community Forums / Challenges Area
-                         </div>
-                    </div>
-                </section>
-
-                <!-- Achievements Panel -->
-                <section id="achievements-panel" class="tab-panel">
+                <!-- Gains Panel (Old "Achievements" Content) -->
+                <section id="gains-panel" class="tab-panel">
                      <div class="content-card">
-                        <h2 class="text-2xl font-semibold mb-4">Achievements</h2>
+                        <h2 class="text-2xl font-semibold mb-4">Gains</h2>
                         <p class="text-secondary-text">Unlock badges and celebrate milestones. (Coming Soon)</p>
                          <div class="h-40 flex items-center justify-center text-secondary-text border-2 border-dashed border-border-color rounded-lg mt-4">
                             Achievements / Badges Area
@@ -127,29 +248,150 @@
         }
         // --- End Load Header and Footer ---
 
-        // --- Original script from social.html (wrapped, profile logic removed) ---
+        // --- Page script (merged from social.html and settings.html) ---
         function initializeSocialPage() {
              // --- UI ELEMENT DEFINITIONS ---
             const ui = {
+                // Tabbing
                 tabs: document.querySelectorAll('.tab-btn'),
-                panels: document.querySelectorAll('.tab-panel')
+                panels: document.querySelectorAll('.tab-panel'),
+                
+                // Profile Display
+                usernameDisplay: document.getElementById('user-username-display'),
+                bioDisplay: document.getElementById('user-bio-display'),
+                editProfileBtn: document.getElementById('edit-profile-btn'),
+                cancelEditProfileBtn: document.getElementById('cancel-edit-profile-btn'),
+                
+                // Profile Form (from settings.html)
+                profileEditForm: document.getElementById('profile-edit-form'),
+                userUsernameInput: document.getElementById('user-username'), 
+                userBioInput: document.getElementById('user-bio'), 
+                userHeightInput: document.getElementById('user-height'), 
+                userWeightInput: document.getElementById('user-weight'), 
+                userGenderSelect: document.getElementById('user-gender'), 
+                profilePicInput: document.getElementById('profile-picture-input'), 
+                profilePicPreview: document.getElementById('profile-picture-preview'), 
+                saveProfileBtn: document.getElementById('save-profile-btn'),
             };
 
             // --- TABBING LOGIC ---
             function showTab(tabName) {
-                ui.panels.forEach(panel => { panel.classList.remove('active'); panel.style.display = 'none'; });
+                ui.panels.forEach(panel => { panel.classList.remove('active'); });
                 ui.tabs.forEach(tab => { tab.classList.remove('active'); });
-                const activePanel = document.getElementById(tabName + '-panel'); const activeTab = document.getElementById(tabName + '-tab');
-                if (activePanel) { activePanel.classList.add('active'); activePanel.style.display = 'block'; }
+                const activePanel = document.getElementById(tabName + '-panel'); 
+                const activeTab = document.getElementById(tabName + '-tab');
+                if (activePanel) { activePanel.classList.add('active'); }
                 if (activeTab) { activeTab.classList.add('active'); }
             }
 
+            // --- PROFILE DATA LOGIC (from settings.html) ---
+            function loadProfileData() {
+                const storedUsername = localStorage.getItem('fitTrackAI_userUsername');
+                const storedBio = localStorage.getItem('fitTrackAI_userBio');
+                const storedHeight = localStorage.getItem('fitTrackAI_userHeight');
+                const storedWeight = localStorage.getItem('fitTrackAI_userWeight');
+                const storedGender = localStorage.getItem('fitTrackAI_userGender');
+                const storedPic = localStorage.getItem('fitTrackAI_profilePicture');
+                
+                // Update display elements
+                if(ui.usernameDisplay) ui.usernameDisplay.textContent = storedUsername || 'Your Username';
+                if(ui.bioDisplay) ui.bioDisplay.textContent = storedBio || "A little about yourself...";
+
+                // Populate form fields (for editing)
+                if(ui.userUsernameInput && storedUsername) ui.userUsernameInput.value = storedUsername;
+                if(ui.userBioInput && storedBio) ui.userBioInput.value = storedBio;
+                if(ui.userHeightInput && storedHeight) ui.userHeightInput.value = storedHeight;
+                if(ui.userWeightInput && storedWeight) ui.userWeightInput.value = storedWeight;
+                if(ui.userGenderSelect && storedGender) ui.userGenderSelect.value = storedGender;
+                if(ui.profilePicPreview && storedPic) ui.profilePicPreview.src = storedPic;
+                else if (ui.profilePicPreview) ui.profilePicPreview.src = 'https://placehold.co/128x128/111111/FFFFFF?text=User';
+            }
+
+            function saveProfileData() {
+                const btn = ui.saveProfileBtn; 
+                if (!btn) return;
+                
+                btn.disabled = true; 
+                const btnText = btn.querySelector('.btn-text'); 
+                const loader = btn.querySelector('.loader'); 
+                if (btnText) btnText.style.display = 'none'; 
+                if (loader) loader.classList.remove('hidden');
+                
+                localStorage.setItem('fitTrackAI_userUsername', ui.userUsernameInput?.value || '');
+                localStorage.setItem('fitTrackAI_userBio', ui.userBioInput?.value || '');
+                localStorage.setItem('fitTrackAI_userHeight', ui.userHeightInput?.value || '');
+                localStorage.setItem('fitTrackAI_userWeight', ui.userWeightInput?.value || '');
+                localStorage.setItem('fitTrackAI_userGender', ui.userGenderSelect?.value || '');
+                
+                setTimeout(() => { 
+                    if (btnText) { btnText.textContent = "Saved!"; btnText.style.display = 'inline'; } 
+                    if (loader) loader.classList.add('hidden'); 
+                    setTimeout(() => { 
+                        btn.disabled = false; 
+                        if (btnText) btnText.textContent = "Save";
+                        // Exit edit mode
+                        toggleEditMode(false);
+                    }, 1500); 
+                }, 500);
+            }
+
+            // --- TOGGLE EDIT MODE ---
+            function toggleEditMode(isEditing) {
+                if (isEditing) {
+                    ui.profileEditForm.classList.remove('hidden');
+                    // Hide display elements
+                    ui.usernameDisplay.classList.add('hidden');
+                    ui.bioDisplay.classList.add('hidden');
+                    ui.editProfileBtn.classList.add('hidden');
+                    // Hide stats
+                    ui.usernameDisplay.closest('.space-y-4').querySelector('.flex.justify-around').classList.add('hidden');
+                } else {
+                    ui.profileEditForm.classList.add('hidden');
+                    // Show display elements
+                    ui.usernameDisplay.classList.remove('hidden');
+                    ui.bioDisplay.classList.remove('hidden');
+                    ui.editProfileBtn.classList.remove('hidden');
+                    // Show stats
+                    ui.usernameDisplay.closest('.space-y-4').querySelector('.flex.justify-around').classList.remove('hidden');
+                    // Reload data into display
+                    loadProfileData();
+                }
+            }
+
+
             // --- EVENT LISTENERS ---
-            ui.tabs.forEach(tab => { tab.addEventListener('click', (e) => { const tabName = e.currentTarget.dataset.tab; showTab(tabName); }); });
+            
+            // Tabbing
+            ui.tabs.forEach(tab => { 
+                tab.addEventListener('click', (e) => { 
+                    const tabName = e.currentTarget.dataset.tab; 
+                    showTab(tabName); 
+                }); 
+            });
+
+            // Profile Editing
+            if (ui.profilePicInput && ui.profilePicPreview) { 
+                ui.profilePicInput.addEventListener('change', (event) => { 
+                    const file = event.target.files[0]; 
+                    if (file) { 
+                        const reader = new FileReader(); 
+                        reader.onload = (e) => { 
+                            const imageUrl = e.target.result; 
+                            if (ui.profilePicPreview) ui.profilePicPreview.src = imageUrl; 
+                            localStorage.setItem('fitTrackAI_profilePicture', imageUrl); 
+                        }; 
+                        reader.readAsDataURL(file); 
+                    } 
+                }); 
+            }
+            if (ui.saveProfileBtn) { ui.saveProfileBtn.addEventListener('click', saveProfileData); }
+            if (ui.editProfileBtn) { ui.editProfileBtn.addEventListener('click', () => toggleEditMode(true)); }
+            if (ui.cancelEditProfileBtn) { ui.cancelEditProfileBtn.addEventListener('click', () => toggleEditMode(false)); }
 
             // --- INITIALIZATION ---
-            showTab('friends'); // Show friends tab by default
-            // Lucide icons are now rendered in initializeLayout
+            showTab('posts'); // Show posts tab by default
+            loadProfileData(); // Load profile data on init
+            lucide.createIcons(); // Render any new icons
         }
         // --- End Original script ---
 
