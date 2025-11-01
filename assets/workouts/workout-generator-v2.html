@@ -1324,6 +1324,50 @@
             document.getElementById('manualForm2')?.addEventListener('change', () => saveFormState('manualForm2', 'fitTrackAI_manualWorkoutDraft'));
         }
 
+        function setupKeyboardNavigation() {
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('exerciseConfigModal');
+                    if (modal && modal.classList.contains('active')) {
+                        closeModal();
+                    }
+                }
+            });
+
+            // Tab navigation for modes
+            document.querySelectorAll('.mode-card').forEach((card, idx) => {
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const mode = card.querySelector('.btn').parentElement.querySelector('button').onclick?.toString().includes('ai') ? 'ai' : 'manual';
+                        if (card.getAttribute('onclick')?.includes('ai')) selectMode('ai');
+                        else if (card.getAttribute('onclick')?.includes('manual')) selectMode('manual');
+                    }
+                });
+            });
+
+            // Arrow key navigation for radio/checkbox groups
+            document.querySelectorAll('.radio-group, .checkbox-group').forEach(group => {
+                const inputs = group.querySelectorAll('input');
+                inputs.forEach((input, idx) => {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'ArrowDown' && idx < inputs.length - 1) {
+                            e.preventDefault();
+                            inputs[idx + 1].focus();
+                        } else if (e.key === 'ArrowUp' && idx > 0) {
+                            e.preventDefault();
+                            inputs[idx - 1].focus();
+                        } else if (e.key === 'Enter') {
+                            input.checked = !input.checked;
+                        }
+                    });
+                });
+            });
+        }
+
         function saveFormState(formId, storageKey) {
             const form = document.getElementById(formId);
             if (!form) return;
