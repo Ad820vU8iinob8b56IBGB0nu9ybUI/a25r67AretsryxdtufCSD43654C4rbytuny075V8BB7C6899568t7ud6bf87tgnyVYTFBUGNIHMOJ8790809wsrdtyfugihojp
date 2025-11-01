@@ -1391,7 +1391,7 @@
             localStorage.setItem(storageKey, JSON.stringify(state));
         }
 
-        function restoreFormState(formId, storageKey) {
+        function restoreFormDataFromStorage(formId, storageKey) {
             const saved = localStorage.getItem(storageKey);
             if (!saved) return;
 
@@ -1424,13 +1424,13 @@
                 selectMode('ai');
                 // Restore each step
                 setTimeout(() => {
-                    restoreFormState('aiForm1', 'fitTrackAI_workoutStep1');
+                    restoreFormDataFromStorage('aiForm1', 'fitTrackAI_workoutStep1');
                     updateAllSliders();
                 }, 100);
             } else if (savedMode === 'manual') {
                 selectMode('manual');
                 setTimeout(() => {
-                    restoreFormState('manualForm1', 'fitTrackAI_manualWorkoutDraft');
+                    restoreFormDataFromStorage('manualForm1', 'fitTrackAI_manualWorkoutDraft');
                     updateAllSliders();
                 }, 100);
             }
