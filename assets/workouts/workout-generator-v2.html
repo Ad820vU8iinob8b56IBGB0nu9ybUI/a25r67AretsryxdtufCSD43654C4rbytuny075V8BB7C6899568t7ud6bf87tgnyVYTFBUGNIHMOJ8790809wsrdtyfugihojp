@@ -1269,10 +1269,25 @@
             cooldown: []
         };
 
+        const aiTips = {
+            goal: "Most beginners start with general fitness and adjust later based on results",
+            experience: "Honest assessment helps AI create realistic workouts",
+            daysPerWeek: "3-4 days per week is ideal for most people",
+            duration: "Longer ≠ better. Quality matters most. 45-60 min is optimal",
+            equipment: "More equipment = more variety in your workouts",
+            location: "This helps us select appropriate exercises",
+            focusAreas: "More focus areas = more balanced workout",
+            repRange: "Unsure? Hypertrophy (8-12 reps) is great for beginners",
+            cardio: "Cardio boosts overall fitness and recovery",
+            splitType: "We've pre-selected based on your frequency",
+            schedule: "Try to keep rest days between intensive sessions"
+        };
+
         // ============ INITIALIZATION ============
         document.addEventListener('DOMContentLoaded', async () => {
             await loadExercises();
             setupEventListeners();
+            restoreFormState();
         });
 
         async function loadExercises() {
