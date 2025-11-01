@@ -27,6 +27,107 @@
         .theme-btn.active { background-color: var(--accent); color: var(--background); border-color: var(--accent); }
         .content-panel { display: none; }
         .content-panel.active { display: block; animation: fadeIn 0.5s ease; }
+
+        /* --- ADDED: Styles for new forms --- */
+        /* Styles for new image pickers */
+        .image-picker-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem; /* 12px */
+        }
+        
+        .image-picker-label {
+            display: block;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem; /* 8px */
+            padding: 0.5rem; /* 8px */
+            transition: all 0.2s ease-in-out;
+            background-color: var(--input-bg);
+        }
+        
+        .image-picker-label:hover {
+            border-color: var(--secondary-text);
+        }
+        
+        .image-picker-label img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 0.25rem; /* 4px */
+        }
+        
+        .image-picker-label p {
+            text-align: center;
+            font-size: 0.75rem; /* 12px */
+            font-weight: 500;
+            color: var(--secondary-text);
+            margin-top: 0.5rem; /* 8px */
+        }
+        
+        /* Style for the hidden radio button */
+        .image-picker-input {
+            display: none;
+        }
+        
+        /* Style for the selected item */
+        .image-picker-input:checked + .image-picker-label {
+            border-color: var(--accent);
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        
+        .image-picker-input:checked + .image-picker-label p {
+            color: var(--primary-text);
+            font-weight: 600;
+        }
+
+        /* Checkbox grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--input-bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .form-checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--background);
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            position: relative;
+        }
+        .form-checkbox:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .form-checkbox:checked::after {
+            content: '✔';
+            position: absolute;
+            color: var(--background);
+            font-size: 0.75rem;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .hidden {
+            display: none;
+        }
+        /* --- END: Styles for new forms --- */
     </style>
 </head>
 <body class="antialiased">
@@ -52,7 +153,8 @@
             <a href="#" class="mobile-sidebar-link" data-target="sleep-settings-content">Sleep</a>
             <a href="#" class="mobile-sidebar-link" data-target="progress-settings-content">Progress</a>
             <a href="#" class="mobile-sidebar-link" data-target="social-settings-content">Social</a>
-            <a href="#" class="mobile-sidebar-link" data-target="profile-content">Profile</a>
+            <!-- ADDED: Your Details Link -->
+            <a href="#" class="mobile-sidebar-link" data-target="your-details-content">Your Details</a>
             <a href="#" class="mobile-sidebar-link" data-target="app-settings-content">App</a>
             <a href="#" class="mobile-sidebar-link" data-target="account-content">Data</a>
         </nav>
@@ -69,7 +171,8 @@
                     <a href="#" class="sidebar-link" data-target="progress-settings-content"><i data-lucide="trending-up"></i>Progress</a>
                     <a href="#" class="sidebar-link" data-target="social-settings-content"><i data-lucide="users"></i>Social</a>
                     <hr class="border-border-color my-2">
-                    <a href="#" class="sidebar-link" data-target="profile-content"><i data-lucide="user"></i>Profile</a>
+                    <!-- ADDED: Your Details Link -->
+                    <a href="#" class="sidebar-link" data-target="your-details-content"><i data-lucide="user-check"></i>Your Details</a>
                     <a href="#" class="sidebar-link" data-target="app-settings-content"><i data-lucide="smartphone"></i>App Settings</a>
                     <a href="#" class="sidebar-link" data-target="account-content"><i data-lucide="database"></i>Account & Data</a>
                 </nav>
@@ -77,29 +180,7 @@
 
             <!-- Main Content Area -->
             <main class="flex-1 min-w-0">
-                <!-- Profile Panel -->
-                <div id="profile-content" class="content-panel">
-                     <div class="content-card">
-                        <h2 class="text-2xl font-semibold mb-6">Personal Info</h2>
-                         <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
-                            <div class="flex-shrink-0 text-center">
-                                <img id="profile-picture-preview" src="https://placehold.co/128x128/111111/FFFFFF?text=User" alt="User" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto border-2 border-border-color object-cover">
-                                <input type="file" id="profile-picture-input" class="hidden" accept="image/*">
-                                <label for="profile-picture-input" class="cursor-pointer text-sm text-blue-400 hover:underline mt-2 inline-block">Change Picture</label>
-                            </div>
-                            <div class="w-full space-y-4">
-                                <div> <label for="user-username" class="form-label">Username</label> <input type="text" id="user-username" class="form-input mt-1" placeholder="Your Username"> </div>
-                                <div> <label for="user-bio" class="form-label">Bio</label> <textarea id="user-bio" rows="2" class="form-input mt-1" placeholder="A little about yourself..."></textarea> </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div> <label for="user-height" class="form-label">Height (cm)</label> <input type="number" id="user-height" class="form-input mt-1" placeholder="e.g., 175"> </div>
-                                    <div> <label for="user-weight" class="form-label">Weight (kg)</label> <input type="number" step="0.1" id="user-weight" class="form-input mt-1" placeholder="e.g., 70.5"> </div>
-                                    <div> <label for="user-gender" class="form-label">Gender</label> <select id="user-gender" class="form-select mt-1"> <option value="">Select...</option> <option value="male">Male</option> <option value="female">Female</option> <option value="other">Other</option> <option value="prefer_not_to_say">Prefer not to say</option> </select> </div>
-                                </div>
-                                <button id="save-profile-btn" class="btn btn-primary w-full sm:w-auto"> <span class="btn-text">Save Profile</span> <div class="loader hidden ml-2"></div> </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
                 <!-- General Settings Panel -->
                 <div id="general-settings-content" class="content-panel active">
                     <div class="content-card">
@@ -123,6 +204,190 @@
                 <div id="progress-settings-content" class="content-panel"> <div class="content-card"> <h2 class="text-2xl font-semibold mb-6">Progress Tracking</h2> <div class="space-y-4"> <div class="setting-row"> <div><label for="setting-chart-range" class="setting-label block">Default Chart Range</label><p class="setting-description">Initial time range for progress charts.</p></div> <div class="setting-control"><select id="setting-chart-range" class="form-select !w-28 !py-1 text-sm"><option value="30d">30 Days</option><option value="90d">90 Days</option><option value="all" selected>All Time</option></select></div> </div> <div class="setting-row opacity-50"> <div><label class="setting-label block">Goal Check-in Reminders</label><p class="setting-description">Reminders to update goals. (Coming Soon)</p></div> <div class="setting-control"><label class="toggle-switch"><input type="checkbox" disabled><span class="toggle-slider"></span></label></div> </div> </div> </div> </div>
                 <!-- Social Settings Panel -->
                 <div id="social-settings-content" class="content-panel"> <div class="content-card"> <h2 class="text-2xl font-semibold mb-6">Social Preferences</h2> <div class="space-y-4"> <div class="setting-row opacity-50"> <div><label class="setting-label block">Profile Visibility</label><p class="setting-description">Control who can see your profile. (Coming Soon)</p></div> <div class="setting-control"><select class="form-select !w-28 !py-1 text-sm" disabled><option>Private</option><option>Friends</option><option>Public</option></select></div> </div> <div class="setting-row opacity-50"> <div><label class="setting-label block">Allow Friend Requests</label><p class="setting-description">Accept new friend connections. (Coming Soon)</p></div> <div class="setting-control"><label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></div> </div> </div> </div> </div>
+                
+                <!-- ADDED: Your Details Panel -->
+                <div id="your-details-content" class="content-panel">
+                    <div class="content-card">
+                        <h2 class="text-2xl font-semibold mb-6">Your Details</h2>
+                        <p class="text-sm text-secondary-text mb-6">This information helps the AI provide more personalized recommendations for goals, nutrition, and workouts.</p>
+                        
+                        <form id="your-details-form" class="space-y-6">
+                            
+                            <!-- 1. Gender -->
+                            <div>
+                                <label for="setting-gender" class="form-label">Gender</label>
+                                <select id="setting-gender" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer_not_to_say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 2. Training History -->
+                            <div>
+                                <label for="setting-training-history" class="form-label">Training History</label>
+                                <select id="setting-training-history" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="beginner">Beginner (0-1 years)</option>
+                                    <option value="intermediate">Intermediate (1-3 years)</option>
+                                    <option value="advanced">Advanced (3+ years)</option>
+                                </select>
+                            </div>
+
+                            <!-- 3. Familiarity -->
+                            <div>
+                                <label for="setting-fitness-familiarity" class="form-label">How familiar are you with fitness/nutrition science?</label>
+                                <select id="setting-fitness-familiarity" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="novice">Novice (Just starting to learn)</option>
+                                    <option value="familiar">Familiar (I know the basics)</option>
+                                    <option value="knowledgeable">Knowledgeable (I understand CICO, progressive overload, etc.)</option>
+                                </select>
+                            </div>
+
+                            <!-- 4. How busy -->
+                             <div>
+                                <label for="setting-how-busy" class="form-label">How busy are you typically?</label>
+                                <select id="setting-how-busy" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="Very busy">Very busy (need short, efficient workouts)</option>
+                                    <option value="Balanced">Balanced (can make time)</option>
+                                    <option value="Lots of free time">Lots of free time (open to longer workouts)</option>
+                                </select>
+                            </div>
+
+                            <!-- 5. Daily Activity Level -->
+                            <div>
+                                <label for="setting-activity-level" class="form-label">Daily Activity Level (non-exercise)</label>
+                                <select id="setting-activity-level" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="Sedentary">Sedentary (desk job)</option>
+                                    <option value="Lightly Active">Lightly Active (some walking)</option>
+                                    <option value="Active">Active (on your feet most of the day)</option>
+                                    <option value="Very Active">Very Active (physical labor, etc.)</option>
+                                </select>
+                            </div>
+
+                            <!-- 6. Body Type -->
+                            <div>
+                                <label class="form-label mb-2">What best matches your current body type?</label>
+                                <div class="image-picker-container">
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-slender" value="Slender" class="image-picker-input">
+                                        <label for="body-type-slender" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Slender" alt="Slender body type">
+                                            <p>Slender</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-defined" value="Defined" class="image-picker-input">
+                                        <label for="body-type-defined" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Defined" alt="Defined body type">
+                                            <p>Defined</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-athletic" value="Athletic" class="image-picker-input">
+                                        <label for="body-type-athletic" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Athletic" alt="Athletic body type">
+                                            <p>Athletic</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-slender-soft" value="Slender & Soft" class="image-picker-input">
+                                        <label for="body-type-slender-soft" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Slender+Soft" alt="Slender & Soft body type">
+                                            <p>Slender & Soft</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-bulky" value="Bulky" class="image-picker-input">
+                                        <label for="body-type-bulky" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Bulky" alt="Bulky body type">
+                                            <p>Bulky</p>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="body-type" id="body-type-soft-heavy" value="Soft & Heavy" class="image-picker-input">
+                                        <label for="body-type-soft-heavy" class="image-picker-label">
+                                            <img src="https://placehold.co/150x150/111111/FFFFFF?text=Soft+Heavy" alt="Soft & Heavy body type">
+                                            <p>Soft & Heavy</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 7. Body Fat Level (Conditional) -->
+                            <div>
+                                <label class="form-label mb-2">Which image best reflects your current body fat level?</label>
+                                <!-- Male Examples -->
+                                <div id="male-body-fat-group" class="hidden">
+                                    <p class="text-xs text-secondary-text mb-2">Appearance examples (Male):</p>
+                                    <div class="image-picker-container">
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-10" value="10-12%" class="image-picker-input"><label for="body-fat-m-10" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~10-12%25" alt="10-12% body fat male"><p>10-12%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-15" value="15%" class="image-picker-input"><label for="body-fat-m-15" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~15%25" alt="15% body fat male"><p>15%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-20" value="20%" class="image-picker-input"><label for="body-fat-m-20" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~20%25" alt="20% body fat male"><p>20%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-25" value="25%" class="image-picker-input"><label for="body-fat-m-25" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~25%25" alt="25% body fat male"><p>25%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-30" value="30%" class="image-picker-input"><label for="body-fat-m-30" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~30%25" alt="30% body fat male"><p>30%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-m-35" value="35-40%" class="image-picker-input"><label for="body-fat-m-35" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~35-40%25" alt="35-40% body fat male"><p>35-40%</p></label></div>
+                                    </div>
+                                </div>
+                                <!-- Female Examples -->
+                                <div id="female-body-fat-group" class="hidden">
+                                    <p class="text-xs text-secondary-text mb-2">Appearance examples (Female):</p>
+                                    <div class="image-picker-container">
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-15" value="15-17%" class="image-picker-input"><label for="body-fat-f-15" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~15-17%25" alt="15-17% body fat female"><p>15-17%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-20" value="20-22%" class="image-picker-input"><label for="body-fat-f-20" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~20-22%25" alt="20-22% body fat female"><p>20-22%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-25" value="25%" class="image-picker-input"><label for="body-fat-f-25" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~25%25" alt="25% body fat female"><p>25%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-30" value="30%" class="image-picker-input"><label for="body-fat-f-30" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~30%25" alt="30% body fat female"><p>30%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-35" value="35%" class="image-picker-input"><label for="body-fat-f-35" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~35%25" alt="35% body fat female"><p>35%</p></label></div>
+                                        <div><input type="radio" name="body-fat" id="body-fat-f-40" value="40-45%" class="image-picker-input"><label for="body-fat-f-40" class="image-picker-label"><img src="https://placehold.co/150x150/111111/FFFFFF?text=~40-45%25" alt="40-45% body fat female"><p>40-45%</p></label></div>
+                                    </div>
+                                </div>
+                                <!-- Placeholder for when no gender is selected -->
+                                <div id="body-fat-placeholder" class="text-sm text-secondary-text p-4 bg-input-bg rounded-lg text-center">
+                                    <p>Please select a gender above to see body fat examples.</p>
+                                </div>
+                            </div>
+
+                            <!-- 8. Past Attempts -->
+                            <div>
+                                <label class="form-label mb-2">Have you attempted any of the following in the past? (Optional)</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="weight-loss" class="form-checkbox"><span>Weight loss</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="muscle-gain" class="form-checkbox"><span>Muscle gain</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="personal-trainer" class="form-checkbox"><span>Personal trainer</span></label>
+                                    <label class="checkbox-label"><input type="checkbox" name="past-attempt" value="specific-diet" class="form-checkbox"><span>Specific diet (keto, etc)</span></label>
+                                </div>
+                            </div>
+
+                            <!-- 9. Tracking App -->
+                            <div>
+                                <label for="setting-tracking-app" class="form-label">Do you use a workout tracking app in the past? (Optional)</label>
+                                <select id="setting-tracking-app" class="form-select mt-1">
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+
+                            <!-- 10. Experiences -->
+                            <div>
+                                <label for="setting-experiences" class="form-label">Experiences with previous fitness plans (Optional)</label>
+                                <textarea id="setting-experiences" rows="3" class="form-input mt-1" placeholder="e.g., 'I liked keto but found it too restrictive.', 'I enjoy lifting heavy but get bored easily.'"></textarea>
+                            </div>
+                            
+                            <!-- Save Button -->
+                            <button type="submit" id="save-your-details-btn" class="w-full btn btn-primary !mt-6">
+                                <span class="btn-text">Save Details</span>
+                                <div class="loader hidden"></div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- App Settings Panel -->
                 <div id="app-settings-content" class="content-panel"> <div class="space-y-8"> <div class="content-card"> <h2 class="text-2xl font-semibold mb-6">Notifications</h2> <div class="space-y-4"> <div class="setting-row"> <div><label for="setting-workout-reminders" class="setting-label block">Workout Reminders</label><p class="setting-description">Get notified for scheduled workouts.</p></div> <div class="setting-control"><label class="toggle-switch"><input type="checkbox" id="setting-workout-reminders" checked><span class="toggle-slider"></span></label></div> </div> <div class="setting-row"> <div><label for="setting-progress-milestones" class="setting-label block">Progress Milestones</label><p class="setting-description">Celebrate reaching goals or hitting PRs.</p></div> <div class="setting-control"><label class="toggle-switch"><input type="checkbox" id="setting-progress-milestones" checked><span class="toggle-slider"></span></label></div> </div> <div class="setting-row opacity-50"> <div><label for="setting-social-notifications" class="setting-label block">Social Notifications</label><p class="setting-description">Friend requests, comments, etc. (Coming Soon)</p></div> <div class="setting-control"><label class="toggle-switch"><input type="checkbox" id="setting-social-notifications" disabled><span class="toggle-slider"></span></label></div> </div> </div> </div> <div class="content-card"> <h2 class="text-2xl font-semibold mb-4">Appearance</h2> <p class="text-sm text-secondary-text mb-4">Choose your preferred theme.</p> <div class="flex gap-2 p-1 rounded-lg bg-input-bg"> <button id="theme-light-btn" class="theme-btn w-full btn btn-secondary !py-2"><i data-lucide="sun"></i>Light</button> <button id="theme-dark-btn" class="theme-btn w-full btn btn-secondary !py-2"><i data-lucide="moon"></i>Dark</button> </div> </div> <div class="content-card"> <h2 class="text-2xl font-semibold mb-6">About & Help</h2> <div class="space-y-4"> <a href="#" class="setting-row !block hover:bg-input-bg/50 rounded-md px-2 -mx-2"><span class="setting-label">FAQ & Support</span></a> <a href="#" class="setting-row !block hover:bg-input-bg/50 rounded-md px-2 -mx-2"><span class="setting-label">Privacy Policy</span></a> <a href="#" class="setting-row !block hover:bg-input-bg/50 rounded-md px-2 -mx-2"><span class="setting-label">Terms of Service</span></a> <div class="setting-row"><div><span class="setting-label">App Version</span></div><div><span class="text-sm text-secondary-text">1.0.1</span></div></div> </div> </div> </div> </div>
                 <!-- Account & Data Panel -->
@@ -200,10 +465,31 @@
                 sidebar: document.getElementById('settings-sidebar'),
                 mobileNav: document.getElementById('mobile-settings-nav'),
                 contentPanels: document.querySelectorAll('.content-panel'),
-                // Setting Inputs (unchanged)
-                weightUnitSelect: document.getElementById('setting-weight-unit'), heightUnitSelect: document.getElementById('setting-height-unit'), distanceUnitSelect: document.getElementById('setting-distance-unit'), restTimerInput: document.getElementById('setting-rest-timer'), autoStartTimerToggle: document.getElementById('setting-auto-start-timer'), waterGlassSizeInput: document.getElementById('setting-water-glass-size'), workoutRemindersToggle: document.getElementById('setting-workout-reminders'), progressMilestonesToggle: document.getElementById('setting-progress-milestones'), socialNotificationsToggle: document.getElementById('setting-social-notifications'), showMotivationToggle: document.getElementById('setting-show-motivation'), defaultMealTimeInput: document.getElementById('setting-default-meal-time'), videoAutoplayToggle: document.getElementById('setting-video-autoplay'), sleepGoalInput: document.getElementById('setting-sleep-goal'), bedtimeReminderToggle: document.getElementById('setting-bedtime-reminder'), bedtimeReminderTimeInput: document.getElementById('setting-bedtime-reminder-time'), chartRangeSelect: document.getElementById('setting-chart-range'),
-                // Profile Inputs (unchanged)
-                userUsernameInput: document.getElementById('user-username'), userBioInput: document.getElementById('user-bio'), userHeightInput: document.getElementById('user-height'), userWeightInput: document.getElementById('user-weight'), userGenderSelect: document.getElementById('user-gender'), profilePicInput: document.getElementById('profile-picture-input'), profilePicPreview: document.getElementById('profile-picture-preview'), saveProfileBtn: document.getElementById('save-profile-btn'),
+                // Setting Inputs
+                weightUnitSelect: document.getElementById('setting-weight-unit'), 
+                heightUnitSelect: document.getElementById('setting-height-unit'), 
+                distanceUnitSelect: document.getElementById('setting-distance-unit'), 
+                restTimerInput: document.getElementById('setting-rest-timer'), 
+                autoStartTimerToggle: document.getElementById('setting-auto-start-timer'), 
+                waterGlassSizeInput: document.getElementById('setting-water-glass-size'), 
+                workoutRemindersToggle: document.getElementById('setting-workout-reminders'), 
+                progressMilestonesToggle: document.getElementById('setting-progress-milestones'), 
+                socialNotificationsToggle: document.getElementById('setting-social-notifications'), 
+                showMotivationToggle: document.getElementById('setting-show-motivation'), 
+                defaultMealTimeInput: document.getElementById('setting-default-meal-time'), 
+                videoAutoplayToggle: document.getElementById('setting-video-autoplay'), 
+                sleepGoalInput: document.getElementById('setting-sleep-goal'), 
+                bedtimeReminderToggle: document.getElementById('setting-bedtime-reminder'), 
+                bedtimeReminderTimeInput: document.getElementById('setting-bedtime-reminder-time'), 
+                chartRangeSelect: document.getElementById('setting-chart-range'),
+                
+                // --- ADDED: Your Details Form UI ---
+                yourDetailsForm: document.getElementById('your-details-form'),
+                saveYourDetailsBtn: document.getElementById('save-your-details-btn'),
+                genderSelect: document.getElementById('setting-gender'),
+                maleBodyFatGroup: document.getElementById('male-body-fat-group'),
+                femaleBodyFatGroup: document.getElementById('female-body-fat-group'),
+                bodyFatPlaceholder: document.getElementById('body-fat-placeholder'),
             };
 
             // --- CORE & HELPER FUNCTIONS ---
@@ -214,58 +500,337 @@
 
             // --- DATA & SETTINGS (Using LocalStorage) ---
             function loadAppSettings() {
-                const defaults = { weightUnit: 'kg', heightUnit: 'cm', distanceUnit: 'km', defaultRestTimer: 90, autoStartRestTimer: false, waterGlassSize: 250, defaultMealTime: '', videoAutoplay: true, sleepGoal: 8, bedtimeReminder: false, bedtimeReminderTime: '22:00', defaultChartRange: 'all', showMotivation: true, workoutReminders: true, progressMilestones: true, socialNotifications: false, profileVisibility: 'Private', allowFriendRequests: true, };
+                const defaults = { 
+                    weightUnit: 'kg', heightUnit: 'cm', distanceUnit: 'km', 
+                    defaultRestTimer: 90, autoStartRestTimer: false, waterGlassSize: 250, 
+                    defaultMealTime: '', videoAutoplay: true, sleepGoal: 8, 
+                    bedtimeReminder: false, bedtimeReminderTime: '22:00', 
+                    defaultChartRange: 'all', showMotivation: true, workoutReminders: true, 
+                    progressMilestones: true, socialNotifications: false, 
+                    profileVisibility: 'Private', allowFriendRequests: true,
+                };
                 appSettings = { ...defaults, ...JSON.parse(localStorage.getItem('fitTrackAI_appSettings') || '{}') };
+                
+                // --- ADDED: Load userDetails ---
+                const defaultUserDetails = {
+                    gender: '', trainingHistory: '', familiarity: '', howBusy: '', activityLevel: '',
+                    bodyType: '', bodyFat: '', pastAttempts: [], trackingApp: '', experiences: ''
+                };
+                appSettings.userDetails = { ...defaultUserDetails, ...JSON.parse(localStorage.getItem('fitTrackAI_userDetails') || '{}') };
+                // --- END ADDED ---
+
                 applySettingsToUI();
+                loadYourDetailsForm(); // --- ADDED ---
             }
 
             function saveAppSettings() {
-                localStorage.setItem('fitTrackAI_appSettings', JSON.stringify(appSettings));
+                // Separate userDetails from other app settings for saving
+                const userDetails = appSettings.userDetails;
+                const otherSettings = { ...appSettings };
+                delete otherSettings.userDetails;
+
+                localStorage.setItem('fitTrackAI_appSettings', JSON.stringify(otherSettings));
+                localStorage.setItem('fitTrackAI_userDetails', JSON.stringify(userDetails));
+
                 // Dispatch event so other open tabs can update if needed
-                window.dispatchEvent(new StorageEvent('storage', { key: 'fitTrackAI_appSettings', newValue: JSON.stringify(appSettings) }));
+                window.dispatchEvent(new StorageEvent('storage', { key: 'fitTrackAI_appSettings', newValue: JSON.stringify(otherSettings) }));
+                window.dispatchEvent(new StorageEvent('storage', { key: 'fitTrackAI_userDetails', newValue: JSON.stringify(userDetails) }));
             }
 
-            function applySettingsToUI() { /* ...unchanged logic... */ if (ui.weightUnitSelect) ui.weightUnitSelect.value = appSettings.weightUnit; if (ui.heightUnitSelect) ui.heightUnitSelect.value = appSettings.heightUnit; if (ui.distanceUnitSelect) ui.distanceUnitSelect.value = appSettings.distanceUnit; if (ui.showMotivationToggle) ui.showMotivationToggle.checked = appSettings.showMotivation; if (ui.waterGlassSizeInput) ui.waterGlassSizeInput.value = appSettings.waterGlassSize; if (ui.defaultMealTimeInput) ui.defaultMealTimeInput.value = appSettings.defaultMealTime; if (ui.restTimerInput) ui.restTimerInput.value = appSettings.defaultRestTimer; if (ui.autoStartTimerToggle) ui.autoStartTimerToggle.checked = appSettings.autoStartRestTimer; if (ui.videoAutoplayToggle) ui.videoAutoplayToggle.checked = appSettings.videoAutoplay; if (ui.sleepGoalInput) ui.sleepGoalInput.value = appSettings.sleepGoal; if (ui.bedtimeReminderToggle) ui.bedtimeReminderToggle.checked = appSettings.bedtimeReminder; if (ui.bedtimeReminderTimeInput) ui.bedtimeReminderTimeInput.value = appSettings.bedtimeReminderTime; if (ui.chartRangeSelect) ui.chartRangeSelect.value = appSettings.defaultChartRange; if (ui.workoutRemindersToggle) ui.workoutRemindersToggle.checked = appSettings.workoutReminders; if (ui.progressMilestonesToggle) ui.progressMilestonesToggle.checked = appSettings.progressMilestones; }
+            // --- ADDED: Load Your Details Form ---
+            function loadYourDetailsForm() {
+                const details = appSettings.userDetails || {};
+                const form = ui.yourDetailsForm;
+                if (!form) return;
 
-            // --- PROFILE DATA (Using LocalStorage) ---
-            function loadProfileData() {
-                const storedUsername = localStorage.getItem('fitTrackAI_userUsername'); const storedBio = localStorage.getItem('fitTrackAI_userBio'); const storedHeight = localStorage.getItem('fitTrackAI_userHeight'); const storedWeight = localStorage.getItem('fitTrackAI_userWeight'); const storedGender = localStorage.getItem('fitTrackAI_userGender'); const storedPic = localStorage.getItem('fitTrackAI_profilePicture');
-                if(ui.userUsernameInput && storedUsername) ui.userUsernameInput.value = storedUsername; if(ui.userBioInput && storedBio) ui.userBioInput.value = storedBio; if(ui.userHeightInput && storedHeight) ui.userHeightInput.value = storedHeight; if(ui.userWeightInput && storedWeight) ui.userWeightInput.value = storedWeight; if(ui.userGenderSelect && storedGender) ui.userGenderSelect.value = storedGender; if(ui.profilePicPreview && storedPic) ui.profilePicPreview.src = storedPic; else if (ui.profilePicPreview) ui.profilePicPreview.src = 'https://placehold.co/128x128/111111/FFFFFF?text=User';
+                form.querySelector('#setting-gender').value = details.gender || '';
+                form.querySelector('#setting-training-history').value = details.trainingHistory || '';
+                form.querySelector('#setting-fitness-familiarity').value = details.familiarity || '';
+                form.querySelector('#setting-how-busy').value = details.howBusy || '';
+                form.querySelector('#setting-activity-level').value = details.activityLevel || '';
+                form.querySelector('#setting-tracking-app').value = details.trackingApp || '';
+                form.querySelector('#setting-experiences').value = details.experiences || '';
+
+                // Past attempts checkboxes
+                form.querySelectorAll('input[name="past-attempt"]').forEach(cb => {
+                    cb.checked = (details.pastAttempts || []).includes(cb.value);
+                });
+
+                // Body type radio
+                if (details.bodyType) {
+                    const radio = form.querySelector(`input[name="body-type"][value="${details.bodyType}"]`);
+                    if (radio) radio.checked = true;
+                }
+
+                // Body fat radio
+                if (details.bodyFat) {
+                    const radio = form.querySelector(`input[name="body-fat"][value="${details.bodyFat}"]`);
+                    if (radio) radio.checked = true;
+                }
+
+                // Trigger gender change to show correct body fat pickers
+                toggleBodyFatPickers(details.gender);
             }
 
-            function saveProfileData() {
-                const btn = ui.saveProfileBtn; if (!btn) return;
-                btn.disabled = true; const btnText = btn.querySelector('.btn-text'); const loader = btn.querySelector('.loader'); if (btnText) btnText.style.display = 'none'; if (loader) loader.classList.remove('hidden');
-                localStorage.setItem('fitTrackAI_userUsername', ui.userUsernameInput?.value || ''); localStorage.setItem('fitTrackAI_userBio', ui.userBioInput?.value || ''); localStorage.setItem('fitTrackAI_userHeight', ui.userHeightInput?.value || ''); localStorage.setItem('fitTrackAI_userWeight', ui.userWeightInput?.value || ''); localStorage.setItem('fitTrackAI_userGender', ui.userGenderSelect?.value || '');
-                setTimeout(() => { if (btnText) { btnText.textContent = "Saved!"; btnText.style.display = 'inline'; } if (loader) loader.classList.add('hidden'); setTimeout(() => { btn.disabled = false; if (btnText) btnText.textContent = "Save Profile"; }, 1500); }, 500);
-            }
-            if (ui.profilePicInput && ui.profilePicPreview) { ui.profilePicInput.addEventListener('change', (event) => { const file = event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { const imageUrl = e.target.result; if (ui.profilePicPreview) ui.profilePicPreview.src = imageUrl; localStorage.setItem('fitTrackAI_profilePicture', imageUrl); }; reader.readAsDataURL(file); } }); }
-            if (ui.saveProfileBtn) { ui.saveProfileBtn.addEventListener('click', saveProfileData); }
+            // --- ADDED: Save Your Details Form ---
+            function saveYourDetails() {
+                const form = ui.yourDetailsForm;
+                if (!form) return;
 
+                const btn = ui.saveYourDetailsBtn;
+                btn.disabled = true;
+                const btnText = btn.querySelector('.btn-text');
+                const loader = btn.querySelector('.loader');
+                if(btnText) btnText.style.display = 'none';
+                if(loader) loader.classList.remove('hidden');
+
+                const details = {
+                    gender: form.querySelector('#setting-gender').value,
+                    trainingHistory: form.querySelector('#setting-training-history').value,
+                    familiarity: form.querySelector('#setting-fitness-familiarity').value,
+                    howBusy: form.querySelector('#setting-how-busy').value,
+                    activityLevel: form.querySelector('#setting-activity-level').value,
+                    trackingApp: form.querySelector('#setting-tracking-app').value,
+                    experiences: form.querySelector('#setting-experiences').value,
+                    pastAttempts: Array.from(form.querySelectorAll('input[name="past-attempt"]:checked')).map(cb => cb.value),
+                    bodyType: form.querySelector('input[name="body-type"]:checked')?.value || '',
+                    bodyFat: form.querySelector('input[name="body-fat"]:checked')?.value || '',
+                };
+
+                appSettings.userDetails = details;
+                saveAppSettings();
+                
+                setTimeout(() => {
+                    if (btnText) { btnText.textContent = "Saved!"; btnText.style.display = 'inline'; }
+                    if (loader) loader.classList.add('hidden');
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        if (btnText) btnText.textContent = "Save Details";
+                    }, 1500);
+                }, 500);
+            }
+
+            // --- ADDED: Toggle body fat pickers ---
+            function toggleBodyFatPickers(gender) {
+                if (!ui.maleBodyFatGroup || !ui.femaleBodyFatGroup || !ui.bodyFatPlaceholder) return;
+
+                if (gender === 'male') {
+                    ui.maleBodyFatGroup.classList.remove('hidden');
+                    ui.femaleBodyFatGroup.classList.add('hidden');
+                    ui.bodyFatPlaceholder.classList.add('hidden');
+                } else if (gender === 'female') {
+                    ui.maleBodyFatGroup.classList.add('hidden');
+                    ui.femaleBodyFatGroup.classList.remove('hidden');
+                    ui.bodyFatPlaceholder.classList.add('hidden');
+                } else {
+                    ui.maleBodyFatGroup.classList.add('hidden');
+                    ui.femaleBodyFatGroup.classList.add('hidden');
+                    ui.bodyFatPlaceholder.classList.remove('hidden');
+                }
+            }
+
+
+            function applySettingsToUI() { 
+                if (ui.weightUnitSelect) ui.weightUnitSelect.value = appSettings.weightUnit; 
+                if (ui.heightUnitSelect) ui.heightUnitSelect.value = appSettings.heightUnit; 
+                if (ui.distanceUnitSelect) ui.distanceUnitSelect.value = appSettings.distanceUnit; 
+                if (ui.showMotivationToggle) ui.showMotivationToggle.checked = appSettings.showMotivation; 
+                if (ui.waterGlassSizeInput) ui.waterGlassSizeInput.value = appSettings.waterGlassSize; 
+                if (ui.defaultMealTimeInput) ui.defaultMealTimeInput.value = appSettings.defaultMealTime; 
+                if (ui.restTimerInput) ui.restTimerInput.value = appSettings.defaultRestTimer; 
+                if (ui.autoStartTimerToggle) ui.autoStartTimerToggle.checked = appSettings.autoStartRestTimer; 
+                if (ui.videoAutoplayToggle) ui.videoAutoplayToggle.checked = appSettings.videoAutoplay; 
+                if (ui.sleepGoalInput) ui.sleepGoalInput.value = appSettings.sleepGoal; 
+                if (ui.bedtimeReminderToggle) ui.bedtimeReminderToggle.checked = appSettings.bedtimeReminder; 
+                if (ui.bedtimeReminderTimeInput) ui.bedtimeReminderTimeInput.value = appSettings.bedtimeReminderTime; 
+                if (ui.chartRangeSelect) ui.chartRangeSelect.value = appSettings.defaultChartRange; 
+                if (ui.workoutRemindersToggle) ui.workoutRemindersToggle.checked = appSettings.workoutReminders; 
+                if (ui.progressMilestonesToggle) ui.progressMilestonesToggle.checked = appSettings.progressMilestones; 
+            }
+            
             // --- THEME ---
-            function applyTheme(theme) { /* ...unchanged... */ document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('fitTrackAI_theme', theme); ui.themeLightBtn?.classList.toggle('active', theme === 'light'); ui.themeDarkBtn?.classList.toggle('active', theme === 'dark'); window.dispatchEvent(new StorageEvent('storage', { key: 'fitTrackAI_theme', newValue: theme })); }
+            function applyTheme(theme) { 
+                document.documentElement.setAttribute('data-theme', theme); 
+                localStorage.setItem('fitTrackAI_theme', theme); 
+                ui.themeLightBtn?.classList.toggle('active', theme === 'light'); 
+                ui.themeDarkBtn?.classList.toggle('active', theme === 'dark'); 
+                window.dispatchEvent(new StorageEvent('storage', { key: 'fitTrackAI_theme', newValue: theme })); 
+            }
 
             // --- NAVIGATION ---
-            function navigate(targetId) { /* ...unchanged logic... */ ui.contentPanels.forEach(panel => panel.classList.remove('active')); const targetPanel = document.getElementById(targetId); if (targetPanel) { targetPanel.classList.add('active'); } else { document.getElementById('general-settings-content')?.classList.add('active'); targetId = 'general-settings-content'; } ui.sidebar?.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active')); ui.sidebar?.querySelector(`[data-target="${targetId}"]`)?.classList.add('active'); ui.mobileNav?.querySelectorAll('.mobile-sidebar-link').forEach(link => link.classList.remove('active')); const activeMobileLink = ui.mobileNav?.querySelector(`[data-target="${targetId}"]`); if (activeMobileLink) { activeMobileLink.classList.add('active'); activeMobileLink.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } localStorage.setItem('fitTrackAI_activeSettingsTab', targetId); }
-            function setupNavigation() { /* ...unchanged... */ [ui.sidebar, ui.mobileNav].forEach(bar => { if (bar) { bar.addEventListener('click', e => { const link = e.target.closest('a[data-target]'); if (link && link.dataset.target) { e.preventDefault(); navigate(link.dataset.target); } }); } }); }
+            function navigate(targetId) { 
+                ui.contentPanels.forEach(panel => panel.classList.remove('active')); 
+                const targetPanel = document.getElementById(targetId); 
+                if (targetPanel) { 
+                    targetPanel.classList.add('active'); 
+                } else { 
+                    document.getElementById('general-settings-content')?.classList.add('active'); 
+                    targetId = 'general-settings-content'; 
+                } 
+                ui.sidebar?.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active')); 
+                ui.sidebar?.querySelector(`[data-target="${targetId}"]`)?.classList.add('active'); 
+                ui.mobileNav?.querySelectorAll('.mobile-sidebar-link').forEach(link => link.classList.remove('active')); 
+                const activeMobileLink = ui.mobileNav?.querySelector(`[data-target="${targetId}"]`); 
+                if (activeMobileLink) { 
+                    activeMobileLink.classList.add('active'); 
+                    activeMobileLink.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); 
+                } 
+                localStorage.setItem('fitTrackAI_activeSettingsTab', targetId); 
+            }
+            
+            function setupNavigation() { 
+                [ui.sidebar, ui.mobileNav].forEach(bar => { 
+                    if (bar) { 
+                        bar.addEventListener('click', e => { 
+                            const link = e.target.closest('a[data-target]'); 
+                            if (link && link.dataset.target) { 
+                                e.preventDefault(); 
+                                navigate(link.dataset.target); 
+                            } 
+                        }); 
+                    } 
+                }); 
+            }
 
-            // --- EVENT LISTENERS (unchanged logic) ---
+            // --- EVENT LISTENERS ---
             document.getElementById('alert-modal-ok-btn')?.addEventListener('click', () => hideModal(ui.alertModal));
             document.getElementById('confirm-modal-cancel-btn')?.addEventListener('click', () => hideModal(ui.confirmModal));
             document.getElementById('confirm-modal-confirm-btn')?.addEventListener('click', () => { if (confirmCallback) confirmCallback(); hideModal(ui.confirmModal); });
 
-            ui.backupDataBtn?.addEventListener('click', () => { /* ...unchanged backup logic... */ try { const allData = {}; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key && key.startsWith('fitTrackAI_')) { allData[key] = localStorage.getItem(key); } } const dataStr = JSON.stringify(allData, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `kowbi_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url); showCustomAlert('Backup Successful', 'Your data has been downloaded.'); } catch (error) { showCustomAlert('Backup Failed', `Could not create backup file: ${error.message}`); } });
-            ui.restoreDataInput?.addEventListener('change', (e) => { /* ...unchanged restore logic... */ const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { try { const backupData = JSON.parse(event.target.result); showConfirmModal('Restore Data?', 'This will overwrite ALL current app data with the backup file. Continue?', () => { const keysToRemove = []; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key && key.startsWith('fitTrackAI_')) { keysToRemove.push(key); } } keysToRemove.forEach(key => localStorage.removeItem(key)); for (const key in backupData) { if (key.startsWith('fitTrackAI_')) { localStorage.setItem(key, backupData[key]); } } showCustomAlert('Restore Complete', 'Data restored. Reloading the app...'); setTimeout(() => location.reload(), 2000); }); } catch (error) { showCustomAlert('Restore Failed', `Invalid backup file or error parsing data: ${error.message}`); } finally { e.target.value = null; } }; reader.onerror = () => { showCustomAlert('Restore Failed', 'Could not read the backup file.'); e.target.value = null; }; reader.readAsText(file); } });
-            ui.deleteAllDataBtn?.addEventListener('click', () => { /* ...unchanged delete logic... */ showConfirmModal('DELETE ALL DATA?', 'This is PERMANENT and will remove all your logs, settings, and profile information. Are you absolutely sure?', () => { const keysToRemove = []; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key && key.startsWith('fitTrackAI_')) { keysToRemove.push(key); } } keysToRemove.forEach(key => localStorage.removeItem(key)); showCustomAlert('Data Deleted', 'All app data has been removed. Reloading...'); setTimeout(() => location.reload(), 2000); }); });
+            ui.backupDataBtn?.addEventListener('click', () => { 
+                try { 
+                    const allData = {}; 
+                    for (let i = 0; i < localStorage.length; i++) { 
+                        const key = localStorage.key(i); 
+                        if (key && key.startsWith('fitTrackAI_')) { 
+                            allData[key] = localStorage.getItem(key); 
+                        } 
+                    } 
+                    const dataStr = JSON.stringify(allData, null, 2); 
+                    const blob = new Blob([dataStr], { type: 'application/json' }); 
+                    const url = URL.createObjectURL(blob); 
+                    const a = document.createElement('a'); 
+                    a.href = url; a.download = `kowbi_backup_${new Date().toISOString().split('T')[0]}.json`; 
+                    a.click(); 
+                    URL.revokeObjectURL(url); 
+                    showCustomAlert('Backup Successful', 'Your data has been downloaded.'); 
+                } catch (error) { 
+                    showCustomAlert('Backup Failed', `Could not create backup file: ${error.message}`); 
+                } 
+            });
+            
+            ui.restoreDataInput?.addEventListener('change', (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader(); 
+                    reader.onload = (event) => { 
+                        try { 
+                            const backupData = JSON.parse(event.target.result); 
+                            showConfirmModal('Restore Data?', 'This will overwrite ALL current app data with the backup file. Continue?', () => { 
+                                const keysToRemove = []; 
+                                for (let i = 0; i < localStorage.length; i++) { 
+                                    const key = localStorage.key(i); 
+                                    if (key && key.startsWith('fitTrackAI_')) { 
+                                        keysToRemove.push(key); 
+                                    } 
+                                } 
+                                keysToRemove.forEach(key => localStorage.removeItem(key)); 
+                                for (const key in backupData) { 
+                                    if (key.startsWith('fitTrackAI_')) { 
+                                        localStorage.setItem(key, backupData[key]); 
+                                    } 
+                                } 
+                                showCustomAlert('Restore Complete', 'Data restored. Reloading the app...'); 
+                                setTimeout(() => location.reload(), 2000); 
+                            }); 
+                        } catch (error) { 
+                            showCustomAlert('Restore Failed', `Invalid backup file or error parsing data: ${error.message}`); 
+                        } finally { 
+                            e.target.value = null; 
+                        } 
+                    }; 
+                    reader.onerror = () => { 
+                        showCustomAlert('Restore Failed', 'Could not read the backup file.'); 
+                        e.target.value = null; 
+                    }; 
+                    reader.readAsText(file); 
+                } 
+            });
+            
+            ui.deleteAllDataBtn?.addEventListener('click', () => { 
+                showConfirmModal('DELETE ALL DATA?', 'This is PERMANENT and will remove all your logs, settings, and profile information. Are you absolutely sure?', () => { 
+                    const keysToRemove = []; 
+                    for (let i = 0; i < localStorage.length; i++) { 
+                        const key = localStorage.key(i); 
+                        if (key && key.startsWith('fitTrackAI_')) { 
+                            keysToRemove.push(key); 
+                        } 
+                    } 
+                    keysToRemove.forEach(key => localStorage.removeItem(key)); 
+                    showCustomAlert('Data Deleted', 'All app data has been removed. Reloading...'); 
+                    setTimeout(() => location.reload(), 2000); 
+                }); 
+            });
 
             ui.themeLightBtn?.addEventListener('click', () => applyTheme('light'));
             ui.themeDarkBtn?.addEventListener('click', () => applyTheme('dark'));
 
-            function setupSettingsListeners() { /* ...unchanged listener setup... */ const inputsToWatch=[{element:ui.weightUnitSelect,key:'weightUnit',type:'value'},{element:ui.heightUnitSelect,key:'heightUnit',type:'value'},{element:ui.distanceUnitSelect,key:'distanceUnit',type:'value'},{element:ui.showMotivationToggle,key:'showMotivation',type:'checked'},{element:ui.waterGlassSizeInput,key:'waterGlassSize',type:'number',min:50},{element:ui.defaultMealTimeInput,key:'defaultMealTime',type:'value'},{element:ui.restTimerInput,key:'defaultRestTimer',type:'number',min:15},{element:ui.autoStartTimerToggle,key:'autoStartRestTimer',type:'checked'},{element:ui.videoAutoplayToggle,key:'videoAutoplay',type:'checked'},{element:ui.sleepGoalInput,key:'sleepGoal',type:'number',min:4,max:12,step:0.5},{element:ui.bedtimeReminderToggle,key:'bedtimeReminder',type:'checked'},{element:ui.bedtimeReminderTimeInput,key:'bedtimeReminderTime',type:'value'},{element:ui.chartRangeSelect,key:'defaultChartRange',type:'value'},{element:ui.workoutRemindersToggle,key:'workoutReminders',type:'checked'},{element:ui.progressMilestonesToggle,key:'progressMilestones',type:'checked'},];inputsToWatch.forEach(({element,key,type,min,max,step})=>{if(element){element.addEventListener('change',(e)=>{let value;if(type==='checked'){value=e.target.checked;}else if(type==='number'){value=parseFloat(e.target.value)||0;if(min!==undefined&&value<min)value=min;if(max!==undefined&&value>max)value=max;if(step)value=Math.round(value/step)*step;e.target.value=value;}else{value=e.target.value;}appSettings[key]=value;saveAppSettings();});}}); }
+            function setupSettingsListeners() { 
+                const inputsToWatch = [
+                    { element: ui.weightUnitSelect, key: 'weightUnit', type: 'value' },
+                    { element: ui.heightUnitSelect, key: 'heightUnit', type: 'value' },
+                    { element: ui.distanceUnitSelect, key: 'distanceUnit', type: 'value' },
+                    { element: ui.showMotivationToggle, key: 'showMotivation', type: 'checked' },
+                    { element: ui.waterGlassSizeInput, key: 'waterGlassSize', type: 'number', min: 50 },
+                    { element: ui.defaultMealTimeInput, key: 'defaultMealTime', type: 'value' },
+                    { element: ui.restTimerInput, key: 'defaultRestTimer', type: 'number', min: 15 },
+                    { element: ui.autoStartTimerToggle, key: 'autoStartRestTimer', type: 'checked' },
+                    { element: ui.videoAutoplayToggle, key: 'videoAutoplay', type: 'checked' },
+                    { element: ui.sleepGoalInput, key: 'sleepGoal', type: 'number', min: 4, max: 12, step: 0.5 },
+                    { element: ui.bedtimeReminderToggle, key: 'bedtimeReminder', type: 'checked' },
+                    { element: ui.bedtimeReminderTimeInput, key: 'bedtimeReminderTime', type: 'value' },
+                    { element: ui.chartRangeSelect, key: 'defaultChartRange', type: 'value' },
+                    { element: ui.workoutRemindersToggle, key: 'workoutReminders', type: 'checked' },
+                    { element: ui.progressMilestonesToggle, key: 'progressMilestones', type: 'checked' },
+                ];
+                
+                inputsToWatch.forEach(({ element, key, type, min, max, step }) => {
+                    if (element) {
+                        element.addEventListener('change', (e) => {
+                            let value;
+                            if (type === 'checked') {
+                                value = e.target.checked;
+                            } else if (type === 'number') {
+                                value = parseFloat(e.target.value) || 0;
+                                if (min !== undefined && value < min) value = min;
+                                if (max !== undefined && value > max) value = max;
+                                if (step) value = Math.round(value / step) * step;
+                                e.target.value = value;
+                            } else {
+                                value = e.target.value;
+                            }
+                            appSettings[key] = value;
+                            saveAppSettings();
+                        });
+                    }
+                });
+
+                // --- ADDED: Listeners for new form ---
+                if (ui.yourDetailsForm) {
+                    ui.yourDetailsForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        saveYourDetails();
+                    });
+                }
+                if (ui.genderSelect) {
+                    ui.genderSelect.addEventListener('change', (e) => {
+                        toggleBodyFatPickers(e.target.value);
+                    });
+                }
+            }
 
             // --- INITIALIZATION ---
             loadAppSettings();
-            loadProfileData();
             applyTheme(localStorage.getItem('fitTrackAI_theme') || 'dark');
             setupNavigation();
             setupSettingsListeners();
@@ -281,3 +846,4 @@
 </body>
 
 </html>
+
