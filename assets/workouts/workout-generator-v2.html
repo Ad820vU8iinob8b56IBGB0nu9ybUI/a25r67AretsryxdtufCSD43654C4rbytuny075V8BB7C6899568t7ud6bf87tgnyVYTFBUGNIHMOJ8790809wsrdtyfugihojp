@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Generator - AI & Manual Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Page-specific styles for workout generator */
+
+        /* Icon button */
+        .btn-icon-sm { padding: 0.25rem; border-radius: 0.375rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--secondary-text); }
+        .btn-icon-sm:hover { background-color: var(--border-color); color: var(--primary-text); }
+
+        /* Checkbox & Radio Styles */
+        .form-checkbox, .form-radio { height: 1rem; width: 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: #3B82F6; flex-shrink: 0; }
+        .form-checkbox:checked, .form-radio:checked { background-color: #3B82F6; border-color: #3B82F6; }
+        .form-checkbox { border-radius: 0.25rem; }
+        .form-radio { border-radius: 9999px; }
+
+        /* Mode Selection Cards */
+        .mode-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .mode-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--accent) 10%, transparent);
+        }
+        .mode-card.active {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+        }
+
+        /* Wizard Pages */
+        .wizard-page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .wizard-page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--input-bg);
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--accent);
+            border-radius: 99px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* AI Guidance Panel */
+        .ai-guidance-panel {
+            background: color-mix(in srgb, var(--accent) 10%, var(--input-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        .ai-tip-icon {
+            flex-shrink: 0;
+            color: var(--accent);
+            margin-top: 0.25rem;
+        }
+
+        /* Form Input Error State */
+        .form-input.error, .form-select.error {
+            border-color: var(--validation-error) !important;
+        }
+        .form-input.error:focus, .form-select.error:focus {
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--validation-error) 30%, transparent) !important;
+        }
+
+        /* Checkbox & Radio Groups */
+        .checkbox-group, .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .checkbox-item:hover, .radio-item:hover {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+        }
+        .checkbox-item input:checked ~ label,
+        .radio-item input:checked ~ label {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-text);
+        }
+
+        /* Exercise Card */
+        .exercise-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .exercise-card:hover {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 10%, var(--input-bg));
+        }
+        .exercise-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: var(--primary-text);
+        }
+        .exercise-meta {
+            font-size: 0.75rem;
+            color: var(--secondary-text);
+        }
+
+        /* Utility Classes */
+        .grid-1 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid color-mix(in srgb, var(--accent) 20%, transparent);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--nav-footer-height, 0px) + 1rem);
+            right: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+            z-index: 100;
+        }
+        .toast.success {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        .toast.error {
+            border-color: var(--validation-error);
+            color: var(--validation-error);
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .modal-content { padding: 2rem; }
+        }
+        .modal-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-text);
+        }
+
+        /* Slider */
+        .slider-container { margin: 1rem 0; }
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+        }
+        .slider-value {
+            text-align: center;
+            color: var(--accent);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .split-view { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .toast { right: 0.5rem; left: 0.5rem; max-width: none; }
+            .mode-card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- MODE SELECTION SCREEN -->
+        <div id="modeSelectionScreen" class="wizard-page active">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h1 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem;">Create Your Workout</h1>
+                <p style="color: var(--secondary-text); font-size: 1.125rem;">Choose how you'd like to build your perfect workout</p>
+            </div>
+
+            <div class="grid-2">
+                <!-- AI Mode Card -->
+                <div class="mode-card" onclick="selectMode('ai')">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI-Guided</h2>
+                        <p style="color: var(--secondary-text); margin-bottom: 1rem; font-size: 0.875rem;">Answer a few questions and let AI create your perfect workout</p>
+                        <span style="display: inline-block; background: var(--success); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;">Recommended</span>
+                        <button class="btn btn-primary">Get Started</button>
+                    </div>
+                </div>
+
+                <!-- Manual Mode Card -->
+                <div class="mode-card" onclick="selectMode('manual')">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
+                        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Manual Builder</h2>
+                        <p style="color: var(--secondary-text); margin-bottom: 1rem; font-size: 0.875rem;">Hand-pick exercises and build your own workout from scratch</p>
+                        <button class="btn btn-primary">Start Building</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="#" style="color: var(--secondary-text); font-size: 0.875rem; text-decoration: none; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">View Saved Workouts</a>
+            </div>
+        </div>
+
+        <!-- AI MODE PAGES -->
+        <!-- AI Page 1: Basic Profile -->
+        <div id="aiPage1" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 20%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Let's Get to Know You</h1>
+                <p style="color: var(--secondary-text);">Answer a few quick questions to personalize your workout</p>
+            </div>
+
+            <div class="ai-guidance-panel">
+                <svg class="ai-tip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 16 16 12 12 8"></polyline>
+                    <polyline points="8 12 12 16 16 12"></polyline>
+                </svg>
+                <div>
+                    <p id="aiTip1" style="font-size: 0.875rem;">Most beginners start with general fitness and adjust later based on results</p>
+                </div>
+            </div>
+
+            <form id="aiForm1" class="grid-1">
+                <!-- Your Goal -->
+                <div>
+                    <label class="form-label required">What's Your Primary Goal?</label>
+                    <div class="radio-group" id="goalGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="muscle_gain" class="form-radio"> <span>💪 Muscle Gain</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="fat_loss" class="form-radio"> <span>🔥 Fat Loss</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="strength" class="form-radio"> <span>⚡ Strength</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="endurance" class="form-radio"> <span>🏃 Endurance</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="general_fitness" class="form-radio" checked> <span>❤️ General Fitness</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="goal" value="hypertrophy" class="form-radio"> <span>🎯 Hypertrophy</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="goalError"></div>
+                </div>
+
+                <!-- Experience Level -->
+                <div>
+                    <label class="form-label required">What's Your Experience Level?</label>
+                    <div class="radio-group" id="experienceGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="experience" value="beginner" class="form-radio" checked> <span>Beginner (0-1 year)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="experience" value="intermediate" class="form-radio"> <span>Intermediate (1-3 years)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="experience" value="advanced" class="form-radio"> <span>Advanced (3+ years)</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="experienceError"></div>
+                </div>
+
+                <!-- Days Per Week -->
+                <div>
+                    <label class="form-label required">How Many Days Per Week Can You Train?</label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="daysPerWeek" name="daysPerWeek" min="1" max="7" value="3" oninput="updateSliderValue('daysPerWeek', 'daysValue', 'days')">
+                        <div class="slider-value"><span id="daysValue">3</span> days/week</div>
+                    </div>
+                </div>
+
+                <!-- Minutes Per Workout -->
+                <div>
+                    <label class="form-label required">How Long Per Workout? (minutes)</label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="durationPerSession" name="durationPerSession" min="20" max="180" value="45" oninput="updateSliderValue('durationPerSession', 'durationValue', 'min')">
+                        <div class="slider-value"><span id="durationValue">45</span> minutes</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 0.5rem; margin-top: 0.75rem;">
+                        <button type="button" class="btn btn-secondary btn-small" onclick="setDuration(30)">30 min</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="setDuration(45)">45 min</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="setDuration(60)">60 min</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="setDuration(90)">90 min</button>
+                    </div>
+                </div>
+
+                <!-- Rest Between Sets -->
+                <div>
+                    <label class="form-label">Rest Between Sets (seconds)</label>
+                    <input type="number" name="restBetweenSets" class="form-input" placeholder="e.g., 90" value="90" min="30" max="300">
+                    <p style="font-size: 0.75rem; color: var(--secondary-text); margin-top: 0.25rem;">Default: 90 seconds | Max: 5 minutes</p>
+                </div>
+
+                <!-- Include Warmup & Cooldown -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="includeWarmup" class="form-checkbox" checked> <label style="cursor: pointer; flex: 1;">Include Warmup</label>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="includeCooldown" class="form-checkbox" checked> <label style="cursor: pointer; flex: 1;">Include Cooldown</label>
+                    </label>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="goBackToMode()">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('aiForm1', 1)">Next</button>
+            </div>
+        </div>
+
+        <!-- AI Page 2: Equipment & Environment -->
+        <div id="aiPage2" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 35%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">What Equipment Do You Have?</h1>
+                <p style="color: var(--secondary-text);">This helps us select appropriate exercises</p>
+            </div>
+
+            <div class="ai-guidance-panel">
+                <svg class="ai-tip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 16 16 12 12 8"></polyline>
+                    <polyline points="8 12 12 16 16 12"></polyline>
+                </svg>
+                <div>
+                    <p id="aiTip2" style="font-size: 0.875rem;">More equipment = more variety in your workouts</p>
+                </div>
+            </div>
+
+            <form id="aiForm2" class="grid-1">
+                <!-- Training Location -->
+                <div>
+                    <label class="form-label required">Where Will You Train?</label>
+                    <div class="radio-group" id="locationGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="home" class="form-radio"> <span>🏠 Home</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="gym" class="form-radio" checked> <span>🏋️ Gym</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="both" class="form-radio"> <span>🏠🏋️ Both</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="locationError"></div>
+                </div>
+
+                <!-- Available Equipment -->
+                <div>
+                    <label class="form-label required">Available Equipment</label>
+                    <div class="checkbox-group" id="equipmentGroup">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="dumbbells" class="form-checkbox" checked> <span>Dumbbells</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="barbell" class="form-checkbox" checked> <span>Barbell</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="bodyweight" class="form-checkbox" checked> <span>Bodyweight</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="machines" class="form-checkbox"> <span>Machines</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="cables" class="form-checkbox"> <span>Cables</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="bands" class="form-checkbox"> <span>Resistance Bands</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="kettlebells" class="form-checkbox"> <span>Kettlebells</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="suspension" class="form-checkbox"> <span>Suspension Training</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="equipmentError"></div>
+                </div>
+
+                <!-- Injuries/Joint Concerns -->
+                <div>
+                    <label class="form-label">Any Joint Concerns or Injuries?</label>
+                    <div class="checkbox-group" id="jointConcernsGroup">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="none" class="form-checkbox" checked> <span>None</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="lower_back" class="form-checkbox"> <span>Lower Back</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="knees" class="form-checkbox"> <span>Knees</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="shoulders" class="form-checkbox"> <span>Shoulders</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="elbows" class="form-checkbox"> <span>Elbows</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="jointConcerns" value="wrists" class="form-checkbox"> <span>Wrists</span>
+                        </label>
+                    </div>
+                    <div style="margin-top: 0.75rem;">
+                        <input type="text" name="customJointConcerns" class="form-input" placeholder="Other concerns (max 50 chars)" maxlength="50">
+                    </div>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage(1)">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('aiForm2', 2)">Next</button>
+            </div>
+        </div>
+
+        <!-- AI Page 3: Preferences & Avoidances -->
+        <div id="aiPage3" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 50%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Fine-Tune Your Preferences</h1>
+                <p style="color: var(--secondary-text);">Customize your workout further</p>
+            </div>
+
+            <div class="ai-guidance-panel">
+                <svg class="ai-tip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 16 16 12 12 8"></polyline>
+                    <polyline points="8 12 12 16 16 12"></polyline>
+                </svg>
+                <div>
+                    <p id="aiTip3" style="font-size: 0.875rem;">More focus areas = more balanced workout</p>
+                </div>
+            </div>
+
+            <form id="aiForm3" class="grid-1">
+                <!-- Primary Focus Areas -->
+                <div>
+                    <label class="form-label required">Focus Areas (Select at least 1)</label>
+                    <div class="checkbox-group" id="focusAreasGroup">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="chest" class="form-checkbox"> <span>Chest</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="back" class="form-checkbox"> <span>Back</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="shoulders" class="form-checkbox"> <span>Shoulders</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="biceps" class="form-checkbox"> <span>Biceps</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="triceps" class="form-checkbox"> <span>Triceps</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="forearms" class="form-checkbox"> <span>Forearms</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="quadriceps" class="form-checkbox"> <span>Quadriceps</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="hamstrings" class="form-checkbox"> <span>Hamstrings</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="glutes" class="form-checkbox"> <span>Glutes</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="calves" class="form-checkbox"> <span>Calves</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="abdominals" class="form-checkbox"> <span>Abdominals</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="cardio" class="form-checkbox"> <span>Cardio</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="focusAreas" value="core" class="form-checkbox"> <span>Core</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="focusAreasError"></div>
+                </div>
+
+                <!-- Rep Range Preference -->
+                <div>
+                    <label class="form-label required">Rep Range Preference</label>
+                    <div class="radio-group" id="repRangeGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="repRange" value="heavy_strength" class="form-radio"> <span>⚡ Heavy Strength (3-6 reps)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="repRange" value="hypertrophy" class="form-radio" checked> <span>💪 Hypertrophy (8-12 reps)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="repRange" value="endurance" class="form-radio"> <span>🔥 Endurance (15-20 reps)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="repRange" value="mixed" class="form-radio"> <span>🔄 Mixed (Varies)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Exercises to Avoid -->
+                <div>
+                    <label class="form-label">Exercises to Avoid</label>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <input type="text" id="exerciseToAvoid" class="form-input" placeholder="Type exercise name..." style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="addExerciseToAvoid()" style="width: 100px;">Add</button>
+                    </div>
+                    <div id="avoidedExercisesList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                </div>
+
+                <!-- Cardio Preference -->
+                <div>
+                    <label class="form-label">Cardio Preference</label>
+                    <div class="radio-group" id="cardioGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="cardioPreference" value="minimal" class="form-radio"> <span>Minimal (0-10%)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="cardioPreference" value="moderate" class="form-radio" checked> <span>Moderate (20-30%)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="cardioPreference" value="high" class="form-radio"> <span>High (40%+)</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage(2)">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('aiForm3', 3)">Next</button>
+            </div>
+        </div>
+
+        <!-- AI Page 4: Workout Schedule Structure -->
+        <div id="aiPage4" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 65%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Workout Schedule & Split</h1>
+                <p style="color: var(--secondary-text);">Structure your training week</p>
+            </div>
+
+            <form id="aiForm4" class="grid-1">
+                <!-- Training Split Type -->
+                <div>
+                    <label class="form-label required">Training Split Type</label>
+                    <div class="radio-group" id="splitTypeGroup">
+                        <label class="radio-item">
+                            <input type="radio" name="splitType" value="full_body" class="form-radio"> <span>🏋️ Full Body (all muscle groups per session)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="splitType" value="upper_lower" class="form-radio" checked> <span>⬆️⬇️ Upper/Lower</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="splitType" value="ppl" class="form-radio"> <span>🔄 Push/Pull/Legs</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="splitType" value="body_part" class="form-radio"> <span>🎯 Body Part Split</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="splitTypeError"></div>
+                </div>
+
+                <!-- Schedule Layout - Days Selection -->
+                <div>
+                    <label class="form-label required">Which Days Will You Train?</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="monday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Mon</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="tuesday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Tue</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="wednesday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Wed</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="thursday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Thu</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="friday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Fri</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="saturday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Sat</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="sunday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Sun</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="scheduleDaysError"></div>
+                </div>
+
+                <!-- Advanced Options (Collapsible) -->
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" style="width: auto; display: inline-flex; gap: 0.5rem;" onclick="toggleAdvancedOptions()">
+                        <span>⚙️ Advanced Options</span>
+                        <span id="advancedToggleIcon" style="transform: rotate(0deg); transition: transform 0.3s;">▼</span>
+                    </button>
+
+                    <div id="advancedOptions" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.5rem;">
+                        <div>
+                            <label class="form-label">Intensity Level</label>
+                            <div class="radio-group" id="intensityGroup">
+                                <label class="radio-item">
+                                    <input type="radio" name="intensity" value="conservative" class="form-radio"> <span>Conservative (lower RPE)</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="intensity" value="moderate" class="form-radio" checked> <span>Moderate (balanced)</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="intensity" value="aggressive" class="form-radio"> <span>Aggressive (high intensity)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="allowExerciseSwaps" class="form-checkbox" checked> <span>Allow similar exercises to be swapped</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage(3)">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('aiForm4', 4)">Next</button>
+            </div>
+        </div>
+
+        <!-- AI Page 5: Review & Generate -->
+        <div id="aiPage5" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 80%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Review Your Preferences</h1>
+                <p style="color: var(--secondary-text);">Make sure everything looks good before generating</p>
+            </div>
+
+            <div id="reviewSummary" class="card">
+                <!-- Summary will be populated here -->
+            </div>
+
+            <div class="ai-guidance-panel">
+                <svg class="ai-tip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 16 16 12 12 8"></polyline>
+                    <polyline points="8 12 12 16 16 12"></polyline>
+                </svg>
+                <div>
+                    <p id="aiTip5" style="font-size: 0.875rem;">Ready to create? Based on all your inputs, we'll generate a personalized workout.</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage(4)">Back</button>
+                <button class="btn btn-primary" onclick="generateAIWorkout()">Generate Workout</button>
+            </div>
+        </div>
+
+        <!-- AI Page 6: Results -->
+        <div id="aiPage6" class="wizard-page">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;" id="workoutName">Your Personalized Workout</h1>
+                <p style="color: var(--secondary-text); margin-bottom: 1rem;" id="workoutReasoning"></p>
+                <p style="color: var(--accent); font-weight: 500;" id="workoutTimeline"></p>
+            </div>
+
+            <div id="resultsContainer">
+                <!-- Workout will be populated here -->
+            </div>
+
+            <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="startFresh()">Start Fresh</button>
+                <button class="btn btn-secondary" onclick="downloadPDF()" style="gap: 0.5rem; display: inline-flex; align-items: center; justify-content: center;">
+                    📄 Download PDF
+                </button>
+                <button class="btn btn-primary" onclick="saveWorkout()">Save Workout</button>
+            </div>
+        </div>
+
+        <!-- MANUAL MODE PAGES -->
+        <!-- Manual Page 1: Basic Setup -->
+        <div id="manualPage1" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 25%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Build Your Workout</h1>
+                <p style="color: var(--secondary-text);">Create a custom workout from scratch</p>
+            </div>
+
+            <form id="manualForm1" class="grid-1">
+                <!-- Workout Name -->
+                <div>
+                    <label class="form-label required">Workout Name</label>
+                    <input type="text" name="workoutName" class="form-input" placeholder="e.g., Monday Upper Body" maxlength="60" required>
+                    <div class="error-message" id="workoutNameError"></div>
+                </div>
+
+                <!-- Days Selection -->
+                <div>
+                    <label class="form-label required">Which Days Will You Train?</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="monday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Mon</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="tuesday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Tue</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="wednesday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Wed</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="thursday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Thu</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="friday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Fri</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="saturday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Sat</span>
+                        </label>
+                        <label class="checkbox-item" style="text-align: center; padding: 1rem 0.5rem;">
+                            <input type="checkbox" name="scheduleDays" value="sunday" class="form-checkbox" style="display: block; margin: 0 auto 0.5rem auto;"> <span>Sun</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="scheduleDaysError"></div>
+                </div>
+
+                <!-- Training Location -->
+                <div>
+                    <label class="form-label required">Where Will You Train?</label>
+                    <div class="radio-group" id="locationGroupManual">
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="home" class="form-radio"> <span>Home</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="gym" class="form-radio" checked> <span>Gym</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="location" value="both" class="form-radio"> <span>Both</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Available Equipment -->
+                <div>
+                    <label class="form-label required">Available Equipment</label>
+                    <div class="checkbox-group" id="equipmentGroupManual">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="dumbbells" class="form-checkbox" checked> <span>Dumbbells</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="barbell" class="form-checkbox" checked> <span>Barbell</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="bodyweight" class="form-checkbox" checked> <span>Bodyweight</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="machines" class="form-checkbox"> <span>Machines</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="cables" class="form-checkbox"> <span>Cables</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="bands" class="form-checkbox"> <span>Resistance Bands</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="kettlebells" class="form-checkbox"> <span>Kettlebells</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="equipment" value="suspension" class="form-checkbox"> <span>Suspension Training</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="equipmentErrorManual"></div>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="goBackToMode()">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('manualForm1', 'M1')">Next</button>
+            </div>
+        </div>
+
+        <!-- Manual Page 2: Timing & Recovery -->
+        <div id="manualPage2" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 50%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Timing & Recovery</h1>
+                <p style="color: var(--secondary-text);">Set workout duration and rest periods</p>
+            </div>
+
+            <form id="manualForm2" class="grid-1">
+                <!-- Target Duration -->
+                <div>
+                    <label class="form-label required">Target Duration (minutes)</label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" name="targetDuration" min="20" max="180" value="45" oninput="updateSliderValue('targetDuration', 'targetDurationValue', 'min')">
+                        <div class="slider-value"><span id="targetDurationValue">45</span> minutes</div>
+                    </div>
+                </div>
+
+                <!-- Warmup -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="includeWarmup" class="form-checkbox" checked> <span>Include Warmup</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="form-label">Duration (min)</label>
+                        <input type="number" name="warmupDuration" class="form-input" value="5" min="0" max="15">
+                    </div>
+                </div>
+
+                <!-- Cooldown -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="includeCooldown" class="form-checkbox" checked> <span>Include Cooldown</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="form-label">Duration (min)</label>
+                        <input type="number" name="cooldownDuration" class="form-input" value="5" min="0" max="15">
+                    </div>
+                </div>
+
+                <!-- Rest Between Sets -->
+                <div>
+                    <label class="form-label">Rest Between Sets</label>
+                    <select name="restBetweenSets" class="form-select">
+                        <option value="30">30 seconds</option>
+                        <option value="45">45 seconds</option>
+                        <option value="60">60 seconds</option>
+                        <option value="90" selected>90 seconds</option>
+                        <option value="120">2 minutes</option>
+                        <option value="180">3 minutes</option>
+                    </select>
+                </div>
+
+                <!-- Rest Between Exercises -->
+                <div>
+                    <label class="form-label">Rest Between Exercises</label>
+                    <select name="restBetweenExercises" class="form-select">
+                        <option value="60">1 minute</option>
+                        <option value="90">1.5 minutes</option>
+                        <option value="120" selected>2 minutes</option>
+                        <option value="150">2.5 minutes</option>
+                        <option value="180">3 minutes</option>
+                    </select>
+                </div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage('M1')">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('manualForm2', 'M2')">Next</button>
+            </div>
+        </div>
+
+        <!-- Manual Page 3: Select Exercises -->
+        <div id="manualPage3" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 75%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Build Your Exercises</h1>
+                <p style="color: var(--secondary-text);">Add exercises to your workout</p>
+            </div>
+
+            <div class="split-view">
+                <!-- Left Panel: Exercise Browser -->
+                <div>
+                    <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Exercise Library</h2>
+
+                    <!-- Filters -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="text" id="exerciseSearch" class="form-input" placeholder="Search exercises..." style="margin-bottom: 0.75rem;">
+
+                        <label class="form-label" style="margin-top: 1rem;">Muscle Group</label>
+                        <select id="muscleGroupFilter" class="form-select">
+                            <option value="">All Groups</option>
+                            <option value="chest">Chest</option>
+                            <option value="back">Back</option>
+                            <option value="shoulders">Shoulders</option>
+                            <option value="biceps">Biceps</option>
+                            <option value="triceps">Triceps</option>
+                            <option value="forearms">Forearms</option>
+                            <option value="quadriceps">Quadriceps</option>
+                            <option value="hamstrings">Hamstrings</option>
+                            <option value="glutes">Glutes</option>
+                            <option value="calves">Calves</option>
+                            <option value="abdominals">Abdominals</option>
+                            <option value="cardio">Cardio</option>
+                        </select>
+
+                        <label class="form-label" style="margin-top: 1rem;">Equipment</label>
+                        <select id="equipmentFilter" class="form-select">
+                            <option value="">All Equipment</option>
+                            <option value="barbell">Barbell</option>
+                            <option value="dumbbell">Dumbbell</option>
+                            <option value="cable">Cable</option>
+                            <option value="machine">Machine</option>
+                            <option value="bodyweight">Bodyweight</option>
+                            <option value="band">Band</option>
+                            <option value="suspension">Suspension</option>
+                        </select>
+
+                        <label class="form-label" style="margin-top: 1rem;">Type</label>
+                        <div class="radio-group">
+                            <label class="radio-item" style="padding: 0.5rem;">
+                                <input type="radio" name="exerciseType" value="" class="form-radio" checked> <span>All</span>
+                            </label>
+                            <label class="radio-item" style="padding: 0.5rem;">
+                                <input type="radio" name="exerciseType" value="compound" class="form-radio"> <span>Compound</span>
+                            </label>
+                            <label class="radio-item" style="padding: 0.5rem;">
+                                <input type="radio" name="exerciseType" value="isolation" class="form-radio"> <span>Isolation</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Exercise List -->
+                    <div id="exerciseList" style="max-height: 600px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem;">
+                        <p style="color: var(--secondary-text); text-align: center; padding: 2rem 0;">Loading exercises...</p>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Workout Builder -->
+                <div>
+                    <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Your Workout</h2>
+
+                    <!-- Warmup Section -->
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <div class="card-header">Warmup</div>
+                        <div id="warmupExercises" style="min-height: 50px; padding: 0.75rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.25rem; text-align: center; color: var(--secondary-text);">Add warmup exercises</div>
+                    </div>
+
+                    <!-- Main Exercises Section -->
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <div class="card-header" id="mainExercisesHeader">Main Workout</div>
+                        <div id="mainExercises" style="min-height: 50px; padding: 0.75rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.25rem; text-align: center; color: var(--secondary-text);">Click exercises to add</div>
+                    </div>
+
+                    <!-- Cooldown Section -->
+                    <div class="card">
+                        <div class="card-header">Cooldown</div>
+                        <div id="cooldownExercises" style="min-height: 50px; padding: 0.75rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.25rem; text-align: center; color: var(--secondary-text);">Add cooldown exercises</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage('M2')">Back</button>
+                <button class="btn btn-primary" onclick="validateAndNextPage('', 'M3')">Continue to Review</button>
+            </div>
+        </div>
+
+        <!-- Manual Page 4: Review & Save -->
+        <div id="manualPage4" class="wizard-page">
+            <div style="margin-bottom: 1.5rem;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 100%;"></div>
+                </div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Review Your Workout</h1>
+                <p style="color: var(--secondary-text);">Make sure everything looks perfect</p>
+            </div>
+
+            <div id="manualReviewSummary" class="card">
+                <!-- Summary will be populated here -->
+            </div>
+
+            <div id="manualWorkoutBreakdown">
+                <!-- Workout breakdown will be populated here -->
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="previousPage('M3')">Back</button>
+                <button class="btn btn-primary" onclick="saveManualWorkout()">Save Workout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" style="display: none;">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Exercise Configuration Modal -->
+    <div id="exerciseConfigModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalExerciseName"></span>
+                <button type="button" style="background: none; border: none; color: var(--primary-text); font-size: 1.5rem; cursor: pointer;" onclick="closeModal()">×</button>
+            </div>
+            <form id="exerciseConfigForm" class="grid-1">
+                <div>
+                    <label class="form-label">Sets</label>
+                    <select name="sets" class="form-select">
+                        <option value="1">1 set</option>
+                        <option value="2">2 sets</option>
+                        <option value="3" selected>3 sets</option>
+                        <option value="4">4 sets</option>
+                        <option value="5">5 sets</option>
+                        <option value="6">6 sets</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Reps</label>
+                    <input type="text" name="reps" class="form-input" placeholder="e.g., 8-12" value="8-12">
+                </div>
+
+                <div>
+                    <label class="form-label">Rest Between Sets</label>
+                    <select name="restSeconds" class="form-select">
+                        <option value="30">30 seconds</option>
+                        <option value="45">45 seconds</option>
+                        <option value="60">60 seconds</option>
+                        <option value="90" selected>90 seconds</option>
+                        <option value="120">2 minutes</option>
+                        <option value="180">3 minutes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Notes (Optional)</label>
+                    <textarea name="notes" class="form-textarea" placeholder="Personal notes about this exercise" rows="3"></textarea>
+                </div>
+
+                <div id="formTipsContainer"></div>
+            </form>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addExerciseToWorkout()">Add to Workout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/umd/uuidv4.min.js"></script>
+    <script>
+        // ============ GLOBAL STATE ============
+        let currentMode = null;
+        let currentPage = 0;
+        let exercises = [];
+        let selectedExercise = null;
+        let workoutDraft = {
+            warmup: [],
+            main: [],
+            cooldown: []
+        };
+
+        const aiTips = {
+            goal: "Most beginners start with general fitness and adjust later based on results",
+            experience: "Honest assessment helps AI create realistic workouts",
+            daysPerWeek: "3-4 days per week is ideal for most people",
+            duration: "Longer ≠ better. Quality matters most. 45-60 min is optimal",
+            equipment: "More equipment = more variety in your workouts",
+            location: "This helps us select appropriate exercises",
+            focusAreas: "More focus areas = more balanced workout",
+            repRange: "Unsure? Hypertrophy (8-12 reps) is great for beginners",
+            cardio: "Cardio boosts overall fitness and recovery",
+            splitType: "We've pre-selected based on your frequency",
+            schedule: "Try to keep rest days between intensive sessions"
+        };
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadExercises();
+            setupEventListeners();
+            setupKeyboardNavigation();
+            restoreFormState();
+        });
+
+        async function loadExercises() {
+            try {
+                const response = await fetch('../../data/exercises.json');
+                if (!response.ok) throw new Error('Failed to load exercises');
+                const data = await response.json();
+                exercises = data.exercises || [];
+                console.log(`Loaded ${exercises.length} exercises`);
+            } catch (error) {
+                console.error('Error loading exercises:', error);
+                showToast('Failed to load exercises. Try refreshing.', 'error');
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('exerciseSearch').addEventListener('input', filterExercises);
+            document.getElementById('muscleGroupFilter').addEventListener('change', filterExercises);
+            document.getElementById('equipmentFilter').addEventListener('change', filterExercises);
+            document.querySelectorAll('input[name="exerciseType"]').forEach(radio => {
+                radio.addEventListener('change', filterExercises);
+            });
+
+            // Auto-save form state on input
+            document.getElementById('aiForm1')?.addEventListener('change', () => saveFormState('aiForm1', 'fitTrackAI_workoutStep1'));
+            document.getElementById('aiForm2')?.addEventListener('change', () => saveFormState('aiForm2', 'fitTrackAI_workoutStep2'));
+            document.getElementById('aiForm3')?.addEventListener('change', () => saveFormState('aiForm3', 'fitTrackAI_workoutStep3'));
+            document.getElementById('aiForm4')?.addEventListener('change', () => saveFormState('aiForm4', 'fitTrackAI_workoutStep4'));
+            document.getElementById('manualForm1')?.addEventListener('change', () => saveFormState('manualForm1', 'fitTrackAI_manualWorkoutDraft'));
+            document.getElementById('manualForm2')?.addEventListener('change', () => saveFormState('manualForm2', 'fitTrackAI_manualWorkoutDraft'));
+        }
+
+        function setupKeyboardNavigation() {
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('exerciseConfigModal');
+                    if (modal && modal.classList.contains('active')) {
+                        closeModal();
+                    }
+                }
+            });
+
+            // Tab navigation for modes
+            document.querySelectorAll('.mode-card').forEach((card, idx) => {
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const mode = card.querySelector('.btn').parentElement.querySelector('button').onclick?.toString().includes('ai') ? 'ai' : 'manual';
+                        if (card.getAttribute('onclick')?.includes('ai')) selectMode('ai');
+                        else if (card.getAttribute('onclick')?.includes('manual')) selectMode('manual');
+                    }
+                });
+            });
+
+            // Arrow key navigation for radio/checkbox groups
+            document.querySelectorAll('.radio-group, .checkbox-group').forEach(group => {
+                const inputs = group.querySelectorAll('input');
+                inputs.forEach((input, idx) => {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'ArrowDown' && idx < inputs.length - 1) {
+                            e.preventDefault();
+                            inputs[idx + 1].focus();
+                        } else if (e.key === 'ArrowUp' && idx > 0) {
+                            e.preventDefault();
+                            inputs[idx - 1].focus();
+                        } else if (e.key === 'Enter') {
+                            input.checked = !input.checked;
+                        }
+                    });
+                });
+            });
+        }
+
+        function saveFormState(formId, storageKey) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const state = {};
+
+            // Handle all input types
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    if (!state[input.name]) state[input.name] = [];
+                    if (input.checked) state[input.name].push(input.value);
+                } else if (input.type === 'radio') {
+                    if (input.checked) state[input.name] = input.value;
+                } else {
+                    state[input.name] = input.value;
+                }
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        function restoreFormDataFromStorage(formId, storageKey) {
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            const state = JSON.parse(saved);
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            Object.keys(state).forEach(name => {
+                const inputs = form.querySelectorAll(`[name="${name}"]`);
+                if (inputs.length === 0) return;
+
+                if (inputs[0].type === 'checkbox') {
+                    inputs.forEach(input => {
+                        input.checked = Array.isArray(state[name]) && state[name].includes(input.value);
+                    });
+                } else if (inputs[0].type === 'radio') {
+                    inputs.forEach(input => {
+                        input.checked = input.value === state[name];
+                    });
+                } else {
+                    inputs[0].value = state[name];
+                }
+            });
+        }
+
+        function restoreFormState() {
+            // Restore all forms if returning to this page
+            const savedMode = localStorage.getItem('fitTrackAI_currentMode');
+            if (savedMode === 'ai') {
+                selectMode('ai');
+                // Restore each step
+                setTimeout(() => {
+                    restoreFormDataFromStorage('aiForm1', 'fitTrackAI_workoutStep1');
+                    updateAllSliders();
+                }, 100);
+            } else if (savedMode === 'manual') {
+                selectMode('manual');
+                setTimeout(() => {
+                    restoreFormDataFromStorage('manualForm1', 'fitTrackAI_manualWorkoutDraft');
+                    updateAllSliders();
+                }, 100);
+            }
+        }
+
+        function updateAllSliders() {
+            document.querySelectorAll('.slider').forEach(slider => {
+                const displayId = slider.id + 'Value';
+                const displayEl = document.getElementById(displayId);
+                if (displayEl) {
+                    displayEl.textContent = slider.value;
+                }
+            });
+        }
+
+        // ============ MODE SELECTION ============
+        function selectMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('fitTrackAI_currentMode', mode);
+
+            if (mode === 'ai') {
+                showPage('aiPage1');
+            } else if (mode === 'manual') {
+                showPage('manualPage1');
+            }
+        }
+
+        function goBackToMode() {
+            showPage('modeSelectionScreen');
+            currentMode = null;
+            currentPage = 0;
+        }
+
+        // ============ PAGE NAVIGATION ============
+        function showPage(pageId) {
+            document.querySelectorAll('.wizard-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function previousPage(currentPageNum) {
+            if (currentMode === 'ai') {
+                const pageMap = { 1: 'modeSelectionScreen', 2: 'aiPage1', 3: 'aiPage2', 4: 'aiPage3', 5: 'aiPage4' };
+                showPage(pageMap[currentPageNum]);
+            } else if (currentMode === 'manual') {
+                const pageMap = { 'M1': 'modeSelectionScreen', 'M2': 'manualPage1', 'M3': 'manualPage2', 'M4': 'manualPage3' };
+                showPage(pageMap[currentPageNum]);
+            }
+        }
+
+        function validateAndNextPage(formId, pageNum) {
+            if (!validateForm(formId, pageNum)) return;
+
+            if (currentMode === 'ai') {
+                if (pageNum === 1) showPage('aiPage2');
+                else if (pageNum === 2) showPage('aiPage3');
+                else if (pageNum === 3) showPage('aiPage4');
+                else if (pageNum === 4) {
+                    populateReviewSummary();
+                    showPage('aiPage5');
+                }
+            } else if (currentMode === 'manual') {
+                if (pageNum === 'M1') showPage('manualPage2');
+                else if (pageNum === 'M2') {
+                    populateExerciseList();
+                    showPage('manualPage3');
+                }
+                else if (pageNum === 'M3') {
+                    populateManualReview();
+                    showPage('manualPage4');
+                }
+            }
+        }
+
+        // ============ VALIDATION ============
+        function validateForm(formId, pageNum) {
+            let isValid = true;
+
+            if (pageNum === 1 && currentMode === 'ai') {
+                const goal = document.querySelector('input[name="goal"]:checked');
+                if (!goal) {
+                    showError('goalError', 'Please select a goal');
+                    isValid = false;
+                }
+            }
+
+            if (pageNum === 2 && currentMode === 'ai') {
+                const equipment = document.querySelectorAll('input[name="equipment"]:checked');
+                if (equipment.length === 0) {
+                    showError('equipmentError', 'Select at least one equipment type');
+                    isValid = false;
+                }
+            }
+
+            if (pageNum === 3 && currentMode === 'ai') {
+                const focusAreas = document.querySelectorAll('input[name="focusAreas"]:checked');
+                if (focusAreas.length === 0) {
+                    showError('focusAreasError', 'Select at least one focus area');
+                    isValid = false;
+                }
+            }
+
+            if (pageNum === 4 && currentMode === 'ai') {
+                const splitType = document.querySelector('input[name="splitType"]:checked');
+                const days = document.querySelectorAll('input[name="scheduleDays"]:checked');
+                if (!splitType) {
+                    showError('splitTypeError', 'Select a training split type');
+                    isValid = false;
+                }
+                if (days.length === 0) {
+                    showError('scheduleDaysError', 'Select at least one training day');
+                    isValid = false;
+                }
+            }
+
+            if (pageNum === 'M1' && currentMode === 'manual') {
+                const name = document.querySelector('input[name="workoutName"]');
+                if (!name || !name.value.trim()) {
+                    showError('workoutNameError', 'Workout name is required');
+                    isValid = false;
+                }
+                const equipment = document.querySelectorAll('input[name="equipment"]:checked');
+                if (equipment.length === 0) {
+                    showError('equipmentErrorManual', 'Select at least one equipment type');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // ============ UTILITY FUNCTIONS ============
+        function updateSliderValue(sliderId, displayId, unit) {
+            const slider = document.getElementById(sliderId);
+            const display = document.getElementById(displayId);
+            if (slider && display) {
+                display.textContent = slider.value;
+            }
+        }
+
+        function setDuration(minutes) {
+            const slider = document.getElementById('durationPerSession');
+            if (slider) {
+                slider.value = minutes;
+                updateSliderValue('durationPerSession', 'durationValue', 'min');
+            }
+        }
+
+        function toggleAdvancedOptions() {
+            const advOptions = document.getElementById('advancedOptions');
+            const toggle = document.getElementById('advancedToggleIcon');
+            if (advOptions.style.display === 'none') {
+                advOptions.style.display = 'block';
+                toggle.style.transform = 'rotate(180deg)';
+            } else {
+                advOptions.style.display = 'none';
+                toggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            toastMsg.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // ============ AI MODE - REVIEW & GENERATION ============
+        function populateReviewSummary() {
+            const form1 = document.getElementById('aiForm1');
+            const form2 = document.getElementById('aiForm2');
+            const form3 = document.getElementById('aiForm3');
+            const form4 = document.getElementById('aiForm4');
+
+            const goal = document.querySelector('input[name="goal"]:checked')?.value || 'Not selected';
+            const experience = document.querySelector('input[name="experience"]:checked')?.value || 'Not selected';
+            const daysPerWeek = document.getElementById('daysPerWeek')?.value || '3';
+            const duration = document.getElementById('durationPerSession')?.value || '45';
+            const location = document.querySelector('input[name="location"]:checked')?.value || 'Not selected';
+            const equipment = Array.from(document.querySelectorAll('input[name="equipment"]:checked')).map(e => e.value).join(', ');
+            const focusAreas = Array.from(document.querySelectorAll('input[name="focusAreas"]:checked')).map(e => e.value).join(', ');
+            const repRange = document.querySelector('input[name="repRange"]:checked')?.value || 'Not selected';
+            const cardio = document.querySelector('input[name="cardioPreference"]:checked')?.value || 'Moderate';
+            const splitType = document.querySelector('input[name="splitType"]:checked')?.value || 'Not selected';
+            const scheduleDays = Array.from(document.querySelectorAll('input[name="scheduleDays"]:checked')).map(e => e.value).join(', ');
+
+            let warnings = '';
+            const durationNum = parseInt(duration);
+            const isBodyweightOnly = equipment === 'bodyweight';
+            const scheduleCount = document.querySelectorAll('input[name="scheduleDays"]:checked').length;
+
+            if (durationNum >= 120 && isBodyweightOnly) {
+                warnings += '<div style="background: var(--warning); color: #000; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;"><strong>⚠️ Note:</strong> 120+ minutes of bodyweight-only training is quite extreme. Consider adding equipment or reducing duration for better sustainability.</div>';
+            } else if (durationNum >= 120) {
+                warnings += '<div style="background: var(--warning); color: #000; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;"><strong>⚠️ Note:</strong> This is a long session. Consider splitting across multiple days for better recovery.</div>';
+            }
+
+            if (scheduleCount === 0) {
+                warnings += '<div style="background: var(--validation-error); color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;"><strong>❌ Warning:</strong> No training days selected. Please select at least one day.</div>';
+            }
+
+            if (!focusAreas.includes('leg') && !focusAreas.includes('quadriceps') && !focusAreas.includes('hamstrings') && !focusAreas.includes('glutes')) {
+                warnings += '<div style="background: var(--warning); color: #000; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;"><strong>💡 Tip:</strong> Consider including leg exercises for a more balanced workout.</div>';
+            }
+
+            const summary = `
+                ${warnings}
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div><strong>Goal:</strong> ${goal}</div>
+                    <div><strong>Experience:</strong> ${experience}</div>
+                    <div><strong>Days/Week:</strong> ${daysPerWeek}</div>
+                    <div><strong>Duration:</strong> ${duration} min</div>
+                    <div><strong>Location:</strong> ${location}</div>
+                    <div><strong>Equipment:</strong> ${equipment}</div>
+                    <div><strong>Focus Areas:</strong> ${focusAreas}</div>
+                    <div><strong>Rep Range:</strong> ${repRange}</div>
+                    <div><strong>Cardio:</strong> ${cardio}</div>
+                    <div><strong>Split Type:</strong> ${splitType}</div>
+                    <div style="grid-column: 1 / -1;"><strong>Training Days:</strong> ${scheduleDays}</div>
+                </div>
+            `;
+
+            document.getElementById('reviewSummary').innerHTML = summary;
+        }
+
+        async function generateAIWorkout() {
+            showToast('Generating your personalized workout...', 'success');
+
+            // Collect all form data
+            const goal = document.querySelector('input[name="goal"]:checked')?.value;
+            const experience = document.querySelector('input[name="experience"]:checked')?.value;
+            const daysPerWeek = parseInt(document.getElementById('daysPerWeek').value);
+            const durationPerSession = parseInt(document.getElementById('durationPerSession').value);
+            const location = document.querySelector('input[name="location"]:checked')?.value;
+            const equipment = Array.from(document.querySelectorAll('input[name="equipment"]:checked')).map(e => e.value);
+            const focusAreas = Array.from(document.querySelectorAll('input[name="focusAreas"]:checked')).map(e => e.value);
+            const avoidedExercises = document.querySelectorAll('.avoided-exercise-tag');
+            const repRange = document.querySelector('input[name="repRange"]:checked')?.value;
+            const cardioPreference = document.querySelector('input[name="cardioPreference"]:checked')?.value;
+            const splitType = document.querySelector('input[name="splitType"]:checked')?.value;
+            const scheduleDays = Array.from(document.querySelectorAll('input[name="scheduleDays"]:checked')).map(e => e.value);
+            const intensity = document.querySelector('input[name="intensity"]:checked')?.value || 'moderate';
+            const restBetweenSets = parseInt(document.querySelector('input[name="restBetweenSets"]')?.value || 90);
+
+            // Build prompt for Gemini
+            const prompt = buildAIWorkoutPrompt({
+                goal, experience, daysPerWeek, durationPerSession, location, equipment,
+                focusAreas, repRange, cardioPreference, splitType, scheduleDays, intensity,
+                restBetweenSets, exercises
+            });
+
+            try {
+                const apiKey = localStorage.getItem('gemini_api_key') || prompt('Enter your Gemini API key:');
+                if (!apiKey) {
+                    showToast('API key required for AI generation', 'error');
+                    return;
+                }
+
+                const response = await callGeminiAPI(prompt, apiKey);
+                const workout = JSON.parse(response);
+
+                localStorage.setItem('fitTrackAI_generatedWorkout', JSON.stringify(workout));
+                displayAIWorkoutResults(workout);
+                showPage('aiPage6');
+            } catch (error) {
+                console.error('AI Generation Error:', error);
+                showToast('Failed to generate workout. Try again.', 'error');
+            }
+        }
+
+        function buildAIWorkoutPrompt(data) {
+            return `You are an expert fitness coach. Create a ${data.daysPerWeek}-day ${data.splitType} workout plan for someone with these preferences:
+
+Goal: ${data.goal}
+Experience: ${data.experience}
+Session Duration: ${data.durationPerSession} minutes
+Location: ${data.location}
+Available Equipment: ${data.equipment.join(', ')}
+Focus Areas: ${data.focusAreas.join(', ')}
+Rep Range: ${data.repRange}
+Cardio Preference: ${data.cardioPreference}
+Intensity: ${data.intensity}
+
+From this exercise database, select appropriate exercises:
+${JSON.stringify(data.exercises.slice(0, 50))}
+
+Generate ONLY a valid JSON response with this exact structure:
+{
+  "workoutName": "creative workout name",
+  "reasoning": "2-3 sentences why this is perfect",
+  "estimatedTimeline": "4-6 weeks",
+  "workoutPlan": {
+    "monday": {"day": "Monday", "focus": "description", "warmup": ["exercises"], "exercises": [{"name": "name", "sets": 3, "reps": "8-12", "restSeconds": 90}], "cooldown": ["stretches"]},
+    "tuesday": {},
+    ...rest of week
+  }
+}`;
+        }
+
+        async function callGeminiAPI(prompt, apiKey, retries = 3) {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: prompt }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 4000
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.candidates[0].content.parts[0].text;
+                } catch (error) {
+                    if (attempt < retries) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        function displayAIWorkoutResults(workout) {
+            document.getElementById('workoutName').textContent = workout.workoutName;
+            document.getElementById('workoutReasoning').textContent = workout.reasoning;
+            document.getElementById('workoutTimeline').textContent = `Timeline: ${workout.estimatedTimeline}`;
+
+            let resultsHTML = '<div class="grid-1">';
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+            for (const day of days) {
+                const dayData = workout.workoutPlan[day];
+                if (dayData && dayData.exercises && dayData.exercises.length > 0) {
+                    resultsHTML += `<div class="card">
+                        <div class="card-header">${dayData.day} - ${dayData.focus || ''}</div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Warmup:</strong>
+                            <p style="font-size: 0.875rem; color: var(--secondary-text);">${dayData.warmup?.join(', ') || 'None'}</p>
+                        </div>`;
+
+                    dayData.exercises.forEach(ex => {
+                        resultsHTML += `<div class="exercise-card">
+                            <div class="exercise-name">${ex.name}</div>
+                            <div class="exercise-meta">${ex.sets} × ${ex.reps} | Rest: ${ex.restSeconds}s</div>
+                        </div>`;
+                    });
+
+                    resultsHTML += `<div style="margin-top: 1rem;">
+                            <strong>Cooldown:</strong>
+                            <p style="font-size: 0.875rem; color: var(--secondary-text);">${dayData.cooldown?.join(', ') || 'None'}</p>
+                        </div>
+                    </div>`;
+                }
+            }
+
+            resultsHTML += '</div>';
+            document.getElementById('resultsContainer').innerHTML = resultsHTML;
+        }
+
+        // ============ MANUAL MODE - EXERCISES ============
+        function populateExerciseList() {
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = exercises.map(ex => `
+                <div class="exercise-card" onclick="selectExerciseForConfig(this, ${JSON.stringify(ex).replace(/"/g, '&quot;')})">
+                    <div class="exercise-name">${ex.name}</div>
+                    <div class="exercise-meta">${ex.group} • ${ex.type}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterExercises() {
+            const search = document.getElementById('exerciseSearch').value.toLowerCase();
+            const muscle = document.getElementById('muscleGroupFilter').value;
+            const equipment = document.getElementById('equipmentFilter').value;
+            const type = document.querySelector('input[name="exerciseType"]:checked').value;
+
+            const filtered = exercises.filter(ex => {
+                const matchesSearch = ex.name.toLowerCase().includes(search) || ex.group.toLowerCase().includes(search);
+                const matchesMuscle = !muscle || ex.group.toLowerCase() === muscle.toLowerCase();
+                const matchesEquipment = !equipment || ex.type.toLowerCase() === equipment.toLowerCase();
+                const matchesType = !type || (type === 'compound' ? ex.isCompound : !ex.isCompound);
+                return matchesSearch && matchesMuscle && matchesEquipment && matchesType;
+            });
+
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = filtered.map(ex => `
+                <div class="exercise-card" onclick="selectExerciseForConfig(this, ${JSON.stringify(ex).replace(/"/g, '&quot;')})">
+                    <div class="exercise-name">${ex.name}</div>
+                    <div class="exercise-meta">${ex.group} • ${ex.type}</div>
+                </div>
+            `).join('');
+        }
+
+        function closeModal() {
+            document.getElementById('exerciseConfigModal').classList.remove('active');
+            selectedExercise = null;
+        }
+
+        function addExerciseToWorkout() {
+            if (!selectedExercise) return;
+
+            const form = document.getElementById('exerciseConfigForm');
+            const sets = form.querySelector('input[name="sets"]')?.value || '3';
+            const reps = form.querySelector('input[name="reps"]')?.value || '8-12';
+            const rest = form.querySelector('input[name="restSeconds"]')?.value || '90';
+            const notes = form.querySelector('input[name="notes"]')?.value || '';
+
+            const exerciseData = {
+                id: selectedExercise.id,
+                name: selectedExercise.name,
+                group: selectedExercise.group,
+                type: selectedExercise.type,
+                sets, reps, rest, notes
+            };
+
+            workoutDraft.main.push(exerciseData);
+            showToast(`Added ${selectedExercise.name}!`);
+            closeModal();
+            updateWorkoutDisplay();
+        }
+
+        function updateWorkoutDisplay() {
+            const mainEl = document.getElementById('mainExercises');
+            if (workoutDraft.main.length === 0) {
+                mainEl.innerHTML = '<span style="color: var(--secondary-text);">Click exercises to add</span>';
+                document.getElementById('mainExercisesHeader').textContent = `Main Workout (0 exercises)`;
+            } else {
+                mainEl.innerHTML = workoutDraft.main.map((ex, idx) => `
+                    <div class="exercise-card" style="margin-bottom: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div class="exercise-name">${ex.name}</div>
+                                <div class="exercise-meta">${ex.sets}x${ex.reps} | Rest: ${ex.rest}s</div>
+                            </div>
+                            <button type="button" class="btn btn-small" onclick="removeExercise(${idx})" style="background: var(--validation-error); color: white; border: none; width: auto;">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('mainExercisesHeader').textContent = `Main Workout (${workoutDraft.main.length} exercises)`;
+            }
+        }
+
+        function removeExercise(idx) {
+            workoutDraft.main.splice(idx, 1);
+            updateWorkoutDisplay();
+        }
+
+        // ============ MANUAL MODE - REVIEW & SAVE ============
+        function populateManualReview() {
+            const form1 = document.getElementById('manualForm1');
+            const form2 = document.getElementById('manualForm2');
+
+            const workoutName = form1.querySelector('input[name="workoutName"]').value;
+            const scheduleDays = Array.from(form1.querySelectorAll('input[name="scheduleDays"]:checked')).map(e => e.value).join(', ');
+            const targetDuration = form2.querySelector('input[name="targetDuration"]').value;
+            const equipment = Array.from(form1.querySelectorAll('input[name="equipment"]:checked')).map(e => e.value).join(', ');
+
+            const summary = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div><strong>Workout Name:</strong> ${workoutName}</div>
+                    <div><strong>Training Days:</strong> ${scheduleDays}</div>
+                    <div><strong>Target Duration:</strong> ${targetDuration} min</div>
+                    <div><strong>Equipment:</strong> ${equipment}</div>
+                    <div style="grid-column: 1 / -1;"><strong>Total Exercises:</strong> ${workoutDraft.main.length}</div>
+                </div>
+            `;
+
+            document.getElementById('manualReviewSummary').innerHTML = summary;
+
+            let breakdownHTML = '<div class="card"><div class="card-header">Workout Breakdown</div>';
+            workoutDraft.main.forEach(ex => {
+                breakdownHTML += `<div class="exercise-card">
+                    <div class="exercise-name">${ex.name}</div>
+                    <div class="exercise-meta">${ex.sets} × ${ex.reps} | Rest: ${ex.rest}s | ${ex.group}</div>
+                </div>`;
+            });
+            breakdownHTML += '</div>';
+
+            document.getElementById('manualWorkoutBreakdown').innerHTML = breakdownHTML;
+        }
+
+        function saveWorkout() {
+            showToast('Saving your workout...', 'success');
+            const workoutId = uuidv4?.() || Math.random().toString(36).substr(2, 9);
+            const savedWorkouts = JSON.parse(localStorage.getItem('fitTrackAI_savedWorkouts') || '[]');
+
+            const workoutData = {
+                id: workoutId,
+                mode: currentMode,
+                name: document.getElementById('workoutName')?.textContent || 'Unnamed',
+                dateCreated: new Date().toISOString(),
+                workout: currentMode === 'ai' ? JSON.parse(localStorage.getItem('fitTrackAI_generatedWorkout') || '{}') : workoutDraft
+            };
+
+            savedWorkouts.push(workoutData);
+            localStorage.setItem('fitTrackAI_savedWorkouts', JSON.stringify(savedWorkouts));
+            showToast('Workout saved successfully!');
+            setTimeout(() => goBackToMode(), 2000);
+        }
+
+        function saveManualWorkout() {
+            showToast('Saving your workout...', 'success');
+            const form1 = document.getElementById('manualForm1');
+            const workoutName = form1.querySelector('input[name="workoutName"]').value;
+
+            saveWorkout();
+        }
+
+        function addExerciseToAvoid() {
+            const input = document.getElementById('exerciseToAvoid');
+            if (!input.value.trim()) return;
+
+            const container = document.getElementById('avoidedExercisesList');
+            const tag = document.createElement('span');
+            tag.className = 'avoided-exercise-tag';
+            tag.style.cssText = 'background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem;';
+            tag.textContent = input.value;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = '✕';
+            btn.style.cssText = 'background: none; border: none; color: white; cursor: pointer; font-weight: bold;';
+            btn.onclick = () => tag.remove();
+            tag.appendChild(btn);
+
+            container.appendChild(tag);
+            input.value = '';
+        }
+
+        function startFresh() {
+            currentMode = null;
+            currentPage = 0;
+            workoutDraft = { warmup: [], main: [], cooldown: [] };
+            localStorage.removeItem('fitTrackAI_generatedWorkout');
+            localStorage.removeItem('fitTrackAI_workoutStep1');
+            localStorage.removeItem('fitTrackAI_workoutStep2');
+            localStorage.removeItem('fitTrackAI_workoutStep3');
+            localStorage.removeItem('fitTrackAI_workoutStep4');
+            goBackToMode();
+        }
+
+        // ============ PDF EXPORT ============
+        function downloadPDF() {
+            const workoutHTML = document.getElementById('resultsContainer').innerHTML;
+            const workoutName = document.getElementById('workoutName').textContent;
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${workoutName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #3B82F6; margin-bottom: 10px; }
+                        .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+                        .card-header { font-weight: bold; font-size: 1.2em; margin-bottom: 10px; color: #3B82F6; }
+                        .exercise-card { border-left: 4px solid #3B82F6; padding: 10px; margin-bottom: 10px; }
+                        .exercise-name { font-weight: bold; }
+                        .exercise-meta { font-size: 0.9em; color: #666; }
+                        @media print {
+                            body { color: black; background: white; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${workoutName}</h1>
+                    <p>${document.getElementById('workoutReasoning')?.textContent || ''}</p>
+                    <p><strong>Timeline:</strong> ${document.getElementById('workoutTimeline')?.textContent || ''}</p>
+                    ${workoutHTML}
+                    <hr>
+                    <p style="text-align: center; color: #999; font-size: 0.9em;">Generated with Workout Generator</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+        }
+
+        // ============ EXERCISE DETAILS ============
+        function selectExerciseForConfig(el, exercise) {
+            selectedExercise = exercise;
+            document.getElementById('modalExerciseName').textContent = exercise.name;
+
+            // Display form tips
+            let tipsHTML = '';
+            if (exercise.instructions && Array.isArray(exercise.instructions)) {
+                tipsHTML = '<div><strong>Instructions:</strong><ol style="margin-left: 1rem;">' +
+                    exercise.instructions.map(instr => `<li style="margin-bottom: 0.5rem;">${instr}</li>`).join('') +
+                    '</ol></div>';
+            }
+
+            const formTips = document.getElementById('formTipsContainer');
+            if (formTips) {
+                formTips.innerHTML = tipsHTML;
+            }
+
+            document.getElementById('exerciseConfigModal').classList.add('active');
+        }
+
+        // ============ HELPER FUNCTIONS ============
+        function getCurrentTimestamp() {
+            return new Date().toLocaleString();
+        }
+
+        function generateShareCode() {
+            return Math.random().toString(36).substring(2, 15).toUpperCase();
+        }
+    </script>
+</body>
+</html>
