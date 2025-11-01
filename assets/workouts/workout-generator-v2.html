@@ -1310,6 +1310,92 @@
             document.querySelectorAll('input[name="exerciseType"]').forEach(radio => {
                 radio.addEventListener('change', filterExercises);
             });
+
+            // Auto-save form state on input
+            document.getElementById('aiForm1')?.addEventListener('change', () => saveFormState('aiForm1', 'fitTrackAI_workoutStep1'));
+            document.getElementById('aiForm2')?.addEventListener('change', () => saveFormState('aiForm2', 'fitTrackAI_workoutStep2'));
+            document.getElementById('aiForm3')?.addEventListener('change', () => saveFormState('aiForm3', 'fitTrackAI_workoutStep3'));
+            document.getElementById('aiForm4')?.addEventListener('change', () => saveFormState('aiForm4', 'fitTrackAI_workoutStep4'));
+            document.getElementById('manualForm1')?.addEventListener('change', () => saveFormState('manualForm1', 'fitTrackAI_manualWorkoutDraft'));
+            document.getElementById('manualForm2')?.addEventListener('change', () => saveFormState('manualForm2', 'fitTrackAI_manualWorkoutDraft'));
+        }
+
+        function saveFormState(formId, storageKey) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const state = {};
+
+            // Handle all input types
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    if (!state[input.name]) state[input.name] = [];
+                    if (input.checked) state[input.name].push(input.value);
+                } else if (input.type === 'radio') {
+                    if (input.checked) state[input.name] = input.value;
+                } else {
+                    state[input.name] = input.value;
+                }
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        function restoreFormState(formId, storageKey) {
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            const state = JSON.parse(saved);
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            Object.keys(state).forEach(name => {
+                const inputs = form.querySelectorAll(`[name="${name}"]`);
+                if (inputs.length === 0) return;
+
+                if (inputs[0].type === 'checkbox') {
+                    inputs.forEach(input => {
+                        input.checked = Array.isArray(state[name]) && state[name].includes(input.value);
+                    });
+                } else if (inputs[0].type === 'radio') {
+                    inputs.forEach(input => {
+                        input.checked = input.value === state[name];
+                    });
+                } else {
+                    inputs[0].value = state[name];
+                }
+            });
+        }
+
+        function restoreFormState() {
+            // Restore all forms if returning to this page
+            const savedMode = localStorage.getItem('fitTrackAI_currentMode');
+            if (savedMode === 'ai') {
+                selectMode('ai');
+                // Restore each step
+                setTimeout(() => {
+                    restoreFormState('aiForm1', 'fitTrackAI_workoutStep1');
+                    updateAllSliders();
+                }, 100);
+            } else if (savedMode === 'manual') {
+                selectMode('manual');
+                setTimeout(() => {
+                    restoreFormState('manualForm1', 'fitTrackAI_manualWorkoutDraft');
+                    updateAllSliders();
+                }, 100);
+            }
+        }
+
+        function updateAllSliders() {
+            document.querySelectorAll('.slider').forEach(slider => {
+                const displayId = slider.id + 'Value';
+                const displayEl = document.getElementById(displayId);
+                if (displayEl) {
+                    displayEl.textContent = slider.value;
+                }
+            });
         }
 
         // ============ MODE SELECTION ============
